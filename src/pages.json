@@ -1,0 +1,54 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/global/home/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#363C4F"
+			}
+		},
+		{
+			"path": "pages/global/active/index"
+		},
+		{
+			"path": "pages/global/scan/index"
+		},
+		{
+			"path": "pages/global/mall/index"
+		},
+		{
+			"path": "pages/global/mine/index"
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "途歌共享换电",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"custom": true,
+		"list": [
+      {
+        "pagePath": "pages/global/home/index",
+        "text": "首页"
+      },
+			{
+        "pagePath": "pages/global/active/index",
+        "text": "活动"
+      },
+			{
+        "pagePath": "pages/global/scan/index",
+        "text": "扫码"
+      },
+			{
+        "pagePath": "pages/global/mall/index",
+        "text": "商城"
+      },
+			{
+        "pagePath": "pages/global/mine/index",
+        "text": "我的"
+      }
+    ]
+	}
+}
