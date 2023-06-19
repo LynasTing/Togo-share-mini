@@ -2,6 +2,7 @@
 import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 
 const currText = ref<number>(0)
+const tabs = reactive([{ text: '附近租赁柜' }, { text: '附近零售门店' }])
 const cabinets = ref([
   {
     name: '福州仓山万达站',
@@ -19,6 +20,15 @@ const cabinets = ref([
     num: 999
   }
 ])
+const tabChange = (e: number) => {
+  currText.value = e
+}
+// 查看更多
+const goMore = () => {
+  uni.navigateTo({
+    url: '/pages/cabinet/list/index'
+  })
+}
 </script>
 
 <template>
@@ -58,10 +68,9 @@ const cabinets = ref([
     <!-- 附近租赁 -->
     <view class="nearby">
       <view class="header flex-c">
-        <view class="curr-text relative">附近租赁柜</view>
-        <view>附近零售门店</view>
+        <view v-for="(item, index) in tabs" :key="index" class="relative" :class="[index === currText ? 'curr-text': '', currText === 0 ? 'tran-left': 'tran-right']" @click="tabChange(index)">{{ item.text }}</view>
         <view class="flex-c flex-1 flex-end">
-          <view class="text-xs">查看更多</view>
+          <view class="text-xs" @click="goMore">查看更多</view>
           <i class="iconfont icon-more text-base"></i>
         </view>
       </view>
@@ -169,6 +178,32 @@ const cabinets = ref([
           border-radius: 8rpx;
         }
       }
+      .tran-left {
+        &::before {
+          animation: textAnimateLeft .5s forwards;
+        }
+      }
+      @keyframes textAnimateLeft {
+        0% {
+          transform: translateX(180rpx);
+        }
+        100% {
+          transform: translateX(-20rpx);
+        }
+      }
+      .tran-right {
+        &::before {
+          animation: textAnimateRight .5s forwards;
+        }
+      }
+      @keyframes textAnimateRight {
+        0% {
+          transform: translateX(-180rpx);
+        }
+        100% {
+          transform: translateX(-40rpx);
+        }
+      }
     }
     .cab-ls {
       .cab {
@@ -240,5 +275,4 @@ const cabinets = ref([
     }
   }
 }
-
 </style>

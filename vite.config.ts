@@ -11,8 +11,11 @@ export default defineConfig({
       imports: ['vue'],
       dts: 'src/auto-imports.d.ts'
     }),
-    vueSetupExtend()
+    vueSetupExtend(),
   ],
+  optimizeDeps: {
+    // include: ['uview-ui'],
+  },
   resolve: {
     // 路径别名
     alias: {
@@ -23,7 +26,6 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: `
-          @import "@/assets/style/variables.scss";
           @import "@/assets/style/mixins.scss";
         `
       }

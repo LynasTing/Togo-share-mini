@@ -30,6 +30,14 @@
 				"navigationBarTextStyle": "white",
 				"navigationBarBackgroundColor": "#373c50"
 			}
+		},
+		{
+			"path": "pages/cabinet/list/index",
+			"style": {
+				"navigationBarTitleText": "租赁柜",
+				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#373c50"
+			}
 		}
 	],
 	"globalStyle": {
