@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { TabBarType } from '@/types/global';
+
 let paddingBottomHeight = ref<number>(0) //  适配iphoneX以上的底部，给tabbar一定高度的padding-bottom
 const getSystemInfo = async () => {
   try {
@@ -12,37 +14,40 @@ const getSystemInfo = async () => {
   }
 }
 // getSystemInfo()
-const tabs = [
-  {
-    text: '首页',
-    icon: '/static/imgs/global/home.png',
-    chooseIcon: '/static/imgs/global/home_select.png',
-    path: '/pages/global/home/index'
-  },
-  {
-    text: '活动',
-    icon: '/static/imgs/global/active.png',
-    chooseIcon: '/static/imgs/global/home_select.png',
-    path: '/pages/global/active/index'
-  },
-  {
-    icon: '',
-    text: ''
-  },
-  {
-    text: '商城',
-    icon: '/static/imgs/global/mall.png',
-    chooseIcon: '/static/imgs/global/mall_select.png',
-    path: '/pages/global/mall/index'
+const tabs = reactive<TabBarType[]>(
+  [
+    {
+      text: '首页',
+      icon: '/static/imgs/global/home.png',
+      chooseIcon: '/static/imgs/global/home_select.png',
+      path: '/pages/global/home/index'
+    },
+    {
+      text: '活动',
+      icon: '/static/imgs/global/active.png',
+      chooseIcon: '/static/imgs/global/home_select.png',
+      path: '/pages/global/active/index'
+    },
+    {
+      icon: '',
+      text: '',
+      path: ''
+    },
+    {
+      text: '商城',
+      icon: '/static/imgs/global/mall.png',
+      chooseIcon: '/static/imgs/global/mall_select.png',
+      path: '/pages/global/mall/index'
 
-  },
-  {
-    text: '我的',
-    icon: '/static/imgs/global/mine.png',
-    chooseIcon: '/static/imgs/global/mine_select.png',
-    path: '/pages/global/mine/index'
-  }
-]
+    },
+    {
+      text: '我的',
+      icon: '/static/imgs/global/mine.png',
+      chooseIcon: '/static/imgs/global/mine_select.png',
+      path: '/pages/global/mine/index'
+    }
+  ]
+)
 const props = defineProps({
   currIndex: {
     type: Number,
@@ -50,23 +55,29 @@ const props = defineProps({
   }
 })
 // tabBar切换
-const switchTab = (e, i) => {
-  console.log(`e + ::>>`, e)
+const switchTab = (e: TabBarType, i: number) => {
+  if(i === 2) return 
   uni.switchTab({
     url: e.path
   })
 }
+// 跳扫码
+const goScan = () => {
+  uni.switchTab({
+    url: '/pages/global/scan/index'
+  })
+} 
 </script>
 
 <template>
-  <view class="fixed bottom-0 left-0 w-full cus-tab-bar bg-white" :style="{'margin-bottom': paddingBottomHeight + 'rpx'}">
+  <view class="fixed bottom-0 left-0 w-full cus-tab-bar" :style="{'margin-bottom': paddingBottomHeight + 'rpx'}">
     <ul class="flex-row-sb w-full h-full tabs-ul">
       <li class="flex-col-sb-c" @click="switchTab(item, index)" v-for="(item, index) in tabs" :key="index" :class="[index === 2 ? 'opacity-0 curve' : '']">
         <image :src="props.currIndex === index ? item.chooseIcon : item.icon" />
         <view class="text-xs" :class="props.currIndex === index ? 'chooseText' : ''">{{ item.text }}</view>
       </li>
     </ul>
-    <image src="@/static/imgs/global/scan.png" class="scan-icon" />
+    <image src="@/static/imgs/global/scan.png" class="scan-icon" @click="goScan" />
   </view>
 </template>
 
@@ -77,6 +88,7 @@ const switchTab = (e, i) => {
   background-image: url('@/static/imgs/global/tab_bar_bg.png');
   background-repeat: no-repeat;
   background-size: cover;
+  background-color: #F5F5F5;
   z-index: 999;
   .chooseText {
     color: #ffc500;

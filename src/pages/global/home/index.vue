@@ -22,10 +22,10 @@ const cabinets = ref([
 </script>
 
 <template>
-  <view class="container page-view">
+  <view class="home-page page-view container">
     <!-- 顶部 -->
     <view class="flex-c">
-      <image src="@/static/imgs/home/logo.png" class="logo-img" mode="widthFix" />
+      <image src="@/static/imgs/global/logo.png" class="logo-img" mode="widthFix" />
       <view class="flex-c">
         <span>福州</span>
         <view class="ar-down"></view>
@@ -104,11 +104,9 @@ const cabinets = ref([
 </template>
 
 <style lang="scss" scoped>
-.container {
-  height: 100%;
-  color: white;
+.home-page {
+  height: calc(100vh + (156rpx * 3) - 40rpx);
   background: linear-gradient(to bottom, #363c4f, #bfbec3, #FFFFFF);
-  padding: 0rpx 30rpx 170rpx;
   .logo-img {
     width: 160rpx;
     height: 80rpx;
@@ -242,4 +240,5 @@ const cabinets = ref([
     }
   }
 }
+
 </style>

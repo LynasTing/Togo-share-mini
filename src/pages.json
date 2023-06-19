@@ -17,7 +17,19 @@
 			"path": "pages/global/mall/index"
 		},
 		{
-			"path": "pages/global/mine/index"
+			"path": "pages/global/mine/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#363C4F"
+			}
+		},
+		{
+			"path": "pages/cabinet/map/index",
+			"style": {
+				"navigationBarTitleText": "租赁柜",
+				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#373c50"
+			}
 		}
 	],
 	"globalStyle": {
@@ -39,7 +51,7 @@
       },
 			{
         "pagePath": "pages/global/scan/index",
-        "text": "扫码"
+        "text": "扫一扫"
       },
 			{
         "pagePath": "pages/global/mall/index",

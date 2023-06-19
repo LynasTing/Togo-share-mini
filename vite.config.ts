@@ -9,7 +9,7 @@ export default defineConfig({
     uni(),
     AutoImport({
       imports: ['vue'],
-      dts: 'src/auto-import.d.ts'
+      dts: 'src/auto-imports.d.ts'
     }),
     vueSetupExtend()
   ],
