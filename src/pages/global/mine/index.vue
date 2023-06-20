@@ -2,15 +2,20 @@
 import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 
 const tools = reactive([
-  { text: '我的消息', path: '' },
-  { text: '分享', path: '' },
-  { text: '意见反馈', path: '' },
-  { text: '关于我们', path: '' },
-  { text: '故障上报', path: '' },
-  { text: '邀请码', path: '' },
-  { text: '应用设置', path: '' },
-  { text: '开通套餐', path: '' }
+  { text: '我的消息', path: '/pages/tools/message/index' },
+  { text: '分享', path: '/pages/tools/share/index' },
+  { text: '意见反馈', path: '/pages/tools/feedback/index' },
+  { text: '关于我们', path: '/pages/tools/about-us/index' },
+  { text: '故障上报', path: '/pages/tools/breakdown/index' },
+  { text: '邀请码', path: '/pages/tools/invitation-code/index' },
+  { text: '应用设置', path: '/pages/tools/setting/index' },
+  { text: '开通套餐', path: '/pages/tools/activate-package/index' }
 ])
+const toolsNavigate = e => {
+  uni.navigateTo({
+    url: e.path
+  })
+}
 </script>
 
 <template>
@@ -46,7 +51,7 @@ const tools = reactive([
       <div class="tools flex-col">
         <div class="title">常用功能</div>
         <div class="flex-1 sprite flex-wrap flex-row-sb-c">
-          <div class="flex-col-c tool-item" v-for="(item, index) in tools" :key="index">
+          <div class="flex-col-c tool-item" v-for="(item, index) in tools" :key="index" @click="toolsNavigate(item)">
             <image :src="`/static/imgs/mine/tools_${index}.png`" />
             <div>{{ item.text }}</div>
           </div>

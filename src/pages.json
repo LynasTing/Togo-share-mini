@@ -38,6 +38,54 @@
 				"navigationBarTextStyle": "white",
 				"navigationBarBackgroundColor": "#373c50"
 			}
+		},
+		{
+			"path": "pages/tools/about-us/index",
+			"style": {
+				"navigationBarTitleText": "关于我们"
+			}
+		},
+		{
+			"path": "pages/tools/activate-package/index",
+			"style": {
+				"navigationBarTitleText": "开通套餐"
+			}
+		},
+		{
+			"path": "pages/tools/breakdown/index",
+			"style": {
+				"navigationBarTitleText": "故障上传"
+			}
+		},
+		{
+			"path": "pages/tools/feedback/index",
+			"style": {
+				"navigationBarTitleText": "意见反馈"
+			}
+		},
+		{
+			"path": "pages/tools/invitation-code/index",
+			"style": {
+				"navigationBarTitleText": "邀请码"
+			}
+		},
+		{
+			"path": "pages/tools/message/index",
+			"style": {
+				"navigationBarTitleText": "我的消息"
+			}
+		},
+		{
+			"path": "pages/tools/setting/index",
+			"style": {
+				"navigationBarTitleText": "应用设置"
+			}
+		},
+		{
+			"path": "pages/tools/share/index",
+			"style": {
+				"navigationBarTitleText": "分享"
+			}
 		}
 	],
 	"globalStyle": {
