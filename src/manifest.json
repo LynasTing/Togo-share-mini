@@ -64,7 +64,7 @@
                 "desc": "请求获取您的相机权限"
             }
 		},
-        "requiredPrivateInfos": ["getLocation", "camera"]
+        "requiredPrivateInfos": ["getLocation"]
     },
     "mp-alipay" : {
         "usingComponents" : true
