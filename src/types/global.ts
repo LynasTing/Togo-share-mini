@@ -4,3 +4,8 @@ export type TabBarType = {
   chooseIcon?: string
   path: string
 } 
+export type MediaType = {
+  fileType: string
+  size: number
+  tempFilePath: string 
+}
