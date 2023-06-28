@@ -36,14 +36,11 @@ const imgDel = (e: string) => {
       <text>反馈类型</text>
       <view class="btn flex-row-sb">
         <view class="box btn-normal" v-for="(item,index) in btns" :key="index" :class="currIndex === index ? 'btn-choose' : ''" @click="typeChange(index)">{{ item.text }}</view>
-        <!-- <view class="box btn-normal" :class="currIndex === 0 ? 'btn-choose' : ''" @click="typeChange(0)">租赁</view>
-        <view class="box btn-normal" :class="currIndex === 1 ? 'btn-choose' : ''" @click="typeChange(1)">归还</view>
-        <view class="box btn-normal" :class="currIndex === 2 ? 'btn-choose' : ''" @click="typeChange(2)">退费</view> -->
       </view>
     </view>
     <view class="description">
       <text>详细描述</text>
-      <textarea placeholder="请输入问题描述" placeholder-style="color:#999;font-weight:400;"  />
+      <textarea placeholder="请输入问题描述" placeholder-style="color:rgb(219,219,219);"  />
     </view>
     <view class="upload-img">
       <text>上传图片({{ imgs.length }}/3)</text>
@@ -57,7 +54,7 @@ const imgDel = (e: string) => {
     </view>    
     <view class="phone">
       <text>联系方式</text>
-      <input class="phone-input" maxlength="11" placeholder="请输入联系方式"/>
+      <input class="phone-input" maxlength="11" placeholder="请输入联系方式" placeholder-style="color:rgb(219,219,219);"/>
     </view>
     <view class="submit flex--c">
       <view class="sub" >提交</view>
@@ -69,7 +66,7 @@ const imgDel = (e: string) => {
 <style lang="scss" scoped>
 
 .container {
-  color: #333;
+  color: #342919;
   font-size: 30rpx;
   font-weight: bold;
 
@@ -116,6 +113,7 @@ const imgDel = (e: string) => {
 
 .description textarea {
   margin-top: 34rpx;
+  width: 100%;
   height: 166rpx;
   padding: 30rpx;
   border-radius: 20rpx;
@@ -167,8 +165,7 @@ const imgDel = (e: string) => {
 
 .submit {
   margin-top: 180rpx;
-}
-.sub {
+  .sub {
   margin-bottom: 114rpx;
   width: 625rpx;
   height: 105rpx;
@@ -182,5 +179,7 @@ const imgDel = (e: string) => {
   border-radius: 0;
   letter-spacing: 1px;
 
+  }
 }
+
 </style>
