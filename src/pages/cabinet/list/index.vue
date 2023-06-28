@@ -47,7 +47,6 @@ onLoad(() => {
       scrollHeight.value = 443
     }
   })
-  console.log(`scrollHeight.value + ::>>`, scrollHeight.value)
 })
 </script>
 

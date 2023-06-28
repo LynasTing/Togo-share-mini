@@ -20,19 +20,15 @@ const cabinets = ref([
     num: 999
   }
 ])
-const tabChange = (e: number) => {
-  currText.value = e
-}
+const tabChange = (e: number) => currText.value = e
 // 查看更多
 const goMore = () => {
-  uni.navigateTo({
-    url: '/pages/cabinet/list/index'
-  })
+  uni.navigateTo({ url: '/pages/cabinet/list/index' })
 }
 </script>
 
 <template>
-  <view class="home-page page-view container">
+  <view class="home-page page-view container" :style="{ 'padding-bottom': 180 + 'rpx' }">
     <!-- 顶部 -->
     <view class="flex-c">
       <image src="@/static/imgs/global/logo.png" class="logo-img" mode="widthFix" />
@@ -109,13 +105,14 @@ const goMore = () => {
       <image src="@/static/imgs/home/service.png" mode="widthFix" />
     </view>
   </view>
-  <TabBar :currIndex="0" />
+  <TabBar :currIndex="0" class="tab-bar-ref" />
 </template>
 
 <style lang="scss" scoped>
 .home-page {
-  height: calc(100vh + (156rpx * 3) - 40rpx);
+  height: 100vh;
   background: linear-gradient(to bottom, #363c4f, #bfbec3, #FFFFFF);
+  overflow-y: auto;
   .logo-img {
     width: 160rpx;
     height: 80rpx;

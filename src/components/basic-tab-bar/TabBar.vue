@@ -1,19 +1,23 @@
 <script lang="ts" setup>
 import type { TabBarType } from '@/types/global';
+import useStore from '@/store'
+import { onLoad } from '@dcloudio/uni-app';
 
-let paddingBottomHeight = ref<number>(0) //  适配iphoneX以上的底部，给tabbar一定高度的padding-bottom
+const { global } = useStore()
+let paddingBottomHeight = computed(() => global.paddingBottomHeight) //  适配iphoneX以上的底部，给tabbar一定高度的padding-bottom
 const getSystemInfo = async () => {
   try {
-    const model = ['X', 'XR', 'XS', '11', '12', '13', '14', '15']
+    const model = ['X', 'XR', 'XS', '11', '12', '13', '14', '15', 'SE']
     const res = await uni.getSystemInfo()
+    const { global } = useStore()
     model.forEach(item => {
-      if (res.model.indexOf(item) != -1 && res.model.indexOf('iPhone') != -1) paddingBottomHeight.value = 40
+      if (res.model.indexOf(item) != -1 && res.model.indexOf('iPhone') != -1) global.setPaddingBottomHeight(40)
     })
   } catch(err) {
     console.log(`获取设备信息捕获错误 + ::>>`, err)
   }
 }
-// getSystemInfo()
+getSystemInfo()
 const tabs = reactive<TabBarType[]>(
   [
     {
@@ -70,7 +74,7 @@ const goScan = () => {
 </script>
 
 <template>
-  <view class="fixed bottom-0 left-0 w-full cus-tab-bar" :style="{'margin-bottom': paddingBottomHeight + 'rpx'}">
+  <view class="fixed bottom-0 left-0 w-full cus-tab-bar">
     <ul class="flex-row-sb w-full h-full tabs-ul">
       <li class="flex-col-sb-c" @click="switchTab(item, index)" v-for="(item, index) in tabs" :key="index" :class="[index === 2 ? 'opacity-0 curve' : '']">
         <image :src="props.currIndex === index ? item.chooseIcon : item.icon" />
