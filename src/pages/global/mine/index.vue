@@ -19,52 +19,55 @@ const toolsNavigate = e => {
 </script>
 
 <template>
-  <div class="page-view mine-page">
-    <div class="header">
-      <div class="flex-row-sb-c container ">
-        <div class="flex-c">
-          <image src="@/static/imgs/mine/coupon.png" class="avatar" />
-          <div class="username">丁凌</div>
+  <scroll-view scroll-y enhanced :bounces="false" :show-scrollbar="false" class="mine-page">
+    <div class="page-view ">
+      <div class="header">
+        <div class="flex-row-sb-c container ">
+          <div class="flex-c">
+            <image src="@/static/imgs/mine/coupon.png" class="avatar" />
+            <div class="username">丁凌</div>
+          </div>
+          <div class="flex-c text-base">
+            <div>查看资料</div>
+            <i class="iconfont icon-more text-base"></i>
+          </div>
         </div>
-        <div class="flex-c text-base">
-          <div>查看资料</div>
-          <i class="iconfont icon-more text-base"></i>
+        <div class="auth flex-row-sb-c">
+          <!-- <div class="flex-col-se h-full">
+            <div>您还未实名认证</div>
+            <div>赶紧认证吧~</div>
+          </div>
+          <div class="auth-btn">实名认证</div> -->
+          <div class="has-auth">感谢您使用途歌共享，请爱护设备。 </div>
         </div>
       </div>
-      <div class="auth flex-row-sb-c">
-        <!-- <div class="flex-col-se h-full">
-          <div>您还未实名认证</div>
-          <div>赶紧认证吧~</div>
+      <div class="container">
+        <image src="@/static/imgs/global/logo_op_1.png" class="logo" />
+        <div class="flex-row-sb-c menu">
+          <image src="@/static/imgs/mine/battery.png" mode="widthFix" />
+          <image src="@/static/imgs/mine/lease.png" mode="widthFix" />
+          <image src="@/static/imgs/mine/coupon.png" mode="widthFix" />
+          <image src="@/static/imgs/mine/wallet.png" mode="widthFix" />
         </div>
-        <div class="auth-btn">实名认证</div> -->
-        <div class="has-auth">感谢您使用途歌共享，请爱护设备。 </div>
-      </div>
-    </div>
-    <div class="container">
-      <image src="@/static/imgs/global/logo_op_1.png" class="logo" />
-      <div class="flex-row-sb-c menu">
-        <image src="@/static/imgs/mine/battery.png" mode="widthFix" />
-        <image src="@/static/imgs/mine/lease.png" mode="widthFix" />
-        <image src="@/static/imgs/mine/coupon.png" mode="widthFix" />
-        <image src="@/static/imgs/mine/wallet.png" mode="widthFix" />
-      </div>
-      <div class="tools flex-col">
-        <div class="title">常用功能</div>
-        <div class="flex-1 sprite flex-wrap flex-row-sb-c">
-          <div class="flex-col-c tool-item" v-for="(item, index) in tools" :key="index" @click="toolsNavigate(item)">
-            <image :src="`/static/imgs/mine/tools_${index}.png`" />
-            <div>{{ item.text }}</div>
+        <div class="tools flex-col">
+          <div class="title">常用功能</div>
+          <div class="flex-1 sprite flex-wrap flex-row-sb-c">
+            <div class="flex-col-c tool-item" v-for="(item, index) in tools" :key="index" @click="toolsNavigate(item)">
+              <image :src="`/static/imgs/mine/tools_${index}.png`" />
+              <div>{{ item.text }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </scroll-view>
   <TabBar :currIndex="4" />
 </template>
 
 <style lang="scss" scoped>
 
 .mine-page {
+  max-height: 100vh;
   color: white;
   .header {
     height: 300rpx;

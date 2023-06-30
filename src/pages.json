@@ -11,7 +11,11 @@
 			"path": "pages/global/active/index"
 		},
 		{
-			"path": "pages/global/scan/index"
+			"path": "pages/global/scan/index",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "扫一扫"
+			}
 		},
 		{
 			"path": "pages/global/mall/index"
@@ -20,6 +24,7 @@
 			"path": "pages/global/mine/index",
 			"style": {
 				"navigationBarTitleText": "",
+				"disableScroll": true,
 				"navigationBarBackgroundColor": "#363C4F"
 			}
 		},
@@ -28,6 +33,7 @@
 			"style": {
 				"navigationBarTitleText": "租赁柜",
 				"navigationBarTextStyle": "white",
+				"disableScroll": true,
 				"navigationBarBackgroundColor": "#373c50"
 			}
 		},
@@ -104,10 +110,6 @@
 			{
         "pagePath": "pages/global/active/index",
         "text": "活动"
-      },
-			{
-        "pagePath": "pages/global/scan/index",
-        "text": "扫一扫"
       },
 			{
         "pagePath": "pages/global/mall/index",

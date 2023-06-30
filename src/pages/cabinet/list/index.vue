@@ -41,20 +41,24 @@ const cabinets = ref([
 const scrollHeight = ref<number>()
 onLoad(() => {
   uni.getSystemInfo({
-    success: res => scrollHeight.value = res.windowHeight - 160,
+    success: res => scrollHeight.value = res.windowHeight - 140,
     fail: err => {
       console.log(`获取设备高度失败 + ::>>`, err)
       scrollHeight.value = 443
     }
   })
 })
+// 跳地图
+const goMap = () => {
+  uni.navigateTo({ url: '/pages/cabinet/map/index' })
+}
 </script>
 
 <template>
   <div class="container list-page flex-col">
     <div class="flex-c search-box">
       <input class="input relative iconfont" confirm-type="search" placeholder="请输入您的搜索内容" placeholder-class="input-plc" maxlength="18" />
-      <image src="@/static/imgs/cabinet/map_mark.png" class="mar-mark" />
+      <image src="@/static/imgs/cabinet/map_mark.png" class="mar-mark" @click="goMap" />
     </div>
     <div class="flex-row-sb address-info">
       <div class="now-location">
@@ -105,7 +109,7 @@ onLoad(() => {
   bottom: 0;
   overflow: hidden;
   background: linear-gradient(to bottom, #363c4f, #8f8f92, #bdbcbc);
-  padding: 30rpx 30rpx;
+  padding: 30rpx 30rpx 0;
   .search-box {
     margin-bottom: 40rpx;
     .input {

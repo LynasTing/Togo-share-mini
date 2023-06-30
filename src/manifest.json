@@ -57,14 +57,13 @@
         },
         "usingComponents" : true,
         "permission": {
-			"scope.getLocation": {
-				"desc": "请求获取您的位置信息"
-			},
             "scope.camera": {
                 "desc": "请求获取您的相机权限"
+            },
+            "scope.userLocation": {
+                "desc": "请求获取您的位置信息"
             }
-		},
-        "requiredPrivateInfos": ["getLocation"]
+		}
     },
     "mp-alipay" : {
         "usingComponents" : true

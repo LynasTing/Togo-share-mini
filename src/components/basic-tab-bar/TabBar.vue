@@ -61,16 +61,10 @@ const props = defineProps({
 // tabBar切换
 const switchTab = (e: TabBarType, i: number) => {
   if(i === 2) return 
-  uni.switchTab({
-    url: e.path
-  })
+  uni.switchTab({  url: e.path })
 }
 // 跳扫码
-const goScan = () => {
-  uni.switchTab({
-    url: '/pages/global/scan/index'
-  })
-} 
+const goScan = () => uni.navigateTo({ url: '/pages/global/scan/index' })
 </script>
 
 <template>
@@ -90,6 +84,7 @@ const goScan = () => {
   height: 156rpx;
   padding: 34rpx 60rpx;
   background-image: url('@/static/imgs/global/tab_bar_bg.png');
+  background-position: 100% 100%;
   background-repeat: no-repeat;
   background-size: cover;
   background-color: #F5F5F5;

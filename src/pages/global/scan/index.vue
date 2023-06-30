@@ -2,75 +2,76 @@
 const flashLight = ref<boolean>(false)
 // 打开/关闭手电筒
 const flashChange = () => {
+  console.log(`1 + ::>>`, )
   flashLight.value = !flashLight.value
 }
 </script>
 
 <template>
-  <view class="w-full h-screen relative top-0 left-0 scan-page flex-col">
-    <view class="relative scan-bg">
-      <view class="scan-box absolute top-half left-half overflow-h">
-        <view>
-          <camera 
-            binderror="error" 
-            device-position="back" 
-            :flash="flashLight ? 'on' : 'off'"
-            mode="scanCode" 
-            resolution="high" 
-            class="w-full h-full"
-          />
-          <view class="desc">请扫描租赁柜屏幕上的二维码</view>
-        </view>
-      </view>
-    </view>
-    <view class="controls fixed bottom-0 left-0 flex-row-sa-c">
-      <view class="flex-col-c">
-        <view class="iconfont icon-jujuetiaoxingma icon"></view>
-        <view>输入换电码</view>
-      </view>
-      <view class="flex-col-c">
-        <view class="iconfont icon-shoudiantong icon" @click="flashChange"></view>
-        <view>打开手电筒</view>
-      </view>
-    </view>
-  </view>
+  <camera 
+    binderror="error" 
+    device-position="back" 
+    :flash="flashLight ? 'on' : 'off'"  
+    mode="scanCode" 
+    resolution="high" 
+    class="w-full h-screen"
+  />
+  <cover-view class="w-full h-screen absolute top-0 left-0 scan-page flex-col overflow-h">
+    <cover-image src="@/static/imgs/global/scan_animate.gif " class="animate-img absolute top-half left-half" />
+    <cover-view class="desc absolute left-half">请扫描租赁柜屏幕上的二维码</cover-view>
+    <cover-view class="flex-1 scan-container"></cover-view>
+    <cover-view class="controls fixed bottom-0 left-0 flex-row-sa-c">
+      <cover-view class="flex-col-c">
+        <cover-image src="@/static/imgs/global/bar_code.png" class="icon" />
+        <cover-view>输入换电码</cover-view>
+      </cover-view>
+      <cover-view class="flex-col-c">
+        <cover-image src="@/static/imgs/global/fash_light.png" class="icon" @click="flashChange"/>
+        <cover-view>打开手电筒</cover-view>
+      </cover-view>
+    </cover-view>
+  </cover-view>
 </template>
-
 <style lang="scss" scoped>
+  
 .scan-page {
-  background: rgba(50, 50, 50, 1);
-  .scan-bg {
-    height: calc(100% - 240rpx);
-  }
-  .scan-box {
-    transform: translate(-50%, -50%);
-    width: 500rpx;
-    height: 500rpx;
-    border-radius: 24rpx;
-    border: 1rpx solid #FDC401;
+  z-index: 9;
+  .animate-img {
+    width: 460rpx;
+    height: 460rpx;
+    transform: translate(-50%, -80%);
   }
   .desc {
+    top: 58%;
+    transform: translate(-50%, 50%);
     width: 100%;
     color: white;
-    font-size: 30rpx;
+    font-size: 28rpx;
     text-align: center;
+    z-index: 9;
     letter-spacing: 4rpx;
   }
+  .scan-container {
+    background-color: rgba(0, 0, 0, 0.01);
+    opacity: 0.1;
+    z-index: 9;
+  }
+ 
   .controls {
     width: 100%;
     font-size: 28rpx;
     color: white;
-    background-color: #232524;
+    background-color: rgba(35, 37, 36, .6);
     padding: 40rpx 30rpx;
     letter-spacing: 4rpx;
+    z-index: 9;
     .icon {
-      font-size: 60rpx;
-      background-color: #5c5e5f;
-      padding: 24rpx;
-      border-radius: 999rpx;
+      width: 100rpx;
+      height: 100rpx;
       margin-bottom: 14rpx;
     }
   }
+  
 }
 
 </style>
