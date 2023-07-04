@@ -2,6 +2,22 @@ view, textarea, input, cover-view {
   box-sizing: border-box;
   font-family: PingFang SC-Bold, PingFang SC;
 }
+button::after{
+  border: 0; 
+}
+// 调整禁用时的样式
+button[disabled] {
+  background-color: #fff;
+  color: #eee;
+}
+// 修改点击时的样式
+.button-hover {
+  color:#F85959;
+  background-color:#fff;
+}
+button{
+  box-shadow: none;
+}
 .flex {
   display: flex;
 }

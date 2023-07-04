@@ -1,6 +1,13 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+			"path": "pages/global/login/index",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "欢迎使用途歌共享"
+			}
+		},
+		{
 			"path": "pages/global/home/index",
 			"style": {
 				"navigationBarTitleText": "",

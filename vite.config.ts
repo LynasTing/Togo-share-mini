@@ -13,9 +13,6 @@ export default defineConfig({
     }),
     vueSetupExtend(),
   ],
-  optimizeDeps: {
-    // include: ['uview-ui'],
-  },
   resolve: {
     // 路径别名
     alias: {

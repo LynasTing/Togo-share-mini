@@ -1,3 +1,8 @@
+export interface Api {
+  code: string
+  data: any
+  msg: string
+}
 export type TabBarType = {
   text?: string
   icon?: string
