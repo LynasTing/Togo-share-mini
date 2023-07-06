@@ -1,8 +1,14 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
+import { onLoad } from '@dcloudio/uni-app';
 
+const redirect = ref<string>('')
+onLoad(option => {
+  if(option?.url) redirect.value = option?.url
+})
 // 一键登录
-const onClickLogin = (e: object) => {
+const authLogin = (e: any) => {
+  console.log(`e + ::>>`, e)
   if(!agreeCheck.value) {
     uni.showToast({
       title: '请先同意用户协议',
@@ -14,15 +20,27 @@ const onClickLogin = (e: object) => {
   uni.login({
     success: successRes => {
       const info = uni.getAccountInfoSync()
-      post('/miniapp/login', { code: successRes.code, wxMaAppId: info.miniProgram.appId }).then(res => {
+      post('/tuge/authorizedLogin', { code: successRes.code, wxMaAppId: info.miniProgram.appId }, 'json').then(res => {
         console.log(`res + ::>>`, res)
+        if(redirect.value) {
+          uni.redirectTo({ url: redirect.value })
+          return 
+        }
       })
     },
     fail: err => {
+      uni.showToast({
+        title: '登录失败，请重试',
+        icon: 'none',
+        duration: 1* 1500
+      })
       console.log(`获取登录授权失败err + ::>>`, err)
     }
   })
-  console.log(`e + ::>>`, e)
+}
+// 其它登录
+const otherLogin = () => {
+  uni.navigateTo({ url: '/pages/login/sign-in/index' })
 }
 const agreeCheck = ref<boolean>(false)
 // 同意用户协议
@@ -31,7 +49,7 @@ const agreeCheckChange = () => {
 }
 // 跳用户协议页面
 const goUserAgreement = () => {
-  console.log(`1 + ::>>`, )
+  uni.navigateTo({ url:'/pages/global/protocol/index' })
 }
 </script>
 
@@ -41,10 +59,10 @@ const goUserAgreement = () => {
     <view class="desc w-full">
       即将开启途歌共享
     </view>
-    <button class="wx-login w-full button" @getuserinfo="onClickLogin" open-type="getUserInfo">微信授权一键登录</button>
-    <view class="other-login button w-full">其它方式登录</view>
+    <button class="wx-login w-full button" @getphonenumber="authLogin" open-type="getPhoneNumber">微信授权一键登录</button>
+    <view class="other-login button w-full" @click="otherLogin">其它方式登录</view>
     <label class="flex-c w-full agreement" @click.stop="agreeCheckChange">
-      <radio :value="agreeCheck" :checked="agreeCheck" color="#0B5CA3" style="transform: scale(0.8)" />
+      <radio :value="agreeCheck" :checked="agreeCheck" color="#fcc300" style="transform: scale(0.8)" />
       <view>
         请阅读并同意
         <text @click.stop="goUserAgreement">《用户协议》</text>

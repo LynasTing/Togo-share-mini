@@ -1,8 +1,19 @@
 <script lang="ts" setup>
 import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 
+const csMenu = reactive([
+  { path: '/pages/customer-services/battery/index' },
+  { path: '/pages/customer-services/records/index' },
+  { path: '/pages/customer-services/coupon/index' },
+  { path: '/pages/customer-services/wallet/index' }
+])
+// 跳菜单
+const goCS = e => {
+  uni.navigateTo({ url:  e.path })
+}
 const tools = reactive([
-  { text: '我的消息', path: '/pages/tools/message/index' },
+  // { text: '我的消息', path: '/pages/tools/message/index' },
+  { text: '我的消息', path: '/pages/global/scan/lease/index' },
   { text: '分享', path: '/pages/tools/share/index' },
   { text: '意见反馈', path: '/pages/tools/feedback/index' },
   { text: '关于我们', path: '/pages/tools/about-us/index' },
@@ -24,7 +35,7 @@ const toolsNavigate = e => {
       <div class="header">
         <div class="flex-row-sb-c container ">
           <div class="flex-c">
-            <image src="@/static/imgs/mine/coupon.png" class="avatar" />
+            <image src="@/static/imgs/mine/cs_0.png" class="avatar" />
             <div class="username">丁凌</div>
           </div>
           <div class="flex-c text-base">
@@ -44,10 +55,7 @@ const toolsNavigate = e => {
       <div class="container">
         <image src="@/static/imgs/global/logo_op_1.png" class="logo" />
         <div class="flex-row-sb-c menu">
-          <image src="@/static/imgs/mine/battery.png" mode="widthFix" />
-          <image src="@/static/imgs/mine/lease.png" mode="widthFix" />
-          <image src="@/static/imgs/mine/coupon.png" mode="widthFix" />
-          <image src="@/static/imgs/mine/wallet.png" mode="widthFix" />
+          <image v-for="(i, index) in csMenu" :src="`/static/imgs/mine/cs_${index}.png`" :key="i.path" @click="goCS(i)" mode="widthFix" />
         </div>
         <div class="tools flex-col">
           <div class="title">常用功能</div>

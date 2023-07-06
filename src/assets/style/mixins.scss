@@ -163,13 +163,15 @@ button{
 .bg-white {
   background-color: white;
 }
-// .page-view {
-//   height: calc(100vh + (156rpx * 3) - 40rpx);
-// }
 .page-view {
   height: calc(100vh + 156rpx );
 }
 .container {
   color: white;
   padding: 0rpx 30rpx;
+}
+.text-del-1 {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

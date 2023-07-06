@@ -2,20 +2,20 @@
 import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 
 const currText = ref<number>(0)
-const tabs = reactive([{ text: '附近租赁柜' }, { text: '附近零售门店' }])
+const tabs = reactive([{ text: '附近租赁柜' }])
 const cabinets = ref([
   {
-    name: '福州仓山万达站',
+    name: '福州仓山万达站1柜',
     address: '福建省福州市鼓楼区XXX',
     num: 999
   },
   {
-    name: '福州仓山万达站',
+    name: '福州仓山万达站2柜',
     address: '福建省福州市鼓楼区XXX',
     num: 999
   },
   {
-    name: '福州仓山万达站',
+    name: '福州仓山万达站3柜',
     address: '福建省福州市鼓楼区XXX',
     num: 999
   }
@@ -24,6 +24,22 @@ const tabChange = (e: number) => currText.value = e
 // 查看更多
 const goMore = () => {
   uni.navigateTo({ url: '/pages/cabinet/list/index' })
+}
+// 联系客服拨打电话
+const contactCS = () => {
+  uni.showModal({
+	title: '联系客服',
+	content: '是否拨打13810001639',
+	success: function (res) {
+		if (res.confirm) {
+      uni.makePhoneCall({
+        phoneNumber: '13810001639' 
+      })
+		}
+	}
+})
+
+ 
 }
 </script>
 
@@ -81,7 +97,7 @@ const goMore = () => {
             <view class="flex-row-sb-c bottom-box">
               <view class="lightning-box flex-c">
                 <image mode="widthFix" src="@/static/imgs/home/lightning.png"  />
-                <view class="cabinet">租赁柜</view>
+                <view class="cabinet">可租借</view>
                 <view>{{ item.num }}</view>
               </view>
               <image mode="widthFix" src="@/static/imgs/home/navigate.png" class="nav" />
@@ -102,7 +118,7 @@ const goMore = () => {
     </view>
     <!-- 客服 -->
     <view class="fixed cs">
-      <image src="@/static/imgs/home/service.png" mode="widthFix" />
+      <image src="@/static/imgs/home/service.png" mode="widthFix" @click="contactCS" />
     </view>
   </view>
   <TabBar :currIndex="0" class="tab-bar-ref" />
@@ -168,8 +184,8 @@ const goMore = () => {
           position: absolute;
           bottom: -16rpx;
           transform: translateX(-50%);
-          left: 50%;
-          width: 74rpx;
+          left: 40%;
+          width: 84rpx;
           height: 12rpx;
           background-color: #fdc401;
           border-radius: 8rpx;
@@ -233,7 +249,7 @@ const goMore = () => {
               height: 36rpx;
             }
             .cabinet {
-              margin: 0 20rpx 0 16rpx;
+              margin: 0 10rpx;
             }
           }
           .nav {

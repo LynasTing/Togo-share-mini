@@ -14,18 +14,34 @@ export function post(url: string, data?: any, type?: string) {
         break
     }
     // 项目有两种类型接口, json 和 x-www-form-urlencoded
-    const header = { 'content-type': `application/${ type === 'json' ? 'json;charset=UTF-8' : 'x-www-form-urlencoded' }` }
+    const header = {
+      'HT-Token': '' || '',
+      'HT-Account-Uid': '' || '',
+      'Content-Type': `application/${type === 'json' ? 'json;charset=UTF-8' : 'x-www-form-urlencoded'}`,
+    }
     _showLoading()
     uni.request({
       url: base_url + url,
-      data: modifyPostParam(data),
+      // data: type ? modifyPostParam(data) : data,
+      data,
       method: 'POST',
       header,
-      success: (res) => {
+      success: async res => {
         const { code, data, msg } = res.data as Api
         if(code === '000000') {
           data ? resolve(data) : resolve({})
-        }else {
+        } else if(code === '000005'){
+          uni.showToast({
+            title: msg,
+            icon: 'none',
+            duration: 2000
+          })
+          var pages = await getCurrentPages();
+          const url = pages[pages.length - 1]?.route
+          setTimeout(() => {
+            uni.redirectTo({ url: `/pages/login/auth/index?url=${'/' + url}` })
+          }, 2 * 2000)
+        } else {
           uni.showToast({
             title: msg,
             icon: 'none',
@@ -33,7 +49,7 @@ export function post(url: string, data?: any, type?: string) {
           })
         }
       },
-      fail: (err) => {
+      fail: err => {
         uni.getNetworkType({
           success: res => {
             if(res.networkType === '2g' || res.networkType === '3g') {

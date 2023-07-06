@@ -14,3 +14,10 @@ export type MediaType = {
   size: number
   tempFilePath: string 
 }
+export type UserAddressType = {
+  address: string | null
+  location: {
+    lat: number | null
+    lng: number | null
+  }
+}

@@ -24,13 +24,13 @@ const tabs = reactive<TabBarType[]>(
       text: '首页',
       icon: '/static/imgs/global/home.png',
       chooseIcon: '/static/imgs/global/home_select.png',
-      path: '/pages/global/home/index'
+      path: '/pages/global/tab-bar/home/index'
     },
     {
       text: '活动',
       icon: '/static/imgs/global/active.png',
       chooseIcon: '/static/imgs/global/home_select.png',
-      path: '/pages/global/active/index'
+      path: '/pages/global/tab-bar/active/index'
     },
     {
       icon: '',
@@ -41,14 +41,14 @@ const tabs = reactive<TabBarType[]>(
       text: '商城',
       icon: '/static/imgs/global/mall.png',
       chooseIcon: '/static/imgs/global/mall_select.png',
-      path: '/pages/global/mall/index'
+      path: '/pages/global/tab-bar/mall/index'
 
     },
     {
       text: '我的',
       icon: '/static/imgs/global/mine.png',
       chooseIcon: '/static/imgs/global/mine_select.png',
-      path: '/pages/global/mine/index'
+      path: '/pages/global/tab-bar/mine/index'
     }
   ]
 )
