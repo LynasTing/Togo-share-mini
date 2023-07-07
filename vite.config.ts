@@ -12,6 +12,7 @@ export default defineConfig({
       dts: 'src/auto-imports.d.ts'
     }),
     vueSetupExtend(),
+    
   ],
   resolve: {
     // 路径别名
@@ -24,6 +25,7 @@ export default defineConfig({
       scss: {
         additionalData: `
           @import "@/assets/style/mixins.scss";
+          @import "@/assets/style/variables.scss";
         `
       }
     }

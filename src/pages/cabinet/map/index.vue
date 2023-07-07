@@ -32,34 +32,43 @@ const covers = ref([
     latitude: 26.0527,
     longitude: 119.31414,
     iconPath: '/static/imgs/cabinet/lightning.png',
-    width: '48rpx',
-    height: '48rpx',
+    width: '58rpx',
+    height: '58rpx',
   },
   {
     id: 112,
     latitude: 26.0537,
     longitude: 119.31424,
     iconPath: '/static/imgs/cabinet/lightning.png',
-    width: '48rpx',
-    height: '48rpx',
+    width: '58rpx',
+    height: '58rpx',
   },
   {
     id: 113,
     latitude: 26.0547,
     longitude: 119.31434,
     iconPath: '/static/imgs/cabinet/lightning.png',
-    width: '48rpx',
-    height: '48rpx',
+    width: '58rpx',
+    height: '58rpx',
   },
   {
     id: 114,
     latitude: 26.0557,
     longitude: 119.31444,
     iconPath: '/static/imgs/cabinet/lightning.png',
-    width: '48rpx',
-    height: '48rpx'
+    width: '58rpx',
+    height: '58rpx'
   },
 ])
+const showCard = ref<boolean>(false)
+// 关闭卡片
+const closeCard = (e) => {
+  showCard.value = false
+}
+// 打开卡片
+const openCard = (e) => {
+  showCard.value = true
+}
 // 跳导航
 const a = () => {
   uni.getLocation({
@@ -89,10 +98,19 @@ const searchFn = (e) => {
     <view class="search-box w-full">
       <input type="text" class="input iconfont relative" placeholder="请输入您的搜索内容" placeholder-style="color: black;" confirm-type="search" maxlength="10" @confirm="searchFn">
     </view>
-    <map style="width: 100%; height: 100vh;" :latitude="latitude" :longitude="longitude" :markers="covers">
-      <cover-view class="mark-card absolute">
+    <map 
+      style="width: 100%; height: 100vh;" 
+      :latitude="latitude" 
+      :longitude="longitude" 
+      :markers="covers" 
+      :enable-rotate="true"
+      :show-location="true" 
+      @regionchange="closeCard" 
+      @markertap="openCard"
+    >
+      <cover-view class="mark-card absolute" :class="showCard ? 'slide-in-y' : 'slide-out-y'">
         <!-- 上 -->
-        <cover-view class="flex-row-sb-c usable-number">
+        <cover-view class="flex-row-sb-c usable-number">         
           <cover-view class="flex-row-sb-c number-box">
             <cover-view class="type flex-1">
               <cover-view class="type-1">M1000S</cover-view>
@@ -203,7 +221,6 @@ const searchFn = (e) => {
     }
     .address-model {
       margin-bottom: 30rpx;
-      
       .title {
         font-size: 30rpx;
         font-weight: bold;
@@ -239,6 +256,32 @@ const searchFn = (e) => {
       box-shadow: 0rpx 0rpx 6rpx 2rpx rgba(0, 0, 0, 0.4);
       z-index: 9;
     }
+  }
+  @keyframes slide-in {
+    0% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0%);
+      opacity: 1;
+    }
+  }
+  @keyframes slide-out {
+    0% {
+      transform: translateY(0%);
+      opacity: 1
+    }
+    100% {
+      transform: translateY(100%);
+      opacity: 0
+    }
+  }
+  .slide-in-y {
+    animation: slide-in .5s forwards
+  }
+  .slide-out-y {
+    animation: slide-out .5s forwards
   }
 }
 </style>

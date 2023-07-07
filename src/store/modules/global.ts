@@ -15,7 +15,8 @@ export default defineStore('global', {
   state: () => ({
     paddingBottomHeight: 0,
     deviceType: '',
-    userAddress: {} as UserAddressType
+    userAddress: {} as UserAddressType,
+    userInfo: {}
   }),
   actions: {
     setPaddingBottomHeight(val: number) {
@@ -115,6 +116,10 @@ export default defineStore('global', {
           console.log(`uni.getLocation 获取用户信息失败或用户拒绝授权 + ::>>`, err)
         }
       })
+    },
+    // 用户信息
+    setUserInfo(val: object) {
+      this.userInfo = val 
     }
   }
 })

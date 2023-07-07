@@ -20,7 +20,7 @@ const authLogin = (e: any) => {
   uni.login({
     success: successRes => {
       const info = uni.getAccountInfoSync()
-      post('/tuge/authorizedLogin', { code: successRes.code, wxMaAppId: info.miniProgram.appId }, 'json').then(res => {
+      post('/tuge/authorizedLogin', { code: successRes.code }, 'json').then(res => {
         console.log(`res + ::>>`, res)
         if(redirect.value) {
           uni.redirectTo({ url: redirect.value })

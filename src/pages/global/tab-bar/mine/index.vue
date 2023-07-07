@@ -11,6 +11,10 @@ const csMenu = reactive([
 const goCS = e => {
   uni.navigateTo({ url:  e.path })
 }
+// 跳个人资料
+const goUserInfo = () => {
+  uni.navigateTo({ url: '/pages/global/tab-bar/mine/user-info/index' })
+}
 const tools = reactive([
   // { text: '我的消息', path: '/pages/tools/message/index' },
   { text: '我的消息', path: '/pages/global/scan/lease/index' },
@@ -38,7 +42,7 @@ const toolsNavigate = e => {
             <image src="@/static/imgs/mine/cs_0.png" class="avatar" />
             <div class="username">丁凌</div>
           </div>
-          <div class="flex-c text-base">
+          <div class="flex-c text-base" @click="goUserInfo">
             <div>查看资料</div>
             <i class="iconfont icon-more text-base"></i>
           </div>

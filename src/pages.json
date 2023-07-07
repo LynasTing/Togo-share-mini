@@ -1,10 +1,22 @@
 {
+	"easycom": {
+		"custom": {  
+	        "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue" 
+		}
+	},
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
 			"path": "pages/global/tab-bar/home/index",
 			"style": {
 				"navigationBarTitleText": "",
+				"navigationBarTextStyle": "white",
 				"navigationBarBackgroundColor": "#363C4F"
+			}
+		},
+		{
+			"path": "pages/global/area/index",
+			"style": {
+				"navigationBarTitleText": "地区选择"
 			}
 		},
 		{
@@ -57,8 +69,13 @@
 			"path": "pages/global/tab-bar/mine/index",
 			"style": {
 				"navigationBarTitleText": "",
-				"disableScroll": true,
 				"navigationBarBackgroundColor": "#363C4F"
+			}
+		},
+		{
+			"path": "pages/global/tab-bar/mine/user-info/index",
+			"style": {
+				"navigationBarTitleText": "个人资料"
 			}
 		},
 		{
@@ -97,7 +114,8 @@
 		{
 			"path": "pages/customer-services/battery/index",
 			"style": {
-				"navigationBarTitleText": "我的电源"
+				"navigationBarTitleText": "我的电源",
+				"navigationBarBackgroundColor": "#FFF"
 			}
 		},
 		{

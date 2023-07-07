@@ -1,5 +1,6 @@
 import { _showLoading, _hideLoading } from "./loading"
 import type { Api } from '@/types/global'
+import useStore from '@/store'
 import { modifyPostParam } from './tools.js'
 
 export function post(url: string, data?: any, type?: string) {
@@ -14,9 +15,10 @@ export function post(url: string, data?: any, type?: string) {
         break
     }
     // 项目有两种类型接口, json 和 x-www-form-urlencoded
+    const { global } = useStore()
     const header = {
-      'HT-Token': '' || '',
-      'HT-Account-Uid': '' || '',
+      'HT-Token': global.userInfo?.token || '',
+      'HT-Account-Uid': global.userInfo?.accountUid || '',
       'Content-Type': `application/${type === 'json' ? 'json;charset=UTF-8' : 'x-www-form-urlencoded'}`,
     }
     _showLoading()
@@ -27,12 +29,13 @@ export function post(url: string, data?: any, type?: string) {
       method: 'POST',
       header,
       success: async res => {
+        _hideLoading()
         const { code, data, msg } = res.data as Api
         if(code === '000000') {
           data ? resolve(data) : resolve({})
         } else if(code === '000005'){
           uni.showToast({
-            title: msg,
+            title: '登录状态已过期，请重新登录',
             icon: 'none',
             duration: 2000
           })
@@ -50,6 +53,7 @@ export function post(url: string, data?: any, type?: string) {
         }
       },
       fail: err => {
+        _hideLoading()
         uni.getNetworkType({
           success: res => {
             if(res.networkType === '2g' || res.networkType === '3g') {
@@ -71,9 +75,6 @@ export function post(url: string, data?: any, type?: string) {
         reject(err)
       },
       complete(result) {
-        setTimeout(() => {
-          _hideLoading()
-        }, 2000)
       }
     })
   })

@@ -1,6 +1,18 @@
 <script lang="ts" setup>
 import TabBar from '@/components/basic-tab-bar/TabBar.vue'
+import useStore from '@/store'
 
+const { global } = useStore()
+watch(() => global.userAddress, (n) => {
+  if(n?.location) {
+    console.log(`可以调接口了 + ::>>`, )
+  }
+}, { immediate: true })
+// 附近柜子
+const getNearbyCabinet = ()  => {
+  global.getUserAddress()
+}
+getNearbyCabinet()
 const currText = ref<number>(0)
 const tabs = reactive([{ text: '附近租赁柜' }])
 const cabinets = ref([
@@ -20,6 +32,11 @@ const cabinets = ref([
     num: 999
   }
 ])
+// 跳地区选择
+const goAreaSelect = () => {
+  uni.navigateTo({ url: '/pages/global/area/index'})
+}
+// 暂无
 const tabChange = (e: number) => currText.value = e
 // 查看更多
 const goMore = () => {
@@ -28,18 +45,16 @@ const goMore = () => {
 // 联系客服拨打电话
 const contactCS = () => {
   uni.showModal({
-	title: '联系客服',
-	content: '是否拨打13810001639',
-	success: function (res) {
-		if (res.confirm) {
-      uni.makePhoneCall({
-        phoneNumber: '13810001639' 
-      })
-		}
-	}
-})
-
- 
+    title: '联系客服',
+    content: '是否拨打13810001639',
+    success: function (res) {
+      if (res.confirm) {
+        uni.makePhoneCall({
+          phoneNumber: '13810001639' 
+        })
+      }
+    }
+  })
 }
 </script>
 
@@ -48,7 +63,7 @@ const contactCS = () => {
     <!-- 顶部 -->
     <view class="flex-c">
       <image src="@/static/imgs/global/logo.png" class="logo-img" mode="widthFix" />
-      <view class="flex-c">
+      <view class="flex-c" @click="goAreaSelect">
         <span>福州</span>
         <view class="ar-down"></view>
       </view>
@@ -57,7 +72,7 @@ const contactCS = () => {
     <view class="curr-info relative flex-row-sb-c">
       <view class="green-point absolute"></view>
       <view class="flex--c img">
-        <image src="@/static/imgs/home/togo_box.png" mode="widthFix" class="w-full h-full" />
+        <image src="@/static/imgs/home/battery.png" mode="widthFix" class="w-full h-full" />
       </view>
       <view class="">
         <view class="title">TOGO001TOGO001000</view>
@@ -108,8 +123,8 @@ const contactCS = () => {
     </view>
     <!-- 轮播图 -->
     <view class="swiper-group">
-      <swiper class="swiper" circular :indicator-dots="false" :autoplay="true" :interval="3000" :duration="500">
-        <swiper-item v-for="(i, index) in 3" :key="index">
+      <swiper class="swiper overflow-h" circular :indicator-dots="false" :autoplay="true" :interval="3000" :duration="500">
+        <swiper-item v-for="(i, index) in 3" :key="index" class="item">
           <image src="@/static/imgs/home/carousel_01.png" mode="widthFix" class="w-full h-full" />
           <!-- <image :src="`/static/imgs/home/cabinet_0${index + 1}.png`" mode="widthFix" class="w-full h-full" /> -->
           <view>{{ index }}</view>
@@ -271,6 +286,9 @@ const contactCS = () => {
       width: 100%;
       height: 100%;
       border-radius: 24rpx;
+      .item {
+        border-radius: 24rpx;
+      }
     }
     image {
       display: block;
