@@ -1,10 +1,11 @@
 <script lang="ts" setup>
+import { onReady } from '@dcloudio/uni-app'
+
 const latitude = ref<number>(39.909)
 const longitude = ref<number>(116.39742)
 uni.getLocation({
   type: 'gcj02',
 	success: function (res) {
-    console.log(`res + ::>>`, res)
     latitude.value = res.latitude
     longitude.value = res.longitude
     // uni.openLocation({
@@ -22,7 +23,6 @@ uni.getLocation({
       title: '获取定位失败，请退出小程序后重试',
       duration: 2000
     })
-
   }
 })
 // 图标
@@ -91,6 +91,14 @@ const searchFn = (e) => {
   console.log(`1 + ::>>`, )
   console.log(`e + ::>>`, e)
 }
+const _mapContext = ref<any>()
+onReady(() => {
+  _mapContext.value = uni.createMapContext('map')
+})
+// 定位到当前位置
+const nowPosition = () => {
+  _mapContext.value.moveToLocation()
+}
 </script>
 
 <template>
@@ -107,7 +115,10 @@ const searchFn = (e) => {
       :show-location="true" 
       @regionchange="closeCard" 
       @markertap="openCard"
+      id="map"
+      ref="map"
     >
+      <cover-view class="iconfont icon-dingwei absolute regression" @click="nowPosition"></cover-view>
       <cover-view class="mark-card absolute" :class="showCard ? 'slide-in-y' : 'slide-out-y'">
         <!-- 上 -->
         <cover-view class="flex-row-sb-c usable-number">         
@@ -171,6 +182,12 @@ const searchFn = (e) => {
         font-size: 42rpx;
       }
     }
+  }
+  .regression {
+    top: 2%;
+    left: 4%;
+    font-size: 50rpx;
+    color: $yellow;
   }
   .mark-card {
     box-sizing: border-box;

@@ -4,6 +4,15 @@ import useStore from '@/store'
 import { onLoad } from '@dcloudio/uni-app';
 
 const { global } = useStore()
+onLoad(() => {
+  uni.getSystemInfo({
+    success: res => global.setScrollHeight(res.windowHeight - 140),
+    fail: err => {
+      console.log(`获取设备高度失败 + ::>>`, err)
+      global.setScrollHeight(443)
+    }
+  })
+})
 let paddingBottomHeight = computed(() => global.paddingBottomHeight) //  适配iphoneX以上的底部，给tabbar一定高度的padding-bottom
 const getSystemInfo = async () => {
   try {
@@ -64,7 +73,7 @@ const switchTab = (e: TabBarType, i: number) => {
   uni.switchTab({  url: e.path })
 }
 // 跳扫码
-const goScan = () => uni.navigateTo({ url: '/pages/global/scan/index' })
+const goScan = () => uni.navigateTo({ url: '/pages/global/tab-bar/scan/index' })
 </script>
 
 <template>

@@ -4,6 +4,12 @@
 	        "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue" 
 		}
 	},
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "途歌共享换电",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
 			"path": "pages/global/tab-bar/home/index",
@@ -41,7 +47,11 @@
 			}
 		},
 		{
-			"path": "pages/global/tab-bar/active/index"
+			"path": "pages/global/tab-bar/active/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#FFF"
+			}
 		},
 		{
 			"path": "pages/global/tab-bar/scan/index",
@@ -99,6 +109,7 @@
 			"path": "pages/cabinet/info/index",
 			"style": {
 				"navigationBarTitleText": "租赁柜信息",
+				"disableScroll": true,
 				"navigationBarTextStyle": "black",
 				"navigationBarBackgroundColor": "#FFF"
 			}
@@ -133,7 +144,33 @@
 		{
 			"path": "pages/customer-services/wallet/index",
 			"style": {
-				"navigationBarTitleText": "我的钱包"
+				"disableScroll": true,
+				"navigationBarTitleText": "我的钱包",
+				"navigationBarTextStyle": "white",	
+				"navigationBarBackgroundColor": "#727481"
+			}
+		},
+		{
+			"path": "pages/customer-services/wallet/my-deposit/index",
+			"style": {
+				"navigationBarTitleText": "我的押金",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFF"
+			}
+		},
+		{
+			"path": "pages/customer-services/wallet/deposit-pay/index",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "押金服务"
+			}
+		},
+		{
+			"path": "pages/customer-services/wallet/trading-records/index",
+			"style": {
+				"navigationBarTitleText": "交易明细",
+				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#727481"
 			}
 		},
 		{
@@ -185,12 +222,6 @@
 			}
 		}
 	],
-	"globalStyle": {
-		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "途歌共享换电",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
-	},
 	"tabBar": {
 		"custom": true,
 		"list": [

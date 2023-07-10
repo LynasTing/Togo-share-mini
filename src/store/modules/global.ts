@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import type { UserAddressType } from '@/types/global'
 import useStore from '@/store'
 
+// 用户拒绝授权定位
 const authReject = () => {
   const { global } = useStore() 
   uni.showToast({
@@ -14,7 +15,9 @@ const authReject = () => {
 export default defineStore('global', {
   state: () => ({
     paddingBottomHeight: 0,
+    scrollHeight: 750,
     deviceType: '',
+    authCodeTimer: 0,
     userAddress: {} as UserAddressType,
     userInfo: {}
   }),
@@ -120,6 +123,14 @@ export default defineStore('global', {
     // 用户信息
     setUserInfo(val: object) {
       this.userInfo = val 
+    },
+    // 屏幕可用高度
+    setScrollHeight(val: number) {
+      this.scrollHeight = val
+    },
+    // 验证码登录倒计时
+    setAuthCodeTimer(val: number) {
+      this.authCodeTimer = val
     }
   }
 })

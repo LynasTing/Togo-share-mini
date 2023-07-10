@@ -6,9 +6,13 @@ const redirect = ref<string>('')
 onLoad(option => {
   if(option?.url) redirect.value = option?.url
 })
+uni.login({
+  success: res => {
+    console.log(`re + ::>>`, res)
+  }
+})
 // 一键登录
 const authLogin = (e: any) => {
-  console.log(`e + ::>>`, e)
   if(!agreeCheck.value) {
     uni.showToast({
       title: '请先同意用户协议',
@@ -17,11 +21,22 @@ const authLogin = (e: any) => {
     })
     return 
   }
+  console.log(`e + ::>>`, e)
   uni.login({
     success: successRes => {
-      const info = uni.getAccountInfoSync()
       post('/tuge/authorizedLogin', { code: successRes.code }, 'json').then(res => {
         console.log(`res + ::>>`, res)
+        // 未注册, 进行注册
+        if(Object.getOwnPropertyNames(res).length === 0) {
+          uni.login({
+            success: toRes => {
+              post('/tuge/register', { code: toRes.code, phone: e.detail.encryptedData, iv: e.detail.iv }, 'json').then(registerRes => {
+              console.log(`registerRes + ::>>`, registerRes)
+            })
+            }
+          })
+        }
+        return 
         if(redirect.value) {
           uni.redirectTo({ url: redirect.value })
           return 
@@ -38,9 +53,22 @@ const authLogin = (e: any) => {
     }
   })
 }
-// 其它登录
+// 其它登录(手机号)
 const otherLogin = () => {
-  uni.navigateTo({ url: '/pages/login/sign-in/index' })
+  if(!agreeCheck.value) {
+    uni.showModal({
+      title: '提示',
+      content: '手机号码登录即代表您同意我们的《《用户协议》》',
+      success: res => {
+        if(res.confirm) {
+          agreeCheck.value = true
+          uni.navigateTo({ url: '/pages/login/sign-in/index' })
+        }
+      }
+    })
+  }else {
+    uni.navigateTo({ url: '/pages/login/sign-in/index' })
+  }
 }
 const agreeCheck = ref<boolean>(false)
 // 同意用户协议
@@ -60,7 +88,7 @@ const goUserAgreement = () => {
       即将开启途歌共享
     </view>
     <button class="wx-login w-full button" @getphonenumber="authLogin" open-type="getPhoneNumber">微信授权一键登录</button>
-    <view class="other-login button w-full" @click="otherLogin">其它方式登录</view>
+    <view class="other-login button w-full" @click="otherLogin">手机号码注册/登录</view>
     <label class="flex-c w-full agreement" @click.stop="agreeCheckChange">
       <radio :value="agreeCheck" :checked="agreeCheck" color="#fcc300" style="transform: scale(0.8)" />
       <view>

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { onLoad } from '@dcloudio/uni-app';
 import useStore from '@/store'
 
 const { global } = useStore()
@@ -63,16 +62,6 @@ const cabinets = ref([
     num: 999
   }
 ])
-const scrollHeight = ref<number>()
-onLoad(() => {
-  uni.getSystemInfo({
-    success: res => scrollHeight.value = res.windowHeight - 140,
-    fail: err => {
-      console.log(`获取设备高度失败 + ::>>`, err)
-      scrollHeight.value = 443
-    }
-  })
-})
 // 跳机柜信息
 const goCabinetInfo = () => {
   uni.navigateTo({ url: '/pages/cabinet/info/index' })
@@ -117,7 +106,7 @@ const mapNavigation = (item: any) => {
       @scrolltoupper="upper" 
       @scrolltolower="lower" 
       @scroll="scroll" 
-      :style="{'height': scrollHeight + 'px'}"
+      :style="{'height': global.scrollHeight + 'px'}"
     >
       <div class="flex-c cab bg-white" v-for="(item, index) in cabinets" :key="index" @click="goCabinetInfo">
         <image mode="widthFix" src="@/static/imgs/home/cabinet.png" class="cover" />
