@@ -1,13 +1,28 @@
 <script lang="ts" setup>
+import { post } from '@/utils/request'
 import { onReady } from '@dcloudio/uni-app'
 
 const latitude = ref<number>(39.909)
 const longitude = ref<number>(116.39742)
+// 图标
+const covers = ref([
+  {
+    id: 111,
+    latitude: 26.0527,
+    longitude: 119.31414,
+    iconPath: '/static/imgs/cabinet/lightning.png',
+    width: '54rpx',
+    height: '54rpx',
+  }
+])
 uni.getLocation({
   type: 'gcj02',
 	success: function (res) {
     latitude.value = res.latitude
     longitude.value = res.longitude
+    post('/tuge/mapExchangeList', { latitude: res.latitude, longitude: res.longitude }, 'json').then(res => {
+      if(res.length) covers.value = res
+    })
     // uni.openLocation({
 		// 	latitude: latitude.value,
 		// 	longitude: longitude.value,
@@ -25,64 +40,35 @@ uni.getLocation({
     })
   }
 })
-// 图标
-const covers = ref([
-  {
-    id: 111,
-    latitude: 26.0527,
-    longitude: 119.31414,
-    iconPath: '/static/imgs/cabinet/lightning.png',
-    width: '58rpx',
-    height: '58rpx',
-  },
-  {
-    id: 112,
-    latitude: 26.0537,
-    longitude: 119.31424,
-    iconPath: '/static/imgs/cabinet/lightning.png',
-    width: '58rpx',
-    height: '58rpx',
-  },
-  {
-    id: 113,
-    latitude: 26.0547,
-    longitude: 119.31434,
-    iconPath: '/static/imgs/cabinet/lightning.png',
-    width: '58rpx',
-    height: '58rpx',
-  },
-  {
-    id: 114,
-    latitude: 26.0557,
-    longitude: 119.31444,
-    iconPath: '/static/imgs/cabinet/lightning.png',
-    width: '58rpx',
-    height: '58rpx'
-  },
-])
+
 const showCard = ref<boolean>(false)
 // 关闭卡片
-const closeCard = (e) => {
+const closeCard = (_e) => {
   showCard.value = false
 }
-// 打开卡片
+// 获取单个机柜信息 打开卡片
+const cabinetInfo = ref({})
 const openCard = (e) => {
+  const params = {
+    id: e.detail.markerId,
+    longitude: longitude.value,
+    latitude: latitude.value,
+  }
+  post('/tuge/mapExchangeId', { ...params }, 'json').then(res => {
+    console.log(`res + ::>>`, res)
+    if(res.cabinetName) cabinetInfo.value = res
+  })
   showCard.value = true
 }
 // 跳导航
-const a = () => {
-  uni.getLocation({
-    type: 'gcj02', //返回可以用于uni.openLocation的经纬度
-    success: function (res) {
-      const latitude = res.latitude;
-      const longitude = res.longitude;
-      uni.openLocation({
-        latitude: latitude,
-        longitude: longitude,
-        success: function () {
-          console.log('success');
-        }
-      })
+const goWxNavigation = () => {
+  uni.openLocation({
+    name: cabinetInfo.value.cabinetName,
+    address: cabinetInfo.value.address,
+    latitude: cabinetInfo.value.latitude,
+    longitude: cabinetInfo.value.longitude,
+    success: res => {
+      console.log('success', res)
     }
   })
 }
@@ -104,10 +90,12 @@ const nowPosition = () => {
 <template>
   <view class="page-map relative">
     <view class="search-box w-full">
-      <input type="text" class="input iconfont relative" placeholder="请输入您的搜索内容" placeholder-style="color: black;" confirm-type="search" maxlength="10" @confirm="searchFn">
+      <input type="text" class="search-input iconfont" placeholder="请输入您的搜索内容" placeholder-style="color: black;" confirm-type="search" maxlength="10" @confirm="searchFn">
     </view>
     <map 
       style="width: 100%; height: 100vh;" 
+      class="relative"
+      scale="12"
       :latitude="latitude" 
       :longitude="longitude" 
       :markers="covers" 
@@ -118,41 +106,34 @@ const nowPosition = () => {
       id="map"
       ref="map"
     >
-      <cover-view class="iconfont icon-dingwei absolute regression" @click="nowPosition"></cover-view>
+      <!-- <cover-view class="iconfont icon-dingwei absolute regression" @click="nowPosition"></cover-view> -->
+      <cover-image class="absolute regression" src="@/static/imgs/cabinet/central_point.png"  @click="nowPosition" />
       <cover-view class="mark-card absolute" :class="showCard ? 'slide-in-y' : 'slide-out-y'">
         <!-- 上 -->
         <cover-view class="flex-row-sb-c usable-number">         
-          <cover-view class="flex-row-sb-c number-box">
+          <cover-view class="flex-row-sb-c number-box" v-for="(item, index) in cabinetInfo.list" :key="index">
             <cover-view class="type flex-1">
-              <cover-view class="type-1">M1000S</cover-view>
+              <cover-view class="type-1">{{ item.name || '--' }}</cover-view>
               <cover-view class="line"></cover-view>
               <cover-view class="can-use">可用数量</cover-view>
             </cover-view>
-            <cover-view class="num">3</cover-view>
-          </cover-view>
-          <cover-view class="flex-row-sb-c number-box">
-            <cover-view class="type flex-1">
-              <cover-view class="type-1">M1000S</cover-view>
-              <cover-view class="line"></cover-view>
-              <cover-view class="can-use">可用数量</cover-view>
-            </cover-view>
-            <cover-view class="num">13 </cover-view>
+            <cover-view class="num">{{ item.useableNum || 0 }}</cover-view>
           </cover-view>
         </cover-view>
         <!-- 中 -->
         <cover-view class="address-model">
-          <cover-view class="title">福州仓山万达站</cover-view>
+          <cover-view class="title">{{ cabinetInfo.cabinetName || ' 福州仓山万达站' }}</cover-view>
           <cover-view class="flex">
             <cover-view class="flex-c distance">
-              <cover-view class="relative">距离您39.5KM</cover-view>
+              <cover-view class="relative">距离您<text class="num">{{ cabinetInfo.userFromDistance || '--' }}</text>KM</cover-view>
               <cover-view class="separate"></cover-view>
             </cover-view>
-            <cover-view class="info">福州市仓山区金山街道浦上大道274福州市仓山区金山街道浦上大道274福州市仓山区金山街道浦上大道274</cover-view>
+            <cover-view class="info">{{ cabinetInfo.address || '位置信息获取失败' }}</cover-view>
           </cover-view>
         </cover-view>
         <!-- 下 -->
-        <cover-view class="nav-btn flex--c">
-          <cover-view @click="a">地图导航</cover-view>
+        <cover-view class="nav-btn flex--c"  @click="goWxNavigation">
+          <cover-view>地图导航</cover-view>
         </cover-view>
       </cover-view>
     </map>
@@ -166,28 +147,12 @@ const nowPosition = () => {
     padding: 34rpx 30rpx;
     background: linear-gradient(to bottom, #373c50,#4f5263);
     z-index: 9;
-    .input {
-      height: 64rpx;
-      color: black;
-      font-size: 30rpx;
-      background-color: white;
-      padding: 0 28rpx 0 64rpx;
-      border-radius: 999rpx;
-      &::before {
-        content: '\e67d';
-        position: absolute;
-        top: 50%;
-        left: 2%;
-        transform: translateY(-50%);
-        font-size: 42rpx;
-      }
-    }
   }
   .regression {
     top: 2%;
     left: 4%;
-    font-size: 50rpx;
-    color: $yellow;
+    width: 56rpx;
+    height: 56rpx;
   }
   .mark-card {
     box-sizing: border-box;
@@ -245,20 +210,29 @@ const nowPosition = () => {
         margin: 12rpx 0;
       }
       .distance {
-        font-size: 26rpx;
-      }
-      .separate {
-        width: 2rpx;
-        height: 30rpx;
-        background-color: #333;
-        margin: 0 16rpx;
+        font-size: 24rpx;
+        .relative {
+          flex: 1;
+          width: 200rpx;
+          .num {
+            color: #0060AF ;
+          }
+        }
+        .separate {
+          width: 2rpx;
+          height: 30rpx;
+          font-size: 24rpx;
+          background-color: #333;
+          margin-right: 12rpx;
+         
+        }
       }
       .info {
         flex: 1;
         max-height: 52rpx;
         font-size: 22rpx;
         color: #888;
-        white-space: pre-wrap
+        white-space: pre-wrap;
       }
     }
     .nav-btn {

@@ -1,8 +1,33 @@
 <script lang="ts" setup>
 import useStore from '@/store'
+import { post } from '@/utils/request'
 
 const { global } = useStore()
-global.getUserAddress()
+global.setUserAddress()
+// 查机柜列表
+const params = ref({
+  longitude: '',
+  latitude: '',
+  pageNumber: 1,
+  pageSize: 10,
+  keywords: ''
+})
+const cabinets = ref([])
+const total = ref<number>(0)
+const getDataList = (val?: number) => {
+  params.value.pageNumber = val ? val : params.value.pageNumber
+  post('/tuge/powerExchangeCabinetList', { ...params.value }, 'json').then(res => {
+    cabinets.value = cabinets.value.concat(res)
+    // total.value = res.total
+  })
+}
+watch(() => global.userAddress, (n, o) => {
+  if(n?.location || o?.location) {
+    params.value.latitude = n.location.lat as unknown as string
+    params.value.longitude = n.location.lng as unknown as string
+    getDataList()
+  }
+}, { deep: true })
 // 刷新位置
 const requestCount = ref<number>(3)
 const inRotation = ref<boolean>(false)
@@ -17,51 +42,18 @@ const refreshPosition = () => {
   }
   inRotation.value = true
   requestCount.value++
-  global.getUserAddress()
+  global.setUserAddress()
   setTimeout(() => {
     inRotation.value = false
   }, requestCount.value * 1000)
 }
 
-const cabinets = ref([
-  {
-    latitude: 26.0527,
-    longitude: 119.31414,
-    name: '福州仓山万达站1柜',
-    address: '福建省福州市鼓楼区XXX',
-    num: 999
-  },
-  {
-    name: '福州仓山万达站2柜',
-    address: '福建省福州市鼓楼区XXX',
-    num: 999
-  },
-  {
-    name: '福州仓山万达站3柜',
-    address: '福建省福州市鼓楼区XXX',
-    num: 999
-  },
-  {
-    name: '福州仓山万达站',
-    address: '福建省福州市鼓楼区XXX',
-    num: 999
-  },
-  {
-    name: '福州仓山万达站',
-    address: '福建省福州市鼓楼区XXX',
-    num: 999
-  },
-  {
-    name: '福州仓山万达站',
-    address: '福建省福州市鼓楼区XXX',
-    num: 999
-  },
-  {
-    name: '福州仓山万达站',
-    address: '福建省福州市鼓楼区XXX',
-    num: 999
-  }
-])
+// scroll-view 触底
+const scrollToLower = () => {
+  if(cabinets.value.length >= total.value) return
+  params.value.pageNumber += 1
+  getDataList()
+}
 // 跳机柜信息
 const goCabinetInfo = () => {
   uni.navigateTo({ url: '/pages/cabinet/info/index' })
@@ -76,6 +68,7 @@ const mapNavigation = (item: any) => {
     latitude: item.latitude,
     longitude: item.longitude,
     address: item.address,
+    name: item.name,
     success: res =>  {
       console.log(`res + ::>>`, res)
     }
@@ -86,7 +79,7 @@ const mapNavigation = (item: any) => {
 <template>
   <div class="container list-page flex-col">
     <div class="flex-c search-box">
-      <input class="input relative iconfont" confirm-type="search" placeholder="请输入您的搜索内容" placeholder-class="input-plc" maxlength="18" />
+      <input class="input relative iconfont" v-model="params.keywords" @confirm="getDataList(1)"  confirm-type="search" placeholder="请输入您的搜索内容" placeholder-class="input-plc" maxlength="18" />
       <image src="@/static/imgs/cabinet/map_mark.png" class="mar-mark" @click="goMap" />
     </div>
     <div class="flex-row-sb address-info">
@@ -100,12 +93,10 @@ const mapNavigation = (item: any) => {
       </div>
     </div>
     <scroll-view 
-      :scroll-top="scrollTop" 
       scroll-y="true" 
-      class="cab-ls" 
-      @scrolltoupper="upper" 
-      @scrolltolower="lower" 
-      @scroll="scroll" 
+      class="scroll-y-list overflow-h" 
+      :enable-back-to-top="true"
+      @scrolltolower="scrollToLower" 
       :style="{'height': global.scrollHeight + 'px'}"
     >
       <div class="flex-c cab bg-white" v-for="(item, index) in cabinets" :key="index" @click="goCabinetInfo">
@@ -121,7 +112,7 @@ const mapNavigation = (item: any) => {
               <view class="cabinet">可租借</view>
               <view>{{ item.num }}</view>
             </view>
-            <image mode="widthFix" src="@/static/imgs/home/navigate.png" class="nav" @click="mapNavigation(item)" />
+            <image mode="widthFix" src="@/static/imgs/home/navigate.png" class="nav" @click.stop="mapNavigation(item)" />
           </view>
         </view>
       </div>
@@ -204,8 +195,8 @@ const mapNavigation = (item: any) => {
     }
   }
 
-  .cab-ls {
-    margin-top: 30rpx;
+  .scroll-y-list {
+    margin: 30rpx 0;
     border-radius: 24rpx;
     .cab {
       color: black;
@@ -243,6 +234,7 @@ const mapNavigation = (item: any) => {
         .nav {
           width: 142rpx;
           height: 64rpx;
+          z-index: 9;
         }
       }
     }
