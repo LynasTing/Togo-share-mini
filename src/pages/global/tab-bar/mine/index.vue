@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 import useStore from '@/store'
+import { splitString } from '@/utils/tools.js'
 
 const { global } = useStore()
 const csMenu = reactive([
@@ -41,7 +42,7 @@ const toolsNavigate = e => {
         <div class="flex-row-sb-c container ">
           <div class="flex-c">
             <image src="@/static/imgs/mine/cs_0.png" class="avatar" />
-            <div class="username">{{ global.userInfo?.userName || '河豚换电用户'}}</div>
+            <div class="username">{{ splitString(global.userInfo.name, 8) || '河豚换电用户' }}</div>
           </div>
           <div class="flex-c text-base" @click="goUserInfo">
             <div>查看资料</div>

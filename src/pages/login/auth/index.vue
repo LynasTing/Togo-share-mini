@@ -79,7 +79,7 @@ const otherLogin = () => {
   if(!agreeCheck.value) {
     uni.showModal({
       title: '提示',
-      content: '手机号码登录即代表您同意我们的《《用户协议》》',
+      content: '手机号码登录即代表您同意我们的《用户协议》',
       success: res => {
         if(res.confirm) {
           agreeCheck.value = true
