@@ -1,10 +1,9 @@
 import { _showLoading, _hideLoading } from "./loading"
 import type { Api } from '@/types/global'
 import useStore from '@/store'
-import { modifyPostParam } from './tools.js'
 
-export function post(url: string, data?: any, type?: string) {
-  return new Promise((resolve, reject) => {
+export function post<T>(url: string, data?: any, type?: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
     let base_url
     switch (uni.getAccountInfoSync().miniProgram.envVersion) {
       case 'develop':
@@ -17,10 +16,12 @@ export function post(url: string, data?: any, type?: string) {
     // 项目有两种类型接口, json 和 x-www-form-urlencoded
     const { global } = useStore()
     const header = {
-      'HT-Token': global.userInfo?.token || '',
-      'HT-Account-Uid': global.userInfo?.accountUid || '',
+      'HT-Token': type === 'json' ? global.accountInfo?.token : '',
+      'HT-Account-Uid': type === 'json' ? global.accountInfo?.accountUid : '',
       'Content-Type': `application/${type === 'json' ? 'json;charset=UTF-8' : 'x-www-form-urlencoded'}`,
     }
+    // 在请求参数中, 加入ACCUID和TOKEN参数
+    if(type !== 'json') data = { ...data, ...{ ACCUID: global.accountInfo.accountUid, TOKEN: global.accountInfo.token } }
     _showLoading()
     uni.request({
       url: base_url + url,
@@ -30,23 +31,23 @@ export function post(url: string, data?: any, type?: string) {
       header,
       success: async res => {
         _hideLoading()
-        const { code, data, msg } = res.data as Api
+        const { code, data, msg } = res.data as Api<T>
         if(code === '000000') {
-          data ? resolve(data) : resolve({})
+          data ? resolve(data as T) : resolve({} as T)
         } else if(code === '000005'){
           uni.showToast({
             title: '登录状态已过期，请重新登录',
             icon: 'none',
-            duration: 2000
+            duration: 2 * 1000
           })
-          var pages = await getCurrentPages();
+          var pages = await getCurrentPages()
           const url = pages[pages.length - 1]?.route
           setTimeout(() => {
             uni.redirectTo({ url: `/pages/login/auth/index?url=${'/' + url}` })
-          }, 2 * 2000)
+          }, 2 * 1000)
         } else {
           uni.showToast({
-            title: msg,
+            title: msg || '请求错误',
             icon: 'none',
             duration: 2000
           })

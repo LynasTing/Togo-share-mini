@@ -10,7 +10,7 @@ const authReject = () => {
     icon: 'none',
     duration: 2 * 1000
   })
-  global.getUserAddress('clear')
+  global.setUserAddress('clear')
 }
 export default defineStore('global', {
   state: () => ({
@@ -18,8 +18,9 @@ export default defineStore('global', {
     scrollHeight: 750,
     deviceType: '',
     authCodeTimer: 0,
+    usingCity: '福州',
     userAddress: {} as UserAddressType,
-    userInfo: {}
+    accountInfo: uni.getStorageSync('accountInfo') || {}
   }),
   actions: {
     setPaddingBottomHeight(val: number) {
@@ -29,7 +30,7 @@ export default defineStore('global', {
       this.deviceType = val
     },
     // 获取用户位置
-    getUserAddress(val?: string) {
+    setUserAddress(val?: string) {
       // 4.用户依然拒绝授权, 清空现有的位置信息
       if(val) {
         this.userAddress = {
@@ -104,7 +105,7 @@ export default defineStore('global', {
                         icon: 'none',
                         duration: 2 * 1000
                       })
-                      that.getUserAddress()
+                      that.setUserAddress()
                     }else {
                       authReject()
                     }
@@ -121,8 +122,8 @@ export default defineStore('global', {
       })
     },
     // 用户信息
-    setUserInfo(val: object) {
-      this.userInfo = val 
+    setAccountInfo(val: object) {
+      this.accountInfo = val 
     },
     // 屏幕可用高度
     setScrollHeight(val: number) {
@@ -131,6 +132,10 @@ export default defineStore('global', {
     // 验证码登录倒计时
     setAuthCodeTimer(val: number) {
       this.authCodeTimer = val
+    },
+    // 用户使用城市
+    setUsingCity(val: string) {
+      this.usingCity = val
     }
   }
 })

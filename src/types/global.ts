@@ -1,6 +1,6 @@
-export interface Api {
+export interface Api<T> {
   code: string
-  data: any
+  data: T | any
   msg: string
 }
 export type TabBarType = {
