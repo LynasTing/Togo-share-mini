@@ -57,9 +57,6 @@
         },
         "usingComponents" : true,
         "permission": {
-            "scope.camera": {
-                "desc": "请求获取您的相机权限"
-            },
             "scope.userLocation": {
                 "desc": "请求获取您的位置信息"
             }

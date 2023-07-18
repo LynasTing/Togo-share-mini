@@ -1,4 +1,4 @@
-view, textarea, input, cover-view {
+view, textarea, input, cover-view, scroll-view {
   box-sizing: border-box;
   font-family: PingFang SC-Bold, PingFang SC;
 }
@@ -15,8 +15,33 @@ button[disabled] {
   color:#F85959;
   background-color:#fff;
 }
+.search-input {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 64rpx;
+  color: black;
+  font-size: 30rpx;
+  background-color: white;
+  padding: 0 28rpx 0 64rpx;
+  border-radius: 999rpx;
+  &::before {
+    content: '\e67d';
+    position: absolute;
+    top: 50%;
+    left: 2%;
+    transform: translateY(-50%);
+    font-size: 42rpx;
+  }
+}
 button{
   box-shadow: none;
+}
+.block {
+  display: block;
+}
+.inline-block {
+  display: inline-block;
 }
 .flex {
   display: flex;

@@ -1,7 +1,7 @@
 {
 	"easycom": {
 		"custom": {  
-	        "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue" 
+	    "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue" 
 		}
 	},
 	"globalStyle": {
@@ -10,7 +10,7 @@
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
 	},
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
 		{
 			"path": "pages/global/tab-bar/home/index",
 			"style": {
@@ -22,7 +22,8 @@
 		{
 			"path": "pages/global/area/index",
 			"style": {
-				"navigationBarTitleText": "地区选择"
+				"navigationBarTitleText": "地区选择",
+				"navigationBarBackgroundColor": "#fafbfd"
 			}
 		},
 		{
@@ -83,9 +84,26 @@
 			}
 		},
 		{
+			"path": "pages/global/tab-bar/mine/fill-out/index",
+			"style": {
+				"navigationBarTitleText": "上传头像和昵称",
+				"disableScroll": true,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		},
+		{
 			"path": "pages/global/tab-bar/mine/user-info/index",
 			"style": {
-				"navigationBarTitleText": "个人资料"
+				"navigationBarTitleText": "个人资料",
+				"disableScroll": true,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		},
+		{
+			"path": "pages/global/tab-bar/mine/real-name-auth/index",
+			"style": {
+				"navigationBarTitleText": "实名认证",
+				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
@@ -109,7 +127,6 @@
 			"path": "pages/cabinet/info/index",
 			"style": {
 				"navigationBarTitleText": "租赁柜信息",
-				"disableScroll": true,
 				"navigationBarTextStyle": "black",
 				"navigationBarBackgroundColor": "#FFF"
 			}
@@ -151,6 +168,14 @@
 			}
 		},
 		{
+			"path": "pages/customer-services/wallet/my-combo/index",
+			"style": {
+				"navigationBarTitleText": "我的套餐",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFF"
+			}
+		},
+		{
 			"path": "pages/customer-services/wallet/my-deposit/index",
 			"style": {
 				"navigationBarTitleText": "我的押金",
@@ -182,7 +207,9 @@
 		{
 			"path": "pages/tools/activate-package/index",
 			"style": {
-				"navigationBarTitleText": "开通套餐"
+				"navigationBarTitleText": "开通套餐",
+				"navigationBarBackgroundColor": "#363c4f",
+				"navigationBarTextStyle": "white"
 			}
 		},
 		{

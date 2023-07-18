@@ -1,35 +1,25 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
 import { onReady } from '@dcloudio/uni-app'
+import type { MapMarkersType, MapCardType } from '@/types/cabinet'
 
-const latitude = ref<number>(39.909)
-const longitude = ref<number>(116.39742)
+const keywords = ref<string>('')
+const lat = ref<number>(39.909)
+const lng = ref<number>(116.39742)
+// 获取站点图标列表
+const covers = ref<MapMarkersType[]>()
+const getCabinetMarkers = (lat: number, lng: number, keywords: string) => {
+  post<MapMarkersType[]>('/changing/mapExchangeList', { latitude: lat, longitude: lng, keywords }, 'json').then(res => {
+    if(res.length) covers.value = res
+  })
+}
 // 图标
-const covers = ref([
-  {
-    id: 111,
-    latitude: 26.0527,
-    longitude: 119.31414,
-    iconPath: '/static/imgs/cabinet/lightning.png',
-    width: '54rpx',
-    height: '54rpx',
-  }
-])
 uni.getLocation({
   type: 'gcj02',
 	success: function (res) {
-    latitude.value = res.latitude
-    longitude.value = res.longitude
-    post('/tuge/mapExchangeList', { latitude: res.latitude, longitude: res.longitude }, 'json').then(res => {
-      if(res.length) covers.value = res
-    })
-    // uni.openLocation({
-		// 	latitude: latitude.value,
-		// 	longitude: longitude.value,
-		// 	success: function () {
-		// 		console.log('success');
-		// 	}
-		// });
+    lat.value = res.latitude
+    lng.value = res.longitude
+    getCabinetMarkers(lat.value, lng.value, keywords.value)
 	},
   fail: err => {
     console.log(`err + ::>>`, err)
@@ -40,22 +30,20 @@ uni.getLocation({
     })
   }
 })
-
 const showCard = ref<boolean>(false)
 // 关闭卡片
-const closeCard = (_e) => {
+const closeCard = (_e: any) => {
   showCard.value = false
 }
 // 获取单个机柜信息 打开卡片
-const cabinetInfo = ref({})
-const openCard = (e) => {
+const cabinetInfo = ref()
+const openCard = (e: any) => {
   const params = {
     id: e.detail.markerId,
-    longitude: longitude.value,
-    latitude: latitude.value,
+    longitude: lng.value,
+    latitude: lat.value,
   }
-  post('/tuge/mapExchangeId', { ...params }, 'json').then(res => {
-    console.log(`res + ::>>`, res)
+  post<MapCardType>('/changing/mapExchangeId', { ...params }, 'json').then(res => {
     if(res.cabinetName) cabinetInfo.value = res
   })
   showCard.value = true
@@ -63,20 +51,22 @@ const openCard = (e) => {
 // 跳导航
 const goWxNavigation = () => {
   uni.openLocation({
-    name: cabinetInfo.value.cabinetName,
-    address: cabinetInfo.value.address,
-    latitude: cabinetInfo.value.latitude,
-    longitude: cabinetInfo.value.longitude,
+    name: cabinetInfo.value!.cabinetName,
+    address: cabinetInfo.value!.address,
+    latitude: cabinetInfo.value!.latitude,
+    longitude: cabinetInfo.value!.longitude,
     success: res => {
       console.log('success', res)
     }
   })
 }
 // 搜索
-const searchFn = (e) => {
-  console.log(`1 + ::>>`, )
-  console.log(`e + ::>>`, e)
+const searchFn = (e: InputEvent) => {
+  const { value } = e.target as HTMLInputElement
+  keywords.value = value
+  getCabinetMarkers(lat.value, lng.value, keywords.value)
 }
+// 地图初始化渲染
 const _mapContext = ref<any>()
 onReady(() => {
   _mapContext.value = uni.createMapContext('map')
@@ -90,14 +80,14 @@ const nowPosition = () => {
 <template>
   <view class="page-map relative">
     <view class="search-box w-full">
-      <input type="text" class="search-input iconfont" placeholder="请输入您的搜索内容" placeholder-style="color: black;" confirm-type="search" maxlength="10" @confirm="searchFn">
+      <input type="text" class="search-input iconfont" v-model="keywords" placeholder="请输入您的搜索内容" placeholder-style="color: black;" confirm-type="search" maxlength="10" @confirm="searchFn">
     </view>
     <map 
       style="width: 100%; height: 100vh;" 
       class="relative"
       scale="12"
-      :latitude="latitude" 
-      :longitude="longitude" 
+      :latitude="lat" 
+      :longitude="lng" 
       :markers="covers" 
       :enable-rotate="true"
       :show-location="true" 
@@ -106,9 +96,8 @@ const nowPosition = () => {
       id="map"
       ref="map"
     >
-      <!-- <cover-view class="iconfont icon-dingwei absolute regression" @click="nowPosition"></cover-view> -->
       <cover-image class="absolute regression" src="@/static/imgs/cabinet/central_point.png"  @click="nowPosition" />
-      <cover-view class="mark-card absolute" :class="showCard ? 'slide-in-y' : 'slide-out-y'">
+      <cover-view class="mark-card absolute" :class="showCard ? 'slide-in-y' : 'slide-out-y'" v-if="showCard">
         <!-- 上 -->
         <cover-view class="flex-row-sb-c usable-number">         
           <cover-view class="flex-row-sb-c number-box" v-for="(item, index) in cabinetInfo.list" :key="index">

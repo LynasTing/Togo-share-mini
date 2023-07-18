@@ -1,67 +1,77 @@
 <script lang="ts" setup>
+import { post } from '@/utils/request';
+import type { CabinetDetail } from '@/types/cabinet'
+
+/**
+ * 1 正常  2 空仓 3 禁用 4 锁定 
+ */
+const data = {
+  name: 'xxx',
+  code: 'xxx',
+} 
+// 样式
+const formatType = computed(()=> {
+  return function(type: string) {
+    switch (type) {
+      case '1':
+        return 'green'
+      case '2':
+        return 'black'
+      case '3':
+        return 'disable'
+      case '4':
+        return 'purple'
+    }
+  }
+})
+// 文字
+const formatTypeText = computed(()=> {
+  return function(text: string) {
+    switch (text) {
+      case '2':
+        return '空仓'
+      case '3':
+        return '禁用'
+      case '4':
+        return '锁定'
+    }
+  }
+})
+// 机柜基本信息
+const cabinetDetail = ref<CabinetDetail>()
+post<CabinetDetail>('/changing/cabinetDetails', { cabinetUid: 'GZ122304001' }, 'json').then(res => {
+  if(res.uid) cabinetDetail.value = res
+})
 </script>
 
 <template>
   <view class="detail-page container"> 
     <!-- 信息 -->
     <view class="info">
-      <view class="name">富力中心A333柜</view>
-      <view class="code">柜组编码： TGGGGGGGGGGGGGGGGGGGG</view>
+      <view class="name">{{ cabinetDetail?.cabinetName }}</view>
+      <view class="code">柜组编码： {{ cabinetDetail?.uid }}</view>
       <view class="flex-row-sb-c data">
         <view class="flex-row-sb-c flex-1">
-          <view class="flex-col-c">
-            <view>3</view>  
-            <view>M1000S</view>
+          <view class="flex-col-c" :class="index === 3 ? 'right' : ''" v-for="(item, index) in cabinetDetail?.list" :key="index">
+            <view>{{ item.value }}</view>  
+            <view>{{ item.name }}</view>
           </view>
-          <view class="flex-col-c">
-            <view>3</view>
-            <view>M1000S</view>
-          </view>
-          <view class="flex-col-c">
-            <view>3</view>
-            <view>空仓</view>
-          </view>
-        </view>
-        <view class="right flex-col-c">
-          <view>≥90%</view>
-          <view>满电标准</view>
         </view>
       </view>
     </view>
     <!-- 仓门 -->
-    <view class="bin-door flex-row-sb-c flex-wrap ">
-      <view class="bin flex-col">
-        <view class="header">1</view>
-        <view class="green">
-          <text class="num">95%</text>
-          <progress :percent="99" stroke-width="10" border-radius="20rpx"	/>
-          <text class="type">M1000S</text>
-        </view>
-      </view>
-      <view class="bin flex-col">
-        <view class="header">1</view>
-        <view class="cyan">
-          <text class="num">95%</text>
-          <progress :percent="99" stroke-width="10" border-radius="20rpx"	/>
-          <text class="type">M1000S</text>
-        </view>
-      </view>
-      <view class="bin flex-col">
-        <view class="header">1</view>
-        <view class="purple">
-          <text class="num">锁定</text>
-        </view>
-      </view>
-      <view class="bin flex-col">
-        <view class="header">1</view>
-        <view class="black">
-          <text class="num">空仓</text>
-        </view>
-      </view>
-      <view class="bin flex-col">
-        <view class="header">1</view>
-        <view class="disable">
-          <text class="num">禁用</text>
+    <view class="bin-door flex-row-sb-c flex-wrap" >
+      <view class="bin flex-col" v-for="(item, index) in cabinetDetail?.boxList" :key="index" >
+        <view class="header">{{ index }}</view> 
+        <view class="green"  :class="formatType(item.type)">
+          <view v-if="item.type === '1'">
+            <text class="num">
+              {{ item.batterySoc || 0 }}
+              %</text>
+            <progress :percent="item.batterySoc" stroke-width="10" border-radius="20rpx"	/>
+            <text class="type">{{ item.batteryName }}</text>
+          </view>
+          <view v-else  class="num">{{ formatTypeText(item.type) }}</view>
         </view>
       </view>
     </view>

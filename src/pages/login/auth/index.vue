@@ -15,8 +15,8 @@ const loginSuccess = (val: any) => {
     icon: 'success',
     duration: 1 * 1500
   })
-  global.setUserInfo(val)
-  uni.setStorageSync('userInfo', val)
+  global.setAccountInfo(val)
+  uni.setStorageSync('accountInfo', val)
   setTimeout(() => {
     if(redirect.value) {
       uni.redirectTo({ url: redirect.value })

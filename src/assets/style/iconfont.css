@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4122062 */
-  src: url('//at.alicdn.com/t/c/font_4122062_4apxna4xjnp.woff2?t=1688800246720') format('woff2'),
-       url('//at.alicdn.com/t/c/font_4122062_4apxna4xjnp.woff?t=1688800246720') format('woff'),
-       url('//at.alicdn.com/t/c/font_4122062_4apxna4xjnp.ttf?t=1688800246720') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_4122062_n25j2eyiqp.woff2?t=1689386920835') format('woff2'),
+       url('//at.alicdn.com/t/c/font_4122062_n25j2eyiqp.woff?t=1689386920835') format('woff'),
+       url('//at.alicdn.com/t/c/font_4122062_n25j2eyiqp.ttf?t=1689386920835') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,22 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-neirongweikong1:before {
+  content: "\e605";
+}
+
+.icon-neirongweikong:before {
+  content: "\e78a";
+}
+
+.icon-shuaxin2:before {
+  content: "\e73a";
+}
+
+.icon-changpengpaoche:before {
+  content: "\e618";
 }
 
 .icon-rmb:before {

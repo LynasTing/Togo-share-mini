@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import useStore from '@/store'
-import { post } from '@/utils/request';
+import { post } from '@/utils/request'
  
 const { global } = useStore()
+// 城市索引列表
 const indexList = ref([])
 const cities = ref([])
 post('/account/area', {}, 'json').then(res => {
@@ -11,6 +12,40 @@ post('/account/area', {}, 'json').then(res => {
 		cities.value = res.data
 	}
 })
+// 热门城市
+const hotCities = ref([])
+watch(() => global.userAddress, (n, o) => {
+  if(n?.location || o?.location) {
+		const hotCityParams = ref({
+			organizationId: 142,
+			latitude: global.userAddress.location?.lat,
+			longitude: global.userAddress.location?.lng
+		})
+		post('/cabinet/getCityInfoByOrganizationId', { ...hotCityParams.value }, '').then(res => {
+			console.log(`res + ::>>`, res)
+			if(res.allRegionList.length) hotCities.value = res.allRegionList
+		})
+  }
+}, { immediate: true, deep: true })
+// 选择热门城市
+const hotCitySelect = (item) => {
+	uni.showModal({
+		title: '提示',
+		content: `您确定要将地区切换为${item.cityName}吗？`,
+		success: res => {
+			if (res.confirm) {
+				global.setUsingCity(item.cityName)
+				uni.showToast({
+					title: '操作成功',
+					duration: 1.5 * 1000
+				})
+				setTimeout(() => {
+					uni.navigateBack()
+				}, 1.5 * 1000)
+			}
+		}
+	})
+}
 // 刷新位置
 const requestCount = ref<number>(3)
 const inRotation = ref<boolean>(false)
@@ -32,6 +67,15 @@ const refreshPosition = () => {
 }
 // 选择城市
 const selectCity = (sub : string) => {
+	if(!hotCities.value.some(item => item.cityName === sub)) {
+		uni.showToast({
+			title: '您所选的城市暂未开通服务',
+			icon: 'none',
+			duration: 1.5 * 1000,
+			mask: false
+		})
+		return
+	}
 	uni.showModal({
 		title: '提示',
 		content: `您确定要将地区切换为${sub}吗？`,
@@ -53,10 +97,10 @@ const selectCity = (sub : string) => {
 
 <template>
 	<view class="page flex-col">
-		<view class="search-box flex--c">
+		<!-- <view class="search-box flex--c">
 			<input type="text" class="search-input flex-1 iconfont" placeholder="请输入您的搜索内容">
 			<view class="btn">搜索</view>
-		</view>
+		</view> -->
 		<view class="flex-row-sb address-info">
       <view class="now-location flex-1">
         <view class="desc">当前定位</view>
@@ -67,8 +111,14 @@ const selectCity = (sub : string) => {
         <view>重新定位</view>
       </view>
     </view>
-		<view class="cities overflow-h flex-1">
-			<u-index-list :index-list="indexList" customNavHeight="109"  activeColor="#FDC401">
+		<view class="hot-city" v-if="hotCities.length">
+			<view class="hot-city-title">热门城市</view>
+			<view class="hot-city-list">
+				<view class="hot-city-list-item inline-block" v-for="(item) in hotCities" :key="item.organizationId" @click="hotCitySelect(item)">{{ item.cityName }}</view>
+			</view>
+		</view>
+		<view class="cities overflow-h flex-1" v-if="cities.length">
+			<u-index-list :index-list="indexList" customNavHeight="160"  activeColor="#FDC401">
 				<template v-for="(item, index) in cities" :key="index">
 					<u-index-item>
 						<u-index-anchor :text="indexList[index]" bgColor="#FFFFFF"></u-index-anchor>
@@ -77,6 +127,7 @@ const selectCity = (sub : string) => {
 				</template>
 			</u-index-list>
 		</view>
+		<Empty v-else text="暂无地区" />
 	</view>
 </template>
 
@@ -107,6 +158,7 @@ const selectCity = (sub : string) => {
 			overflow: hidden;
 			letter-spacing: 2rpx;
 			.desc {
+				font-weight: 700;
 				margin-bottom: 16rpx;
 			}
 			.address {
@@ -138,11 +190,35 @@ const selectCity = (sub : string) => {
 			}
 		}
 	}
-}
-
-.cities {
-	height: 200rpx ;
-}
+	.hot-city {
+		margin-top: 14rpx;
+		padding: 10rpx 30rpx;
+		background-color: white;
+		&-title {
+			font-size: 28rpx;
+			font-family: PingFang SC-Bold, PingFang SC;
+			font-weight: bold;
+			color: #333333;
+			margin-bottom: 28rpx;
+		}
+		
+		.hot-city-list {
+			display: flex;
+			flex-wrap: nowrap;
+			overflow-x: auto;
+			.hot-city-list-item {
+				font-size: 26rpx;
+				color: #333333;
+				white-space: nowrap;
+				text-align: center;
+				margin: 0 28rpx 18rpx 0;
+				padding: 10rpx 40rpx;
+				background: #FFFFFF;
+				border-radius: 12rpx;
+				border: 1rpx solid #707070;
+			}
+		}
+	}
 	.list-cell {
 		display: flex;
 		box-sizing: border-box;
@@ -154,4 +230,6 @@ const selectCity = (sub : string) => {
 		line-height: 24px;
 		background-color: #fff;
 	}
+}
+
 </style>

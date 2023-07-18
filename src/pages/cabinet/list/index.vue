@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import useStore from '@/store'
 import { post } from '@/utils/request'
+import type { Cabinet, CabinetsType } from '@/types/cabinet' 
 
 const { global } = useStore()
 global.setUserAddress()
@@ -8,17 +9,17 @@ global.setUserAddress()
 const params = ref({
   longitude: '',
   latitude: '',
-  pageNumber: 1,
+  page: 1,
   pageSize: 10,
   keywords: ''
 })
-const cabinets = ref([])
+const cabinets = ref<CabinetsType[]>([])
 const total = ref<number>(0)
 const getDataList = (val?: number) => {
-  params.value.pageNumber = val ? val : params.value.pageNumber
-  post('/tuge/powerExchangeCabinetList', { ...params.value }, 'json').then(res => {
-    cabinets.value = cabinets.value.concat(res)
-    // total.value = res.total
+  params.value.page = val ? val : params.value.page
+  post<Cabinet>('/changing/powerExchangeCabinetList', { ...params.value }, 'json').then(res => {
+    cabinets.value = val === 1 ? res.list : cabinets.value.concat(res.list) 
+    total.value = res.total
   })
 }
 watch(() => global.userAddress, (n, o) => {
@@ -51,12 +52,12 @@ const refreshPosition = () => {
 // scroll-view 触底
 const scrollToLower = () => {
   if(cabinets.value.length >= total.value) return
-  params.value.pageNumber += 1
+  params.value.page += 1
   getDataList()
 }
 // 跳机柜信息
-const goCabinetInfo = () => {
-  uni.navigateTo({ url: '/pages/cabinet/info/index' })
+const goCabinetInfo = (e: CabinetsType) => {
+  uni.navigateTo({ url: `/pages/cabinet/info/index?id=${e.id}` })
 }
 // 跳地图
 const goMap = () => {
@@ -93,30 +94,35 @@ const mapNavigation = (item: any) => {
       </div>
     </div>
     <scroll-view 
+      v-if="cabinets.length"
       scroll-y="true" 
       class="scroll-y-list overflow-h" 
       :enable-back-to-top="true"
       @scrolltolower="scrollToLower" 
       :style="{'height': global.scrollHeight + 'px'}"
     >
-      <div class="flex-c cab bg-white" v-for="(item, index) in cabinets" :key="index" @click="goCabinetInfo">
+      <div class="flex-c cab bg-white" v-for="(item, index) in cabinets" :key="index" @click="goCabinetInfo(item)">
         <image mode="widthFix" src="@/static/imgs/home/cabinet.png" class="cover" />
-        <view class="flex-col-sb flex-1">
-          <view>
+        <view class="flex-col-sb flex-1 overflow-h">
+          <view class="w-full">
             <view class="title">{{ item.name }}</view>
-            <view class="address">地址：{{ index }}{{ item.address }}</view>
+            <view class="address flex">
+              <text>地址：</text>
+              <text class="del-text-2">{{ item.address }}</text>
+            </view>
           </view>
           <view class="flex-row-sb-c bottom-box">
             <view class="lightning-box flex-c">
               <image mode="widthFix" src="@/static/imgs/home/lightning.png"  />
               <view class="cabinet">可租借</view>
-              <view>{{ item.num }}</view>
+              <view>{{ item.useAbleNum || 0 }}</view>
             </view>
             <image mode="widthFix" src="@/static/imgs/home/navigate.png" class="nav" @click.stop="mapNavigation(item)" />
           </view>
         </view>
       </div>
     </scroll-view>
+    <Empty v-else text="列表数据为空~" />
   </div>
 </template>
 
@@ -217,9 +223,16 @@ const mapNavigation = (item: any) => {
       .address {
         font-size: 26rpx;
         color: #aaaaaa;
+        .del-text-2 {
+            font-size: 24rpx;
+            max-height: 68rpx;
+            white-space: pre-wrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
       }
       .bottom-box {
-        margin-top: 36rpx;
+        margin-top: 26rpx;
         .lightning-box {
           font-size: 24rpx;
           color: #888;

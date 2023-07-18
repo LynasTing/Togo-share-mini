@@ -15,9 +15,8 @@ const authCodeChange = (e: string) => {
 }
 
 // 手机号码输入
-const inputPhone = (e) => {
+const inputPhone = (e: number) => {
   const reg = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/
-  console.log(`e + ::>>`, e)
 }
 // 发送验证码
 const timerCount = ref<number>(global.authCodeTimer || 60)
@@ -67,14 +66,13 @@ const formSubmit = () => {
     return
   }
   post('/tuge/login', { ...loginParams.value }, 'json').then(res => {
-    console.log(`res + ::>>`, res)
     if(res?.token) {
       uni.showToast({
         title: '登录成功',
         icon: 'success',
         duration: 1500
       })
-      global.setUserInfo(res)
+      global.setAccountInfo(res)
       setTimeout(() => {
         uni.reLaunch({ url: '/pages/global/tab-bar/home/index' })
       }, 1 * 1500)

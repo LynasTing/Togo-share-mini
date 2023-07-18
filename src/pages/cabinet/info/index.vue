@@ -1,10 +1,43 @@
-<script lang="ts" setup>
+<script lang="ts" setup async >
+import { post } from '@/utils/request'
+import type { CabinetInfo } from '@/types/cabinet' 
+import { onLoad } from '@dcloudio/uni-app'
+import useStore from '@/store'
 
-
+const { global } = useStore()
+const params = ref({
+  id: 0,
+  latitude: global.userAddress.location.lat || 0,
+  longitude: global.userAddress.location.lng || 0
+})
+onLoad((options) => {
+  if(options?.id) params.value.id = options.id
+})
+// 租赁柜信息
+const cabinetInfo = ref({} as CabinetInfo)
+const getCabinetInfo = () => {
+  post<CabinetInfo>('/changing/powerExchangeDetails', { ...params.value }, 'json').then(res => {
+    if(res?.uid) cabinetInfo.value = res
+  })
+}
+nextTick(() => {
+  getCabinetInfo()
+})
 // 跳机柜详情
 const goDetail = () => {
-  console.log(`1 + ::>>`, )
   uni.navigateTo({ url: '/pages/cabinet/detail/index' })
+}
+// 机柜导航
+const mapNavigation = () => {
+  uni.openLocation({
+    latitude: cabinetInfo.value.latitude,
+    longitude: cabinetInfo.value.longitude,
+    address: cabinetInfo.value.address,
+    name: cabinetInfo.value.cabinetName,
+    success: res =>  {
+      console.log(`机柜导航成功 + ::>>`, res)
+    }
+  })
 }
 </script>
 
@@ -14,48 +47,36 @@ const goDetail = () => {
     <!-- 位置 -->
     <view class="location">
       <view class="flex-row-sb">
-        <view class="name">福州苍山万达站</view>
-        <image src="@/static/imgs/cabinet/nav.png" mode="widthFix" />
+        <view class="name">{{ cabinetInfo.cabinetName || '机柜名' }}</view>
+        <image src="@/static/imgs/cabinet/nav.png" mode="widthFix" @click="mapNavigation" />
       </view>
       <view class="address flex-c">
         <view class="iconfont icon-yuandian"></view>
-        <view class="distance">距您99.99KM</view>
+        <view class="distance">
+          距您
+          <text>{{ cabinetInfo.userFromDistance || '10' }}</text>
+          KM
+        </view>
         <view class="iconfont icon-shuxian"></view>
-        <view class="text-del-1">福州市仓山区金山街道浦上大道274号</view>
+        <view class="text-del-1">{{ cabinetInfo.address || '福州市仓山区金山街道浦上大道274号' }}</view>
       </view>
     </view>
     <!-- 可用 -->
     <view class="useable">
       <view class="flex-c h4">可用电池数量</view>
-      <view class="type flex-row-sb-c">
+      <view class="type flex-row-sb-c" v-for="(item, index) in cabinetInfo.list" :key="index">
         <view class="left flex-col-c">
-          <view class="num-text">M1000S</view>
+          <view class="num-text">{{ item.name || '' }}</view>
           <view>电源型号</view>
         </view>
         <view class="right flex-c flex-1">
           <view class="flex-col-sb-c flex-1">
-            <view class="num-text">3</view>
+            <view class="num-text">{{ item.useAbleNum || 0 }}</view>
             <view>可用电源</view>
           </view>
           <view class="flex-col-sb-c flex-1">
-            <view class="num-text">8</view>
-            <view>电量≥90%</view>
-          </view>
-        </view>
-      </view>
-      <view class="type flex-row-sb-c">
-        <view class="left flex-col-c">
-          <view class="num-text">M1000S</view>
-          <view>电源型号</view>
-        </view>
-        <view class="right flex-c flex-1">
-          <view class="flex-col-sb-c flex-1">
-            <view class="num-text">3</view>
-            <view>可用电源</view>
-          </view>
-          <view class="flex-col-sb-c flex-1">
-            <view class="num-text">8</view>
-            <view>电量≥90%</view>
+            <view class="num-text">{{ item.useAbleNum || 0 }}</view>
+            <view>电量≥{{ item.noLessThanSoc }}%</view>
           </view>
         </view>
       </view>
@@ -65,8 +86,8 @@ const goDetail = () => {
       <view class="flex-c h4">机柜信息</view>
       <view class="flex-row-sb-c" @click="goDetail">
         <view class="name-code">
-          <view>机柜名称: XXXXXXXXXXXXXXX</view>
-          <view>机柜编号: XXXXXXXXXXXXXXX</view>
+          <view>机柜名称: {{ cabinetInfo.cabinetName }}</view>
+          <view>机柜编号: {{ cabinetInfo.uid }}</view>
         </view>
         <view class="iconfont icon-youjiantou"></view>
       </view>
@@ -76,9 +97,9 @@ const goDetail = () => {
 
 <style lang="scss" scoped>
 .info-page {
-  padding: 0 30rpx;
+  padding: 0 30rpx 30rpx;
   .location {
-    margin: 40rpx 0 60rpx;
+    margin: 40rpx 0;
     .name {
       font-size: 36rpx;
       font-weight: 600;
@@ -94,7 +115,7 @@ const goDetail = () => {
         font-size: 40rpx;
       }
       .distance {
-        min-width: 150rpx;
+        min-width: 180rpx;
         color: #0dc2da;
       }
     }
