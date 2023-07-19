@@ -1,24 +1,105 @@
 <script lang="ts" setup>
 import type { MediaType } from "@/types/global";
+import { post } from "@/utils/request";
 
 // 图片上传
 const imgs = ref<MediaType[]>([])
 const imgUpload = () => {
   uni.chooseMedia({
-    count: 4 - imgs.value.length,
+    count: 3 - imgs.value.length,
     mediaType: ['image'],
     sourceType: ['album', 'camera'],
     maxDuration: 30,
     camera: 'back',
     success(res) {
       console.log(res.tempFiles)
-      imgs.value = imgs.value.concat(res.tempFiles)
+      params.value.imgUrl = params.value.imgUrl.concat(res.tempFiles[0].tempFilePath)
     }
   })
 }
 // 图片删除
 const imgDel = (e: string) => {
-  imgs.value = imgs.value.filter(obj => obj.tempFilePath !== e)
+  params.value.imgUrl = params.value.imgUrl.filter((obj: string) => obj !== e)
+}
+// 扫描机柜二维码
+const scanCabinetCode = () =>{
+  uni.scanCode({
+    onlyFromCamera: true,
+    scanType: ['qrCode'],
+    success: res => {
+      console.log(`res + ::>>`, res)
+      const { result } = res
+      const regex = /deviceUid=([^&]+)/
+      const match = result.match(regex)
+      if (match) {
+        params.value.deviceUid = match[1]
+      } else if (!result.includes('http')) {
+        params.value.deviceUid = result
+      } else {
+        uni.showToast({
+          title: '无法识别的类型',
+          icon: 'error',
+          duration: 1.5 * 1000
+        })
+      }
+    },
+    fail: err => {
+      console.log(`err + ::>>`, err)
+      uni.showToast({
+        title: '无法识别的类型',
+        icon: 'error',
+        duration: 1.5 * 1000
+      })
+    }
+  })
+}
+// 微信临时图片转base64
+const toBase64 = (file: string) => {
+  const result = uni.getFileSystemManager().readFileSync(file, 'base64')
+  return result  
+}
+// 提交
+const params = ref<any>({
+  deviceUid: '',
+  imgUrl: [],
+  problemText: '',
+  appId: uni.getAccountInfoSync().miniProgram.appId
+})
+const submit = () => {
+  if(!params.value.deviceUid) {
+    uni.showToast({
+      title: '请输入机柜编码',
+      icon: 'none',
+    })
+    return
+  }
+  if(!params.value.problemText) {
+    uni.showToast({
+      title: '请输入您遇到的问题',
+      icon: 'none',
+    })
+    return
+  }
+  if(!params.value.imgUrl.length) {
+    uni.showToast({
+      title: '请您简单提供下故障图片',
+      icon: 'none',
+    })
+    return
+  }
+  params.value.imgUrl = params.value.imgUrl.map((item: string) => toBase64(item)).join(',')
+  post('/changing/tuGeFaultReporting', { ...params.value }, 'json').then(res => {
+    if(Object.getOwnPropertyNames(res).length === 0) {
+      uni.showToast({
+        title: '提交成功，感谢您为我们提供故障信息！',
+        icon: 'none',
+        duration: 2.5 * 1000
+      })
+      setTimeout(() => {
+        uni.navigateBack()
+      }, 2.5 * 1000)
+    }
+  })
 }
 
 </script>
@@ -28,30 +109,28 @@ const imgDel = (e: string) => {
       <view class="cabinet-code">
         <text>租赁柜编码</text>
         <view class="cab-input flex">
-          <view class="iconfont icon-saomiaoerweima cab-scan" @click=""></view>
-          <input class="cab-code w-full"  placeholder="点击此处扫描电柜屏幕二维码" placeholder-style="color:rgb(219,219,219);"/>
+          <view class="iconfont icon-saomiaoerweima cab-scan" @click="scanCabinetCode"></view>
+          <input class="cab-code w-full" v-model="params.deviceUid"  placeholder="点击输入或点击左侧扫描按钮" maxlength="35" placeholder-style="color:rgb(219,219,219);"/>
         </view>
       </view>
       <view class="description">
         <text>问题描述</text>
-        <textarea placeholder="请详细描述您遇到的问题" placeholder-style="color:rgb(219,219,219);"  />
+        <textarea v-model="params.problemText" placeholder="请详细描述您遇到的问题" placeholder-style="color:rgb(219,219,219);" maxlength="200"  />
       </view>
       <view class="upload-img">
-        <text>上传故障照片(最多四张)</text>
+        <text>上传故障照片(最多三张)</text>
         <view class="flex">
-          <view class="relative left-0 top-0 flex upload-img-box" v-for="(item,index) in imgs" :key="index" >
-            <image class="w-full h-full" :src="item.tempFilePath" />
-            <view class="iconfont icon-jiaochacross78 icon-del" @click="imgDel(item.tempFilePath)"></view>
+          <view class="relative left-0 top-0 flex upload-img-box" v-for="item in params.imgUrl" :key="item" >
+            <image class="w-full h-full" :src="item" />
+            <view class="iconfont icon-jiaochacross78 icon-del" @click="imgDel(item)"></view>
           </view>
-          <image src="@/static/imgs/mine/upload_img.png" @click="imgUpload" v-if="imgs.length < 4" class="file-upload" />
+          <image src="@/static/imgs/mine/upload_img.png" @click="imgUpload" v-if="imgs.length < 3" class="file-upload" />
         </view>
       </view> 
-      <view class="submit flex--c">
+      <view class="submit flex--c" @click="submit">
         <view class="sub" >提 交</view>
       </view>
-
     </view>
-
 </template>
 
 <style lang="scss" scoped>
@@ -59,10 +138,10 @@ const imgDel = (e: string) => {
   color: #342919;
   font-size: 30rpx;
   font-weight: bold;
+  padding: 30rpx;
   letter-spacing: 1px;
 }
 .cabinet-code {
-  margin-top: 146rpx;
   .cab-input {
     margin-top: 32rpx;
     width: 100%;
@@ -72,18 +151,17 @@ const imgDel = (e: string) => {
     align-items: center;
     font-weight: 400;
     .cab-scan {
-      width: 140rpx;
+      width: 80rpx;
       height: 48rpx;
-      text-align: center;
-      line-height: 1.5rem;
-      border-right: rgb(219,219,219) 2rpx solid;
-      color: rgb(114,114,114) ;
       font-size: 40rpx;
+      color: rgb(114,114,114) ;
+      line-height: 1.5rem;
+      text-align: center;
+      padding: 0 30rpx 0 20rpx;
+      border-right: rgb(219,219,219) 2rpx solid;
     }
     .cab-code {
-      padding-left: 36rpx;
-      padding-right: 36rpx;
-
+      padding-left: 18rpx;
     }
   }
 }
@@ -91,9 +169,7 @@ const imgDel = (e: string) => {
   margin-top: 54rpx;
   & > textarea {
     margin-top: 36rpx;
-    padding-top: 28rpx;
-    padding-left: 38rpx;
-    padding-right: 38rpx;
+    padding: 8rpx 18rpx;
     width: 100%;
     height: 200rpx;
     border-radius: 20rpx;
@@ -120,7 +196,6 @@ const imgDel = (e: string) => {
       top: -15rpx;
       right: -15rpx;
       font-size: 40rpx;
-      // color: white;
     }
   }
   .file-upload {
@@ -132,20 +207,18 @@ const imgDel = (e: string) => {
 }
 
 .submit {
-  margin-top: 180rpx;
+  margin-top: 200rpx;
   .sub {
-  margin-bottom: 184rpx;
-  width: 625rpx;
-  height: 96rpx;
-  color:#000;
-  font-size: 35rpx;
-  font-weight: 500;
-  line-height: 3rem;
-  text-align: center;
-  background-color: rgb(252,195,0);
-  border-radius: 48rpx;
-  letter-spacing: 1px;
-
+    width: 625rpx;
+    height: 96rpx;
+    color:#000;
+    font-size: 35rpx;
+    font-weight: 500;
+    line-height: 3rem;
+    text-align: center;
+    background-color: rgb(252,195,0);
+    border-radius: 48rpx;
+    letter-spacing: 1px;
   }
 }
 

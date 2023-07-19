@@ -27,7 +27,6 @@ export function modifyPostParam (obj) {
 // 字符串过长切割
 export function splitString(str, length) {
   if (typeof str !== 'string' || typeof length !== 'number') {
-    console.log(`传入字符串是空的 + ::>>`, )
     return ''
   }
   if (length <= 0) {

@@ -1,78 +1,112 @@
 <script lang="ts" setup>
-import type { MediaType } from "@/types/global";
+import { post } from "@/utils/request";
 
 // 类型切换
 const currIndex = ref<number>(0)
-const btns = reactive([{ text: '租赁' }, { text: '归还' }, { text: '退费' }])
+const btnList = reactive([{ text: '租赁' }, { text: '归还' }, { text: '退费' }])
 const typeChange = (e: number) => {
   currIndex.value = e
+  params.value.feeedbackType = btnList[e].text
 }
-
 // 图片上传
-const imgs = ref<MediaType[]>([])
 const imgUpload = () => {
   uni.chooseMedia({
-    count: 3 - imgs.value.length,
+    count: 3 - params.value.imgUrl.length,
     mediaType: ['image'],
     sourceType: ['album', 'camera'],
     maxDuration: 30,
     camera: 'back',
     success(res) {
-      console.log(res.tempFiles)
-      imgs.value = imgs.value.concat(res.tempFiles)
+      params.value.imgUrl = params.value.imgUrl.concat(res.tempFiles[0].tempFilePath)
     }
   })
 }
 // 图片删除
 const imgDel = (e: string) => {
-  imgs.value = imgs.value.filter(obj => obj.tempFilePath !== e)
+  params.value.imgUrl = params.value.imgUrl.filter((obj: string) => obj !== e)
+}
+// 提交
+const params = ref<any>({
+  feedback: '',
+  imgUrl: [],
+  feeedbackType: '租赁',
+  phone: '',
+  appId: uni.getAccountInfoSync().miniProgram.appId
+})
+// 微信临时图片转base64
+const toBase64 = (file: string) => {
+  const result = uni.getFileSystemManager().readFileSync(file, 'base64')
+  return result  
+}
+const submit = () => {
+  if(!params.value.feedback) {
+    uni.showToast({
+      title: '请您简述下您的宝贵意见',
+      icon: 'none',
+    })
+    return
+  }
+  if(!params.value.phone || !uni.$u.test.mobile(params.value.phone)) {
+    uni.showToast({
+      title: '请留下您的联系电话',
+      icon: 'none',
+    })
+    return
+  }
+  params.value.imgUrl = params.value.imgUrl.map((item: string) => toBase64(item)).join(',')
+  post('/changing/tuGeFeedback', { ...params.value }, 'json').then(res => {
+    if(Object.getOwnPropertyNames(res).length === 0) {
+      uni.showToast({
+        title: '提交成功，感谢您的反馈！',
+        icon: 'none',
+        duration: 2 * 1000
+      })
+      setTimeout(() => {
+        uni.navigateBack()
+      }, 2 * 1000)
+    }
+  })
 }
 
 </script>
-
 <template>
   <view class="container">
     <view class="feedback-type">
       <text>反馈类型</text>
       <view class="btn flex-row-sb">
-        <view class="box btn-normal" v-for="(item,index) in btns" :key="index" :class="currIndex === index ? 'btn-choose' : ''" @click="typeChange(index)">{{ item.text }}</view>
+        <view class="box btn-normal" v-for="(item,index) in btnList" :key="index" :class="currIndex === index ? 'btn-choose' : ''" @click="typeChange(index)">{{ item.text }}</view>
       </view>
     </view>
     <view class="description">
       <text>详细描述</text>
-      <textarea placeholder="请输入问题描述" placeholder-style="color:rgb(219,219,219);"  />
+      <textarea v-model="params.feedback" placeholder="请输入问题描述" placeholder-style="color:rgb(219,219,219);" maxlength="100"  />
     </view>
     <view class="upload-img">
-      <text>上传图片({{ imgs.length }}/3)</text>
+      <text>上传图片({{ params.imgUrl.length }}/3)</text>
       <view class="flex">
-        <view class="relative left-0 top-0 flex upload-img-box" v-for="(item,index) in imgs" :key="index" >
-          <image class="w-full h-full" :src="item.tempFilePath" />
-          <view class="iconfont icon-jiaochacross78 icon-del" @click="imgDel(item.tempFilePath)"></view>
+        <view class="relative left-0 top-0 flex upload-img-box" v-for="item in params.imgUrl" :key="item" >
+          <image class="w-full h-full" :src="item" />
+          <view class="iconfont icon-jiaochacross78 icon-del" @click="imgDel(item)"></view>
         </view>
-        <image src="@/static/imgs/mine/upload_img.png" @click="imgUpload" v-if="imgs.length < 3" class="file-upload" />
+        <image src="@/static/imgs/mine/upload_img.png" @click="imgUpload" v-if="params.imgUrl.length < 3" class="file-upload" />
       </view>
     </view>    
     <view class="phone">
       <text>联系方式</text>
-      <input class="phone-input" maxlength="11" placeholder="请输入联系方式" placeholder-style="color:rgb(219,219,219);"/>
+      <input v-model="params.phone" type="tel" class="phone-input" maxlength="11" placeholder="请输入联系方式" placeholder-style="color:rgb(219,219,219);"/>
     </view>
-    <view class="submit flex--c">
+    <view class="submit flex--c" @click="submit">
       <view class="sub" >提交</view>
     </view>
   </view>
-
 </template>
-
 <style lang="scss" scoped>
 
 .container {
   color: #342919;
   font-size: 30rpx;
   font-weight: bold;
-
-}
-.feedback-type {
-  margin-top: 77rpx;
+  padding: 30rpx ;
 }
 .btn-normal {
   margin-top: 30rpx;
@@ -88,9 +122,7 @@ const imgDel = (e: string) => {
   text-align: center;
   letter-spacing: 2px;
   line-height: 2.3rem;
-
 }
-
 .btn-choose {
   margin-top: 30rpx;
   margin-left: 0;
@@ -108,19 +140,17 @@ const imgDel = (e: string) => {
 
 .description {
   margin-top: 48rpx;
-  
 }
-
 .description textarea {
-  margin-top: 34rpx;
   width: 100%;
   height: 166rpx;
-  padding: 30rpx;
+  font-size: 28rpx;
+  font-weight: 400;
+  margin-top: 34rpx;
+  padding: 8rpx 18rpx;
   border-radius: 20rpx;
   background-color: #F2F2F2;
-  font-weight: 400;
   letter-spacing: 1px;
-
 }
 .upload-img {
   margin-top: 64rpx;
@@ -164,21 +194,19 @@ const imgDel = (e: string) => {
 }
 
 .submit {
-  margin-top: 180rpx;
+  margin-top: 70rpx;
   .sub {
-  margin-bottom: 114rpx;
-  width: 625rpx;
-  height: 105rpx;
-  color:#fff;
-  font-size: 35rpx;
-  font-weight: 500;
-  line-height: 3rem;
-  text-align: center;
-  background: linear-gradient(135deg, transparent 15px, rgb(252,195,0) 0);
-  background-repeat: no-repeat;
-  border-radius: 0;
-  letter-spacing: 1px;
-
+    width: 625rpx;
+    height: 105rpx;
+    color:#fff;
+    font-size: 35rpx;
+    font-weight: 500;
+    line-height: 3rem;
+    text-align: center;
+    background: linear-gradient(135deg, transparent 15px, rgb(252,195,0) 0);
+    background-repeat: no-repeat;
+    border-radius: 0;
+    letter-spacing: 1px;
   }
 }
 
