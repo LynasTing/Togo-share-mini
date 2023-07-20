@@ -2,13 +2,16 @@ import { _showLoading, _hideLoading } from "./loading"
 import type { Api } from '@/types/global'
 import useStore from '@/store'
 
-export function post<T>(url: string, data?: any, type?: string): Promise<T> {
+export function post<T>(url: string, data?: any, type?: string, noLoading?: boolean): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     let base_url
     switch (uni.getAccountInfoSync().miniProgram.envVersion) {
       case 'develop':
         base_url = 'http://fz.hthuandian.cn/apptuge'
         break
+      case 'trial':
+        base_url = 'http://fz.hthuandian.cn/apptuge'
+        break  
       case 'release':
         base_url = 'http://fz.hthuandian.cn/apptuge'
         break
@@ -22,10 +25,9 @@ export function post<T>(url: string, data?: any, type?: string): Promise<T> {
     }
     // 在请求参数中, 加入ACCUID和TOKEN参数
     if(type !== 'json') data = { ...data, ...{ ACCUID: global.accountInfo.accountUid, TOKEN: global.accountInfo.token } }
-    _showLoading()
+    if(!noLoading) _showLoading()
     uni.request({
       url: base_url + url,
-      // data: type ? modifyPostParam(data) : data,
       data,
       method: 'POST',
       header,
@@ -42,10 +44,17 @@ export function post<T>(url: string, data?: any, type?: string): Promise<T> {
           })
           var pages = await getCurrentPages()
           const url = pages[pages.length - 1]?.route
-          setTimeout(() => {
-            uni.redirectTo({ url: `/pages/login/auth/index?url=${'/' + url}` })
-          }, 2 * 1000)
+          if(url !== 'pages/login/auth/index') {
+            setTimeout(() => {
+              uni.redirectTo({ url: `/pages/login/auth/index?url=${'/' + url}` })
+            }, 2 * 1000)
+          }else {
+            setTimeout(() => {
+              uni.redirectTo({ url: `/pages/login/auth/index` })
+            }, 2 * 1000)
+          }
         } else {
+          console.log(`res.data + ::>>`, res.data)
           uni.showToast({
             title: msg || '请求错误',
             icon: 'none',
@@ -54,6 +63,7 @@ export function post<T>(url: string, data?: any, type?: string): Promise<T> {
         }
       },
       fail: err => {
+        console.log(`接口请求错误fail + ::>>`, err)
         _hideLoading()
         uni.getNetworkType({
           success: res => {

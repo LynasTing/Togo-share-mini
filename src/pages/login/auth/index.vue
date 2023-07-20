@@ -3,6 +3,12 @@ import { post } from '@/utils/request'
 import { onLoad } from '@dcloudio/uni-app';
 import useStore from '@/store';
 
+const tabBarPage = ref([
+  '/pages/global/tab-bar/home/index',
+  '/pages/global/tab-bar/activity/index',
+  '/pages/global/tab-bar/mall/index',
+  '/pages/global/tab-bar/mine/index',
+])
 const { global } = useStore()
 const redirect = ref<string>('')
 onLoad(option => {
@@ -19,7 +25,11 @@ const loginSuccess = (val: any) => {
   uni.setStorageSync('accountInfo', val)
   setTimeout(() => {
     if(redirect.value) {
-      uni.redirectTo({ url: redirect.value })
+      if(tabBarPage.value.includes(redirect.value)) {
+        uni.switchTab({ url: redirect.value })
+      }else {
+        uni.redirectTo({ url: redirect.value })
+      }
     }else {
       uni.reLaunch({ url: '/pages/global/tab-bar/home/index' })
     } 
@@ -29,7 +39,7 @@ const loginSuccess = (val: any) => {
 const authLogin = (e: any) => {
   if(!e.detail.code) {
     uni.showToast({
-      title: '用户用户授权失败',
+      title: '用户授权失败',
       icon: 'none',
       duration: 1 * 1500
     })
@@ -49,12 +59,18 @@ const authLogin = (e: any) => {
        * @abstract 2. 已注册用户, 登录成功后判断是否有redirect地址, 有就跳redirect, 否则跳Home
        */
     success: successRes => {
-      post('/tuge/authorizedLogin', { code: successRes.code }, 'json').then(res => {
+      post('/tuge/authorizedLogin', { code: successRes.code, wxAppId: uni.getAccountInfoSync().miniProgram.appId }, 'json').then(res => {
         // 未注册, 在重新拿到进行注册 (这里逻辑不完整, .length === 0 还有可能是账号冻结等情况)
         if(Object.getOwnPropertyNames(res).length === 0) {
           uni.login({
             success: toRes => {
-              post('/tuge/register', { code: toRes.code, phone: e.detail.encryptedData, iv: e.detail.iv }, 'json').then(registerRes => {
+              const registerParams = {
+                code: toRes.code, 
+                phone: e.detail.encryptedData,
+                iv: e.detail.iv,
+                wxAppId: uni.getAccountInfoSync().miniProgram.appId,
+              }
+              post('/tuge/register', { ...registerParams }, 'json').then(registerRes => {
                 if(registerRes?.token) loginSuccess(registerRes)
               })
             }

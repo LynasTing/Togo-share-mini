@@ -48,7 +48,7 @@
 			}
 		},
 		{
-			"path": "pages/global/tab-bar/active/index",
+			"path": "pages/global/tab-bar/activity/index",
 			"style": {
 				"navigationBarTitleText": "",
 				"navigationBarBackgroundColor": "#FFF"
@@ -68,7 +68,7 @@
 			}
 		},
 		{
-			"path": "pages/global/tab-bar/scan/succeed/index",
+			"path": "pages/global/tab-bar/scan/lease/succeed/index",
 			"style": {
 				"navigationBarTitleText": "租借成功"
 			}
@@ -215,12 +215,14 @@
 		{
 			"path": "pages/tools/breakdown/index",
 			"style": {
+				"disableScroll": true,
 				"navigationBarTitleText": "故障上传"
 			}
 		},
 		{
 			"path": "pages/tools/feedback/index",
 			"style": {
+				"disableScroll": true,
 				"navigationBarTitleText": "意见反馈"
 			}
 		},
@@ -257,7 +259,7 @@
         "text": "首页"
       },
 			{
-        "pagePath": "pages/global/tab-bar/active/index",
+        "pagePath": "pages/global/tab-bar/activity/index",
         "text": "活动"
       },
 			{

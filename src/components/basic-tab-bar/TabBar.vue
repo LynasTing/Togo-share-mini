@@ -39,7 +39,7 @@ const tabs = reactive<TabBarType[]>(
       text: '活动',
       icon: '/static/imgs/global/active.png',
       chooseIcon: '/static/imgs/global/home_select.png',
-      path: '/pages/global/tab-bar/active/index'
+      path: '/pages/global/tab-bar/activity/index'
     },
     {
       icon: '',
