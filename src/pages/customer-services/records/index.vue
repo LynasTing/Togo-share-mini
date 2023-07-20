@@ -1,114 +1,136 @@
 <script lang="ts" setup>
-const tabs = reactive([
-  { name : '全部', resultText: '成功' },
-  { name : '租用' },
-  { name : '归还' }
-])
-const records = ref([
-  { type: '租用', time: '2023-03-19 12:00: 00', result: 'success', resultText: '成功' },
-  { type: '租用', time: '2023-03-19 12:00: 00', result: 'success', resultText: '成功' },
-  { type: '归还', time: '2023-03-19 12:00: 00', result: 'error', resultText: '失败' },
-  { type: '租用', time: '2023-03-19 12:00: 00', result: 'success', resultText: '成功' },
-  { type: '归还', time: '2023-03-19 12:00: 00', result: 'success', resultText: '成功' },
-  { type: '租用', time: '2023-03-19 12:00: 00', result: 'abnormal', resultText: '异常' },
-  { type: '租用', time: '2023-03-19 12:00: 00', result: 'success', resultText: '成功'  }
-])
-const changeTab = (i: any) => {
+import useStore from '@/store'
+import { post } from '@/utils/request'
+import type { LeaseRecord } from '@/types/cabinet'
+
+const { global } = useStore()
+
+// scroll-view 触底
+const scrollToLower = () => {
+  if(records.value.length >= total.value) return
+  params.value.page += 1
+  getDataList()
 }
+const params = ref({ page: 1,  pageSize: 10 })
+const records = ref<LeaseRecord[]>([])
+const total = ref<number>(0)
+const getDataList = () => {
+  post('/account/charging', { ...params.value }, 'json').then(res => {
+    if(res.list.length) {
+      records.value = records.value?.concat(res.list)
+      total.value = res.total
+    }
+  })
+}
+getDataList()
 </script>
 
 <template>
   <view class="record-page">
-    <u-sticky bgColor="#fff">
-      <u-tabs 
-        :list="tabs" 
-        scrollable="false" 
-        lineColor="#FDC401" 
-        @click="changeTab" 
-        :activeStyle="{ color: '#303133', fontWeight: 'bold', transform: 'scale(1.05)' }"
-        itemStyle="padding-left: 45px; padding-right: 45px; height: 40px;"
-      ></u-tabs>
-    </u-sticky>
-    <view class="banner">
-      <image src="@/static/imgs/global/logo_op_1.png" mode="widthFix" />
-      <view class="flex-row-sb-c">
-        <view>
-          Realize the freedom of electricity <br>
-          Made in TYBOL POWER
-        </view>
-        <view>
-          勇敢、睿智、耀目, <br />
-          我们努力为您<br />
-          创造更为自由的电力供应。
+    <scroll-view 
+      scroll-y="true" 
+      class="scroll-y-list overflow-h" 
+      :enable-back-to-top="true"
+      @scrolltolower="scrollToLower" 
+    >
+    <view class="record relative" v-for="(item, index) in records" :key="index">
+      <view class="title flex-row-sb-c">
+        <view>订单状态</view>
+        <view class="flex-c">
+          <view :class="item.status ? 'return': 'using'">{{ item.status ? '已归还' : '租赁中' }}</view>
         </view>
       </view>
+      <view class="record-info">
+        <view>订单编号：</view>
+        <view>{{ item.orderNumber }}</view>
+      </view>
+      <view class="record-info">
+        <view>租借时间：</view>
+        <view>{{ item.ctime }}</view>
+      </view>
+      <view class="record-info">
+        <view>租借机柜：</view>
+        <view>{{ item.getCabinetName }}</view>
+      </view>
+      <view class="record-info">
+        <view>租借电池编号：</view>
+        <view>{{ item.getBatteryId }}</view>
+      </view>
+      <view class="record-info">
+        <view>归还时间：</view>
+        <view>{{ item.endTime }}</view>
+      </view>
+      <view class="record-info">
+        <view>归还机柜：</view>
+        <view>{{ item.returnCabinetName }}</view>
+      </view>
+      <view class="record-info">
+        <view>归还电池编号：</view>
+        <view>{{ item.returnBatteryId }}</view>
+      </view>
+      <view class="iconfont icon-sanjiao" :class="item.status ? 'return-icon': 'using-icon'"></view>
     </view>
-    <view class="table">
-      <view class="header flex-row-sb-c">
-        <text>操作类型</text>
-        <text>记录时间</text>
-        <text>结果</text>
-      </view>
-      <view class="record flex-row-sb-c" v-for="(item, index) in records" :key="index" :class="index % 2 !== 0 ? 'bg-gray' : ''">
-        <text class="rent inline-block">{{ item.type }}</text>
-        <view class="flex-1 flex-row-sb-c" :class="index !== records.length - 1 ? 'has-border' : '' ">
-          <text class="time">{{ item.time }}</text>
-          <text :class="item.result">{{ item.resultText }}</text>
-        </view>
-      </view>
-    </view>
+    </scroll-view>
   </view>
 </template>
 
 <style lang="scss" scoped>
 .record-page {
-  .banner {
-    font-size: 20rpx;
-    padding: 30rpx 40rpx;
-    background-color: #f7f7f7;
-    image {
-      width: 200rpx;
-    }
-  }
-  .table {
-    font-size: 26rpx;
-    .header {
-      font-size: 22rpx;
-      padding: 20rpx 50rpx;
-      color: white;
-      background-color: #222222;
-    }
+  .scroll-y-list {
+    height: 100vh;
+    padding: 30rpx;
+    background-color: #f8f9fd;
     .record {
-      letter-spacing: 2rpx;
-      text {
-        padding: 12rpx 50rpx;
-        white-space: nowrap;
+      font-size: 28rpx;
+      font-weight: 500;
+      color: #333333;
+      margin-bottom: 30rpx;
+      padding: 30rpx 30rpx 50rpx;
+      background-color: white;
+      border-radius: 24rpx;
+      border: 1rpx solid #7d9c9c;
+      box-shadow: 0rpx 0rpx 12rpx 2rpx rgba(0,96,175,0.1);
+      .title {
+        font-size: 30rpx;
+        font-weight: bold;
+        padding: 0 10rpx 20rpx;
+        border-bottom: 1rpx solid #7d9c9c;
+        box-shadow: 0rpx 0rpx 10rpx 0rpx rgba(71, 77, 82, 0.102);
+        .status {
+          font-size: 26rpx;
+          margin-right: 30rpx;
+        }
+        .return {
+          color: #0060AF
+        }
+        .using {
+          color: #ffce00;
+        }
       }
-      .rent {
-        width: 50rpx;
+      &-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 26rpx;
+        padding: 20rpx 10rpx 0;
+        & > view:first-child {
+          font-size: 28rpx;
+          color: #707070;
+        }
       }
-      .time {
-        flex: 1;
-        font-size: 24rpx;
-        padding: 0;
-        text-align: center;
+      .iconfont {
+        position: absolute;
+        bottom: 3%;
+        right: 1%;
+        font-size: 40rpx;
       }
-      .has-border {
-        border-bottom: 1rpx solid $yellow;
+      .using-icon {
+        color: #ffc500;
       }
-      .success {
-        background-color: $babyBlue;
+      .return-icon {
+        color: #548080;
       }
-      .error {
-        background-color: $scarlet;
-      }
-      .abnormal {
-        background-color: $lightOrange;
-      }
-    }
-  .bg-gray {
-      background-color: #e5e9ec;
-    }
+    } 
   }
 }
 </style>

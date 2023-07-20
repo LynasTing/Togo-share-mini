@@ -1,28 +1,22 @@
 <script lang="ts" setup>
+import { post } from '@/utils/request';
 import { onHide, onUnload } from '@dcloudio/uni-app';
+import type { UserBattery } from '@/types/assets'
+import { displayTime } from '@/utils/tools.js'
+import useStore from '@/store';
 
+const { global } = useStore()
+// 电池信息
 const nowTime = ref<string>('')
-// 实时时间
-const displayTime = (timestamp: number) => {
-  const elapsedTime = ((Date.now() - timestamp) / 1000 )
-  let h: number, m: number, s: number
-  const padZero = (val: number) => {
-    return (val < 10 ? '0' : '') + val
+const batteryInfo = ref<UserBattery>()
+post<UserBattery>('/account/battery', '', 'json').then(res => {
+  if(res.batteryId) {
+    batteryInfo.value = res 
+    nowTime.value = displayTime(batteryInfo.value.ctime)
   }
-  if(elapsedTime >= 3600) {
-    h = Math.floor(elapsedTime / 3600)
-    m = Math.floor((elapsedTime % 3600) / 60)
-    s = Math.floor(elapsedTime % 60)
-  }else {
-    h = Math.floor(elapsedTime / 3600)
-    m = Math.floor(elapsedTime / 60) 
-    s = Math.floor(elapsedTime % 60) 
-  }
-  nowTime.value = padZero(h) + '：' + padZero(m) + '：' + padZero(s)
-}
-displayTime(1688613926394)
+})
 const intervalId = setInterval(() => {
-  displayTime(1688613926394)
+  nowTime.value = displayTime(batteryInfo.value.ctime)
 }, 1000)
 // 小程序隐藏或页面销毁时清除定时器
 onHide(() => {
@@ -31,25 +25,27 @@ onHide(() => {
 onUnload(() => {
   clearInterval(intervalId)
 })
+
 </script>
 
 <template>
-  <view class="batter-page">
+  <view class="batter-page" v-if="global.accountInfo.batteryStatus === '1'">
     <view class="flex-col-c">
       <text class="using">正在使用</text>
       <text>{{ nowTime }}</text>
       <image src="@/static/imgs/home/battery.png" mode="widthFix" class="battery" />
     </view>
     <view class="info">
-      <view>电池编号： HTDDHTDDHTDDHTDD</view>
-      <view>电池类型： HTDDHTDDHTDDHTDD</view>
-      <view>电池容量： HTDDHTDDHTDDHTDD</view>
-      <view>租用时间： HTDDHTDDHTDDHTDD</view>
+      <view>电池编号： {{ batteryInfo?.batteryId || '--' }}</view>
+      <view>电池类型： {{ batteryInfo?.typeName || '--' }}</view>
+      <view>电池容量： {{ batteryInfo?.capacity || '--' }}</view>
+      <view>租用时间： {{ batteryInfo?.ctime || '--' }}</view>
     </view>
     <view class="btn">
       归还电源
     </view>
   </view>
+  <Empty v-else text="您还未租借电池" />
 </template>
 
 <style lang="scss" scoped>
