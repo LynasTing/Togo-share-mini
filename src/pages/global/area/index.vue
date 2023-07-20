@@ -6,7 +6,7 @@ const { global } = useStore()
 // 城市索引列表
 const indexList = ref([])
 const cities = ref([])
-post('/account/area', {}, 'json').then(res => {
+post('/tuge/area', {}, 'json').then(res => {
 	if(res?.list.length) {
 		indexList.value = res.list
 		cities.value = res.data

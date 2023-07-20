@@ -1,9 +1,17 @@
 <script lang="ts" setup>
 import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 import useStore from '@/store'
+import { post } from '@/utils/request'
 import { splitString } from '@/utils/tools.js'
+import type { UserInfo } from '@/types/global'
 
 const { global } = useStore()
+watch(() => global.accountInfo.token, (n) => {
+  if(n) {
+    post<UserInfo>('/changing/tuGeRecUserInfo', '', 'json').then(res => global.setUserInfo(res as UserInfo))
+  }
+})
+
 const csMenu = reactive([
   { path: '/pages/customer-services/battery/index' },
   { path: '/pages/customer-services/records/index' },
@@ -17,6 +25,10 @@ const goCS = e => {
 // 跳个人资料
 const goUserInfo = () => {
   uni.navigateTo({ url: '/pages/global/tab-bar/mine/user-info/index' })
+}
+// 跳实名认证
+const goRealName = () => {
+  uni.navigateTo({ url: '/pages/global/tab-bar/mine/real-name-auth/index' })
 }
 const tools = reactive([
   { text: '我的消息', path: '/pages/tools/message/index' },
@@ -41,21 +53,23 @@ const toolsNavigate = e => {
       <div class="header">
         <div class="flex-row-sb-c container ">
           <div class="flex-c">
-            <image src="@/static/imgs/mine/cs_0.png" class="avatar" />
-            <div class="username">{{ splitString(global.userInfo.name, 8) || '河豚换电用户' }}</div>
+            <image :src="global.userInfo.userPhoto || '/static/imgs/cabinet/lightning.png'" class="avatar" />
+            <div class="username">{{ splitString(global.userInfo.nickname, 12) || '您还未设置昵称' }}</div>
           </div>
           <div class="flex-c text-base" @click="goUserInfo">
             <div>查看资料</div>
             <i class="iconfont icon-more text-base"></i>
           </div>
         </div>
-        <div class="auth flex-row-sb-c">
-          <!-- <div class="flex-col-se h-full">
-            <div>您还未实名认证</div>
-            <div>赶紧认证吧~</div>
-          </div>
-          <div class="auth-btn">实名认证</div> -->
-          <div class="has-auth">感谢您使用途歌共享，请爱护设备。 </div>
+        <div class="auth">
+          <div v-if="global.userInfo.status === '1'" class="has-auth">感谢您使用途歌共享，请爱护设备。 </div>
+          <view v-else class="flex-row-sb-c need-real" >
+            <div class="flex-col-se h-full">
+              <div>您还未实名认证</div>
+              <div>赶紧认证吧~</div>
+            </div>
+            <div class="auth-btn" @click="goRealName">实名认证</div>
+          </view>
         </div>
       </div>
       <div class="container">
@@ -103,6 +117,9 @@ const toolsNavigate = e => {
       border-radius: 40rpx 40rpx 0 0;
       padding: 0 60rpx;
       margin-top: 60rpx;
+      .need-real {
+        height: 160rpx;
+      }
       .auth-btn {
         font-size: 28rpx;
         font-weight: bold;
@@ -112,6 +129,7 @@ const toolsNavigate = e => {
         border-radius: 999rpx;
       }
       .has-auth {
+        line-height: 160rpx;
         font-size: 30rpx;
         color: rgba(255, 255, 255, .7);
         letter-spacing: 2rpx;

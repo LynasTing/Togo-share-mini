@@ -17,7 +17,7 @@ const cabinets = ref<CabinetsType[]>([])
 const total = ref<number>(0)
 const getDataList = (val?: number) => {
   params.value.page = val ? val : params.value.page
-  post<Cabinet>('/changing/powerExchangeCabinetList', { ...params.value }, 'json').then(res => {
+  post<Cabinet>('/tuge/powerExchangeCabinetList', { ...params.value }, 'json').then(res => {
     cabinets.value = val === 1 ? res.list : cabinets.value.concat(res.list) 
     total.value = res.total
   })

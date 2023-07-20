@@ -1,37 +1,84 @@
 <script lang="ts" setup>
 import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 import useStore from '@/store'
+import { post } from '@/utils/request'
+import { onShow, onHide, onUnload } from '@dcloudio/uni-app';
+import type { UserBattery } from '@/types/assets'
+import type { CabinetsType } from '@/types/cabinet' 
+import { displayTime } from '@/utils/tools.js'
+import type { BatteryStatus } from '@/types/controls'
 
 const { global } = useStore()
-watch(() => global.userAddress, (n) => {
-  if(n?.location) {
-    console.log(`可以调接口了 + ::>>`, )
+// 获取用户最新拥有电池状态(只调一次)
+const getBatteryStatus = () => {
+  post<BatteryStatus>('/account/batterySituation', '', 'json').then(res => {
+    if(res.batteryStatus) {
+      global.setAccountInfo({ ...global.accountInfo, batteryStatus: res.batteryStatus })
+      uni.setStorageSync('accountInfo', { ...global.accountInfo, batteryStatus: res.batteryStatus })
+    }
+  })
+}
+// 电池信息
+const intervalId = ref()
+const nowTime = ref<string>('')
+const batteryInfo = ref<UserBattery>()
+const getBatteryInfo = () => {
+  post<UserBattery>('/account/battery', '', 'json').then(res => {
+    if(res.batteryId) {
+      batteryInfo.value = res 
+      global.setBatteryInfo(res)
+      nowTime.value = displayTime(batteryInfo.value?.ctime)
+    }
+  })
+}
+watch(() => global.accountInfo.token, (n) => {
+  if(n) getBatteryInfo()
+})
+onShow(() => {
+  if(batteryInfo.value?.batteryId) {
+    intervalId.value = setInterval(() => {
+      nowTime.value = displayTime(batteryInfo.value?.ctime)
+    }, 1000)
   }
-}, { immediate: true })
+})
+// 小程序隐藏或页面销毁时清除定时器
+onHide(() => {
+  clearInterval(intervalId.value)
+})
+onUnload(() => {
+  clearInterval(intervalId.value)
+})
+const cabinets = ref<CabinetsType[]>()
+watch(() => global.userAddress, (n, o) => {
+  if(n?.location || o?.location) {
+    post<CabinetsType[]>('/tuge/homePageCabinetList', { longitude: n.location.lng, latitude: n.location.lat }, 'json').then(res => {
+      if(res?.length) cabinets.value = res 
+    })
+  }
+}, { immediate: true, deep: true })
 // 附近柜子
 const getNearbyCabinet = ()  => {
-  global.getUserAddress()
+  global.setUserAddress()
 }
 getNearbyCabinet()
 const currText = ref<number>(0)
 const tabs = reactive([{ text: '附近租赁柜' }])
-const cabinets = ref([
-  {
-    name: '福州仓山万达站1柜',
-    address: '福建省福州市鼓楼区XXX',
-    num: 999
-  },
-  {
-    name: '福州仓山万达站2柜',
-    address: '福建省福州市鼓楼区XXX',
-    num: 999
-  },
-  {
-    name: '福州仓山万达站3柜',
-    address: '福建省福州市鼓楼区XXX',
-    num: 999
-  }
-])
+// 跳柜子信息
+const goCabinetInfo = (e: CabinetsType) => {
+  uni.navigateTo({ url: `/pages/cabinet/info/index?id=${e.id}` })
+}
+// 机柜导航
+const mapNavigation = (i:CabinetsType) => {
+  uni.openLocation({
+    latitude: i.latitude,
+    longitude: i.longitude,
+    address: i.address,
+    name: i.name,
+    success: res =>  {
+      console.log(`机柜导航成功 + ::>>`, res)
+    }
+  })
+}
 // 跳地区选择
 const goAreaSelect = () => {
   uni.navigateTo({ url: '/pages/global/area/index'})
@@ -49,49 +96,51 @@ const contactCS = () => {
     content: '是否拨打13810001639',
     success: function (res) {
       if (res.confirm) {
-        uni.makePhoneCall({
-          phoneNumber: '13810001639' 
-        })
+        uni.makePhoneCall({ phoneNumber: '13810001639' })
       }
     }
   })
 }
 </script>
-
 <template>
   <view class="home-page page-view container" :style="{ 'padding-bottom': 180 + 'rpx' }">
     <!-- 顶部 -->
     <view class="flex-c">
       <image src="@/static/imgs/global/logo.png" class="logo-img" mode="widthFix" />
       <view class="flex-c" @click="goAreaSelect">
-        <span>福州</span>
+        <span>{{ global.usingCity || '福州' }}</span>
         <view class="ar-down"></view>
       </view>
     </view>
     <!-- 当前租赁信息 -->
-    <view class="curr-info relative flex-row-sb-c">
-      <view class="green-point absolute"></view>
-      <view class="flex--c img">
-        <image src="@/static/imgs/home/battery.png" mode="widthFix" class="w-full h-full" />
+    <view v-if="batteryInfo?.batteryId && global.accountInfo.batteryStatus === '1' " class="battery-info">
+      <view class="flex-row-sb-c">
+        <view class="green-point"></view>
+        <view class="code-num">{{ batteryInfo.batteryId }}</view>
       </view>
-      <view class="">
-        <view class="title">TOGO001TOGO001000</view>
-        <ul>
-          <li class="flex">
-            <view>设备型号</view>
-            <view>M1000-S</view>
-          </li>
-          <li class="flex">
-            <view>设备型号</view>
-            <view>M1000-S</view>
-          </li>
-          <li class="flex">
-            <view>设备型号</view>
-            <view>M1000-S</view>
-          </li>
-        </ul>
+      <view class="flex-row-sb-c">
+        <view class="flex--c img">
+          <image src="@/static/imgs/home/battery.png" mode="widthFix" class="w-full h-full" />
+        </view>
+        <view class="right flex-1">
+          <ul class="use-situation">
+            <li class="flex">
+              <view>设备型号：</view>
+              <view>{{ batteryInfo.typeName }}</view>
+            </li>
+            <li class="flex">
+              <view>起租时间：</view>
+              <view>{{ batteryInfo?.ctime }}</view>
+            </li>
+            <li class="flex">
+              <view>累计使用：</view>
+              <view>{{ nowTime }}</view>
+            </li>
+          </ul>
+        </view>
       </view>
     </view>
+    <image v-else mode="widthFix" src="@/static/imgs/cabinet/no_owned.png" class="w-full" />
     <!-- 附近租赁 -->
     <view class="nearby">
       <view class="header flex-c">
@@ -101,25 +150,29 @@ const contactCS = () => {
           <i class="iconfont icon-more text-base"></i>
         </view>
       </view>
-      <ul class="cab-ls">
-        <li class="flex-c cab bg-white" v-for="(item, index) in cabinets" :key="index">
+      <ul class="cab-ls" v-if="cabinets?.length">
+        <li class="flex-c cab bg-white " v-for="(item, index) in cabinets" :key="index"  @click="goCabinetInfo(item)">
           <image mode="widthFix" src="@/static/imgs/home/cabinet.png" class="cover" />
-          <view class="flex-col-sb flex-1">
-            <view>
+          <view class="flex-col-sb flex-1 overflow-h">
+            <view class="w-full">
               <view class="title">{{ item.name }}</view>
-              <view class="address">地址：{{ item.address }}</view>
+              <view class="address flex">
+                <text>地址：</text>
+                <text class="del-text-2">{{ item.address }}</text>
+              </view>
             </view>
             <view class="flex-row-sb-c bottom-box">
               <view class="lightning-box flex-c">
                 <image mode="widthFix" src="@/static/imgs/home/lightning.png"  />
                 <view class="cabinet">可租借</view>
-                <view>{{ item.num }}</view>
+                <view>{{ item.useAbleNum || 0 }}</view>
               </view>
-              <image mode="widthFix" src="@/static/imgs/home/navigate.png" class="nav" />
+              <image mode="widthFix" src="@/static/imgs/home/navigate.png" class="nav" @click.stop="mapNavigation(item)" />
             </view>
           </view>
         </li>
       </ul>
+      <Empty v-else  text="没有找到您附近的机柜" />
     </view>
     <!-- 轮播图 -->
     <view class="swiper-group">
@@ -158,11 +211,13 @@ const contactCS = () => {
     margin-left: 10rpx;
     transform: translateY(4rpx);
   }
-  .curr-info {
+  .battery-info {
+    height: 214rpx;
+    font-size: 28rpx;
     color: black;
     background-color: white;
     margin: 30rpx 0;
-    padding: 18rpx 30rpx 26rpx;
+    padding: 10rpx 30rpx 26rpx 20rpx;
     border-radius: 24rpx;
     .green-point {
       left: 16rpx;
@@ -172,14 +227,21 @@ const contactCS = () => {
       background-color: #38d902;
       border-radius: 50%;
     }
+    .code-num {
+      font-size: 28rpx;
+      margin-top: 10rpx;
+    }
     .title {
       text-align: right;
       margin-bottom: 30rpx;
     }
     .img {
-      width: 200rpx;
-      height: 180rpx;
-      margin: 30rpx 30rpx 0 0 ;
+      width: 150rpx;
+      height: 150rpx;
+      margin-right: 50rpx;
+    }
+    .use-situation {
+      white-space: nowrap;
     }
   }
   .nearby {
@@ -241,8 +303,8 @@ const contactCS = () => {
         border-radius: 20rpx;
         box-shadow: 0 4rpx 4rpx rgba(0, 0, 0, .3);
         .cover {
-          width: 204rpx;
-          height: 150rpx;
+          width: 204rpx !important;
+          height: 150rpx !important;
           margin-right: 36rpx;
         }
         .title {
@@ -253,9 +315,17 @@ const contactCS = () => {
         .address {
           font-size: 26rpx;
           color: #aaaaaa;
+          white-space: nowrap;
+          .del-text-2 {
+            font-size: 24rpx;
+            max-height: 68rpx;
+            white-space: pre-wrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
         }
         .bottom-box {
-          margin-top: 36rpx;
+          margin-top: 26rpx;
           .lightning-box {
             font-size: 24rpx;
             color: #888;
@@ -270,6 +340,7 @@ const contactCS = () => {
           .nav {
             width: 142rpx;
             height: 64rpx;
+            z-index: 9;
           }
         }
       }

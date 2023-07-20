@@ -9,7 +9,7 @@ const lng = ref<number>(116.39742)
 // 获取站点图标列表
 const covers = ref<MapMarkersType[]>()
 const getCabinetMarkers = (lat: number, lng: number, keywords: string) => {
-  post<MapMarkersType[]>('/changing/mapExchangeList', { latitude: lat, longitude: lng, keywords }, 'json').then(res => {
+  post<MapMarkersType[]>('/tuge/mapExchangeList', { latitude: lat, longitude: lng, keywords }, 'json').then(res => {
     if(res.length) covers.value = res
   })
 }
@@ -32,7 +32,7 @@ uni.getLocation({
 })
 const showCard = ref<boolean>(false)
 // 关闭卡片
-const closeCard = (_e: any) => {
+const closeCard = () => {
   showCard.value = false
 }
 // 获取单个机柜信息 打开卡片
@@ -43,10 +43,11 @@ const openCard = (e: any) => {
     longitude: lng.value,
     latitude: lat.value,
   }
-  post<MapCardType>('/changing/mapExchangeId', { ...params }, 'json').then(res => {
+  post<MapCardType>('/tuge/mapExchangeId', { ...params }, 'json').then(res => {
     if(res.cabinetName) cabinetInfo.value = res
+    console.log(`cabinetInfo + ::>>`, cabinetInfo.value)
+    showCard.value = true
   })
-  showCard.value = true
 }
 // 跳导航
 const goWxNavigation = () => {
@@ -91,38 +92,42 @@ const nowPosition = () => {
       :markers="covers" 
       :enable-rotate="true"
       :show-location="true" 
-      @regionchange="closeCard" 
       @markertap="openCard"
       id="map"
       ref="map"
     >
       <cover-image class="absolute regression" src="@/static/imgs/cabinet/central_point.png"  @click="nowPosition" />
-      <cover-view class="mark-card absolute" :class="showCard ? 'slide-in-y' : 'slide-out-y'" v-if="showCard">
-        <!-- 上 -->
-        <cover-view class="flex-row-sb-c usable-number">         
-          <cover-view class="flex-row-sb-c number-box" v-for="(item, index) in cabinetInfo.list" :key="index">
-            <cover-view class="type flex-1">
-              <cover-view class="type-1">{{ item.name || '--' }}</cover-view>
-              <cover-view class="line"></cover-view>
-              <cover-view class="can-use">可用数量</cover-view>
-            </cover-view>
-            <cover-view class="num">{{ item.useableNum || 0 }}</cover-view>
-          </cover-view>
+      <cover-view class="card-box absolute" :class="showCard ? 'slide-in-y' : 'slide-out-y'">
+        <cover-view v-show="showCard" class="close-icon absolute" @click.stop="closeCard">
+          <cover-image src="http://fz.hthuandian.cn/static/apptuge/close.png"></cover-image>
         </cover-view>
-        <!-- 中 -->
-        <cover-view class="address-model">
-          <cover-view class="title">{{ cabinetInfo.cabinetName || ' 福州仓山万达站' }}</cover-view>
-          <cover-view class="flex">
-            <cover-view class="flex-c distance">
-              <cover-view class="relative">距离您<text class="num">{{ cabinetInfo.userFromDistance || '--' }}</text>KM</cover-view>
-              <cover-view class="separate"></cover-view>
+        <cover-view class="mark-card">
+          <!-- 上 -->
+          <cover-view class="flex-row-sb-c usable-number">         
+            <cover-view class="flex-row-sb-c number-box" v-for="(item, index) in cabinetInfo?.list" :key="index">
+              <cover-view class="type flex-1">
+                <cover-view class="type-1">{{ item.name || '--' }}</cover-view>
+                <cover-view class="line"></cover-view>
+                <cover-view class="can-use">可用数量</cover-view>
+              </cover-view>
+              <cover-view class="num">{{ item.useableNum || 0 }}</cover-view>
             </cover-view>
-            <cover-view class="info">{{ cabinetInfo.address || '位置信息获取失败' }}</cover-view>
           </cover-view>
-        </cover-view>
-        <!-- 下 -->
-        <cover-view class="nav-btn flex--c"  @click="goWxNavigation">
-          <cover-view>地图导航</cover-view>
+          <!-- 中 -->
+          <cover-view class="address-model">
+            <cover-view class="title">{{ cabinetInfo?.cabinetName || '福州仓山万达站' }}</cover-view>
+            <cover-view class="flex">
+              <cover-view class="flex-c distance">
+                <cover-view class="relative">距离您<text class="num">{{ cabinetInfo?.userFromDistance || '--' }}</text>KM</cover-view>
+                <cover-view class="separate"></cover-view>
+              </cover-view>
+              <cover-view class="info">{{ cabinetInfo?.address || '位置信息获取失败' }}</cover-view>
+            </cover-view>
+          </cover-view>
+          <!-- 下 -->
+          <cover-view class="nav-btn flex--c" @click.stop="goWxNavigation">
+            <cover-view>地图导航</cover-view>
+          </cover-view>
         </cover-view>
       </cover-view>
     </map>
@@ -143,10 +148,27 @@ const nowPosition = () => {
     width: 56rpx;
     height: 56rpx;
   }
+  .card-box {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    box-sizing: border-box;
+    left: 0;
+    bottom: 12%;
+    width: 100%;
+    height: 460rpx;
+    .close-icon {
+      top: 1%;
+      right: 1%;
+      width: 50rpx;
+      height: 50rpx;
+      background-color: whitesmoke;
+      border-radius: 999rpx;
+      z-index: 99;
+    }
+  }
   .mark-card {
     box-sizing: border-box;
-    left: 4%;
-    bottom: 12%;
     width: 92%;
     height: 430rpx;
     padding: 40rpx 36rpx 0;
@@ -213,7 +235,6 @@ const nowPosition = () => {
           font-size: 24rpx;
           background-color: #333;
           margin-right: 12rpx;
-         
         }
       }
       .info {
@@ -239,8 +260,8 @@ const nowPosition = () => {
   }
   @keyframes slide-in {
     0% {
+      display: none;
       transform: translateY(100%);
-      opacity: 0;
     }
     100% {
       transform: translateY(0%);
@@ -261,7 +282,7 @@ const nowPosition = () => {
     animation: slide-in .5s forwards
   }
   .slide-out-y {
-    animation: slide-out .5s forwards
+    animation: slide-out .3s forwards
   }
 }
 </style>
