@@ -2,65 +2,51 @@
 import type { TabBarType } from '@/types/global';
 import useStore from '@/store'
 import { onLoad } from '@dcloudio/uni-app';
+import { post } from '@/utils/request';
+import type { BatteryStatus } from '@/types/controls'
 
 const { global } = useStore()
 onLoad(() => {
   uni.getSystemInfo({
-    success: res => global.setScrollHeight(res.windowHeight - 140),
+    success: res => global.setScrollHeight(res.windowHeight - 78),
     fail: err => {
       console.log(`获取设备高度失败 + ::>>`, err)
       global.setScrollHeight(443)
     }
   })
 })
-let paddingBottomHeight = computed(() => global.paddingBottomHeight) //  适配iphoneX以上的底部，给tabbar一定高度的padding-bottom
-const getSystemInfo = async () => {
-  try {
-    const model = ['X', 'XR', 'XS', '11', '12', '13', '14', '15', 'SE']
-    const res = await uni.getSystemInfo()
-    const { global } = useStore()
-    model.forEach(item => {
-      if (res.model.indexOf(item) != -1 && res.model.indexOf('iPhone') != -1) global.setPaddingBottomHeight(40)
-    })
-  } catch(err) {
-    console.log(`获取设备信息捕获错误 + ::>>`, err)
-  }
-}
-getSystemInfo()
-const tabs = reactive<TabBarType[]>(
-  [
-    {
-      text: '首页',
-      icon: '/static/imgs/global/home.png',
-      chooseIcon: '/static/imgs/global/home_select.png',
-      path: '/pages/global/tab-bar/home/index'
-    },
-    {
-      text: '活动',
-      icon: '/static/imgs/global/active.png',
-      chooseIcon: '/static/imgs/global/home_select.png',
-      path: '/pages/global/tab-bar/activity/index'
-    },
-    {
-      icon: '',
-      text: '',
-      path: ''
-    },
-    {
-      text: '商城',
-      icon: '/static/imgs/global/mall.png',
-      chooseIcon: '/static/imgs/global/mall_select.png',
-      path: '/pages/global/tab-bar/mall/index'
+const tabs = reactive<TabBarType[]>([
+  {
+    text: '首页',
+    icon: '/static/imgs/global/home.png',
+    chooseIcon: '/static/imgs/global/home_select.png',
+    path: '/pages/global/tab-bar/home/index'
+  },
+  {
+    text: '活动',
+    icon: '/static/imgs/global/active.png',
+    chooseIcon: '/static/imgs/global/home_select.png',
+    path: '/pages/global/tab-bar/activity/index'
+  },
+  {
+    icon: '',
+    text: '',
+    path: ''
+  },
+  {
+    text: '订单',
+    icon: '/static/imgs/global/records.png',
+    chooseIcon: '/static/imgs/global/mall_select.png',
+    path: '/pages/customer-services/records/index'
 
-    },
-    {
-      text: '我的',
-      icon: '/static/imgs/global/mine.png',
-      chooseIcon: '/static/imgs/global/mine_select.png',
-      path: '/pages/global/tab-bar/mine/index'
-    }
-  ]
-)
+  },
+  {
+    text: '我的',
+    icon: '/static/imgs/global/mine.png',
+    chooseIcon: '/static/imgs/global/mine_select.png',
+    path: '/pages/global/tab-bar/mine/index'
+  }
+])
 const props = defineProps({
   currIndex: {
     type: Number,
@@ -70,10 +56,43 @@ const props = defineProps({
 // tabBar切换
 const switchTab = (e: TabBarType, i: number) => {
   if(i === 2) return 
+  if(i === 3) {
+    uni.navigateTo({ url: '/pages/customer-services/records/index' })
+    return
+  }
   uni.switchTab({  url: e.path })
 }
 // 跳扫码
-const goScan = () => uni.navigateTo({ url: '/pages/global/tab-bar/scan/index' })
+const goScan = () => {
+  if(!global.accountInfo.token) {
+    uni.showToast({
+      title: '您还未登录~请在登陆后使用功能',
+      icon: 'none',
+      mask: true,
+      duration: 2 * 1000
+    })
+    setTimeout(() => {
+      uni.reLaunch({ url: '/pages/user-access/login/index' })
+    }, 2 * 1000)
+    return
+  }
+  // 查询取电资格
+  post<BatteryStatus>('/account/batterySituation', '', 'json').then(res => {
+    if(Object.getOwnPropertyNames(res).length === 0) {
+      uni.showToast({
+        title: '您暂无法取电，请确认是否缴纳押金以及购买套餐',
+        icon: 'none',
+        duration: 2.5 * 1000
+      })
+      return
+    }
+    if(res.batteryStatus) {
+      global.setAccountInfo({ ...global.accountInfo, batteryStatus: res.batteryStatus })
+      uni.setStorageSync('accountInfo', { ...global.accountInfo, batteryStatus: res.batteryStatus })
+      uni.navigateTo({ url: '/pages/global/tab-bar/scan/index' })
+    }
+  })
+}
 </script>
 
 <template>
