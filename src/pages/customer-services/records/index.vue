@@ -27,50 +27,46 @@ getDataList()
 
 <template>
   <view class="record-page">
-    <scroll-view 
-      scroll-y="true" 
-      class="scroll-y-list overflow-h" 
-      :enable-back-to-top="true"
-      @scrolltolower="scrollToLower" 
-    >
-    <view class="record relative" v-for="(item, index) in records" :key="index">
-      <view class="title flex-row-sb-c">
-        <view>订单状态</view>
-        <view class="flex-c">
-          <view :class="item.status ? 'return': 'using'">{{ item.status ? '已归还' : '租赁中' }}</view>
+    <scroll-view v-if="records.length" scroll-y="true" class="scroll-y-list overflow-h" :enable-back-to-top="true" @scrolltolower="scrollToLower">
+      <view class="record relative" v-for="(item, index) in records" :key="index">
+        <view class="title flex-row-sb-c">
+          <view>订单状态</view>
+          <view class="flex-c">
+            <view :class="item.status ? 'return': 'using'">{{ item.status ? '已归还' : '租赁中' }}</view>
+          </view>
         </view>
+        <view class="record-info">
+          <view>订单编号：</view>
+          <view>{{ item.orderNumber }}</view>
+        </view>
+        <view class="record-info">
+          <view>租借时间：</view>
+          <view>{{ item.ctime }}</view>
+        </view>
+        <view class="record-info">
+          <view>租借机柜：</view>
+          <view>{{ item.getCabinetName }}</view>
+        </view>
+        <view class="record-info">
+          <view>租借电池编号：</view>
+          <view>{{ item.getBatteryId }}</view>
+        </view>
+        <view class="record-info">
+          <view>归还时间：</view>
+          <view>{{ item.endTime }}</view>
+        </view>
+        <view class="record-info">
+          <view>归还机柜：</view>
+          <view>{{ item.returnCabinetName }}</view>
+        </view>
+        <view class="record-info">
+          <view>归还电池编号：</view>
+          <view>{{ item.returnBatteryId }}</view>
+        </view>
+        <view class="iconfont icon-sanjiao" :class="item.status ? 'return-icon': 'using-icon'"></view>
       </view>
-      <view class="record-info">
-        <view>订单编号：</view>
-        <view>{{ item.orderNumber }}</view>
-      </view>
-      <view class="record-info">
-        <view>租借时间：</view>
-        <view>{{ item.ctime }}</view>
-      </view>
-      <view class="record-info">
-        <view>租借机柜：</view>
-        <view>{{ item.getCabinetName }}</view>
-      </view>
-      <view class="record-info">
-        <view>租借电池编号：</view>
-        <view>{{ item.getBatteryId }}</view>
-      </view>
-      <view class="record-info">
-        <view>归还时间：</view>
-        <view>{{ item.endTime }}</view>
-      </view>
-      <view class="record-info">
-        <view>归还机柜：</view>
-        <view>{{ item.returnCabinetName }}</view>
-      </view>
-      <view class="record-info">
-        <view>归还电池编号：</view>
-        <view>{{ item.returnBatteryId }}</view>
-      </view>
-      <view class="iconfont icon-sanjiao" :class="item.status ? 'return-icon': 'using-icon'"></view>
-    </view>
     </scroll-view>
+    <Empty v-else text="没有找到您的租赁记录~" />
   </view>
 </template>
 
