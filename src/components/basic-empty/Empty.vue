@@ -35,7 +35,7 @@ const props = defineProps({
 .empty {
   color: black;
   background-color: #f7f7f7;
-  margin: 30rpx 0;
+  margin: 0rpx 0;
   border-radius: 16rpx;
   padding-bottom: 30rpx;
   .banner-text {
