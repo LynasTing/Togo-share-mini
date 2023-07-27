@@ -3,13 +3,13 @@ import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 import useStore from '@/store'
 import { post } from '@/utils/request'
 import { onShow, onHide, onUnload } from '@dcloudio/uni-app';
+import { displayTime } from '@/utils/tools.ts'
 import type { UserBattery } from '@/types/assets'
 import type { CabinetsType } from '@/types/cabinet' 
-import { displayTime } from '@/utils/tools.js'
 import type { BatteryStatus } from '@/types/controls'
 
 const { global } = useStore()
-// 获取用户最新拥有电池状态(只调一次)
+// 获取用户最新拥有电池状态
 const getBatteryStatus = () => {
   post<BatteryStatus>('/account/batterySituation', '', 'json').then(res => {
     if(res.batteryStatus) {
@@ -24,6 +24,7 @@ const nowTime = ref<string>('')
 const batteryInfo = ref<UserBattery>()
 const getBatteryInfo = () => {
   post<UserBattery>('/account/battery', '', 'json').then(res => {
+    console.log(`电池信息Home res + ::>>`, res)
     if(res.batteryId) {
       batteryInfo.value = res 
       global.setBatteryInfo(res)
@@ -31,15 +32,34 @@ const getBatteryInfo = () => {
     }
   })
 }
-watch(() => global.accountInfo.token, (n) => {
-  if(n) getBatteryInfo()
-})
-onShow(() => {
-  if(batteryInfo.value?.batteryId) {
-    intervalId.value = setInterval(() => {
-      nowTime.value = displayTime(batteryInfo.value?.ctime)
-    }, 1000)
+watch(() => global.accountInfo.token, (n1) => {
+  if(n1) {
+    getBatteryStatus()
+    getBatteryInfo()
+  }else {
+    batteryInfo.value = {} as UserBattery
+    clearInterval(intervalId.value)
   }
+}, { immediate: true })
+watch(() => global.userAddress, (n, o) => {
+  if(n?.location || o?.location) {
+    post<CabinetsType[]>('/tuge/homePageCabinetList', { longitude: n.location.lng, latitude: n.location.lat }, 'json').then(res => {
+      if(res?.length) cabinets.value = res 
+    })
+  }
+}, { immediate: true, deep: true })
+watch(() => batteryInfo.value?.batteryId, (n) => {
+  if(n) {
+    intervalId.value = setInterval(() => {
+      nowTime.value = displayTime(batteryInfo.value!.ctime)
+    }, 1000)
+  }else {
+    batteryInfo.value = {} as UserBattery
+    clearInterval(intervalId.value)
+  }
+}, { immediate: true })
+onShow(() => {
+  getNearbyCabinet()
 })
 // 小程序隐藏或页面销毁时清除定时器
 onHide(() => {
@@ -49,19 +69,11 @@ onUnload(() => {
   clearInterval(intervalId.value)
 })
 const cabinets = ref<CabinetsType[]>()
-watch(() => global.userAddress, (n, o) => {
-  if(n?.location || o?.location) {
-    post<CabinetsType[]>('/tuge/homePageCabinetList', { longitude: n.location.lng, latitude: n.location.lat }, 'json').then(res => {
-      if(res?.length) cabinets.value = res 
-    })
-  }
-}, { immediate: true, deep: true })
+
 // 附近柜子
 const getNearbyCabinet = ()  => {
   global.setUserAddress()
 }
-getNearbyCabinet()
-const currText = ref<number>(0)
 const tabs = reactive([{ text: '附近租赁柜' }])
 // 跳柜子信息
 const goCabinetInfo = (e: CabinetsType) => {
@@ -83,9 +95,7 @@ const mapNavigation = (i:CabinetsType) => {
 const goAreaSelect = () => {
   uni.navigateTo({ url: '/pages/global/area/index'})
 }
-// 暂无
-const tabChange = (e: number) => currText.value = e
-// 查看更多
+// 查看更多电池
 const goMore = () => {
   uni.navigateTo({ url: '/pages/cabinet/list/index' })
 }
@@ -113,7 +123,7 @@ const contactCS = () => {
       </view>
     </view>
     <!-- 当前租赁信息 -->
-    <view v-if="batteryInfo?.batteryId && global.accountInfo.batteryStatus === '1' " class="battery-info">
+    <view v-if="batteryInfo?.batteryId" class="battery-info">
       <view class="flex-row-sb-c">
         <view class="green-point"></view>
         <view class="code-num">{{ batteryInfo.batteryId }}</view>
@@ -144,7 +154,7 @@ const contactCS = () => {
     <!-- 附近租赁 -->
     <view class="nearby">
       <view class="header flex-c">
-        <view v-for="(item, index) in tabs" :key="index" class="relative" :class="[index === currText ? 'curr-text': '', currText === 0 ? 'tran-left': 'tran-right']" @click="tabChange(index)">{{ item.text }}</view>
+        <view class="relative" >附近租赁柜</view>
         <view class="flex-c flex-1 flex-end">
           <view class="text-xs" @click="goMore">查看更多</view>
           <i class="iconfont icon-more text-base"></i>
@@ -177,9 +187,9 @@ const contactCS = () => {
     <!-- 轮播图 -->
     <view class="swiper-group">
       <swiper class="swiper overflow-h" circular :indicator-dots="false" :autoplay="true" :interval="3000" :duration="500">
-        <swiper-item v-for="(i, index) in 3" :key="index" class="item">
-          <image src="@/static/imgs/home/carousel_01.png" mode="widthFix" class="w-full h-full" />
-          <!-- <image :src="`/static/imgs/home/cabinet_0${index + 1}.png`" mode="widthFix" class="w-full h-full" /> -->
+        <swiper-item v-for="(i, index) in 2" :key="index" class="item">
+          <!-- <image src="@/static/imgs/home/carousel_01.png" mode="widthFix" class="w-full h-full" /> -->
+          <image :src="`/static/imgs/home/carousel_0${index + 1}.png`" mode="widthFix" class="w-full h-full" />
           <view>{{ index }}</view>
         </swiper-item>
       </swiper>
@@ -371,6 +381,7 @@ const contactCS = () => {
   .cs {
     right: 4%;
     bottom: 18%;
+    z-index: 999;
     image {
       width: 100rpx;
       height: 100rpx;

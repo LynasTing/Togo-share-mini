@@ -1,35 +1,50 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request';
-import { onHide, onUnload } from '@dcloudio/uni-app';
+import { onHide, onShow, onUnload } from '@dcloudio/uni-app'
 import type { UserBattery } from '@/types/assets'
-import { displayTime } from '@/utils/tools.js'
-import useStore from '@/store';
+import { displayTime } from '@/utils/tools'
+import useStore from '@/store'
 
 const { global } = useStore()
-// 电池信息
+const intervalId = ref<number>(0)
 const nowTime = ref<string>('')
 const batteryInfo = ref<UserBattery>()
-post<UserBattery>('/account/battery', '', 'json').then(res => {
-  if(res.batteryId) {
-    batteryInfo.value = res 
-    nowTime.value = displayTime(batteryInfo.value.ctime)
+// 电池信息
+const getBatteryInfo = () => {
+  post<UserBattery>('/account/battery', '', 'json').then(res => {
+    console.log(`电池信息Battery res + ::>>`, res)
+    if(res.batteryId) {
+      batteryInfo.value = res 
+    }
+  })
+}
+watch(() => batteryInfo.value?.batteryId, n => {
+  if(n) {
+    intervalId.value = setInterval(() => {
+      nowTime.value = displayTime(batteryInfo.value!.ctime)
+    }, 1000)
   }
-})
-const intervalId = setInterval(() => {
-  nowTime.value = displayTime(batteryInfo.value.ctime)
-}, 1000)
-// 小程序隐藏或页面销毁时清除定时器
-onHide(() => {
-  clearInterval(intervalId)
-})
-onUnload(() => {
-  clearInterval(intervalId)
+}, { immediate: true })
+onShow(() => {
+  console.log(`onShow执行了 + ::>>`, )
+  getBatteryInfo()
 })
 
+// 小程序隐藏或页面销毁时清除定时器
+onHide(() => {
+  clearInterval(intervalId.value)
+})
+onUnload(() => {
+  clearInterval(intervalId.value)
+})
+// 跳扫码
+const goScan = () => {
+  uni.navigateTo({ url: '/pages/global/tab-bar/scan/index' })
+}
 </script>
 
 <template>
-  <view class="batter-page" v-if="global.accountInfo.batteryStatus === '1'">
+  <view class="batter-page" v-if="batteryInfo?.batteryId">
     <view class="flex-col-c">
       <text class="using">正在使用</text>
       <text>{{ nowTime }}</text>
@@ -41,9 +56,7 @@ onUnload(() => {
       <view>电池容量： {{ batteryInfo?.capacity || '--' }}</view>
       <view>租用时间： {{ batteryInfo?.ctime || '--' }}</view>
     </view>
-    <view class="btn">
-      归还电源
-    </view>
+    <view class="btn" @click="goScan">归还电源</view>
   </view>
   <Empty v-else text="您还未租借电池" />
 </template>
