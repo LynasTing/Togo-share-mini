@@ -1,91 +1,43 @@
 <script lang="ts" setup>
+import { post } from '@/utils/request'
+import type { TradingRecord, TradingRecordType } from '@/types/assets'
+import { splitString } from '@/utils/tools'
+
+const params = ref({
+  page: 1,
+  pageSize: 10
+})
+const total = ref<number>(0)
+const records = ref<TradingRecordType[]>([])
+const getDataList = () => {
+  post<TradingRecord>('/changing/tugeTransactionDetails', { ...params.value }, 'json').then(res => {
+    records.value = records.value?.concat(res.list)
+    total.value = res.total
+  })
+}
+getDataList()
+// scroll-view 触底
+const scrollToLower = () => {
+  if(records.value.length >= total.value) return
+  params.value.page += 1
+  getDataList()
+}
 </script>
 
 <template>
-  <view class="records-page">
-    <scroll-view class="scroll-y" style="height: 100%" scroll-y="true">
-      <view class="record">
+  <view v-if="records?.length" class="records-page">
+    <scroll-view class="scroll-y" style="height: 100%" scroll-y="true" @scrolltolower="scrollToLower">
+      <view class="record" v-for="item in records" :key="item.time">
         <view class="flex-row-sb-c h1">
-          <view>交易名称</view>
-          <view>-299.00</view>
+          <view>{{ splitString(item.name, 20 ) }}</view>
+          <view :class="item.type === '1' ? 'income': ''">{{ item.money }}</view>
         </view>
-        <view class="type">购买套餐</view>
-        <view class="time">2302-05-23 12:00:00</view>
-      </view>
-      <view class="record">
-        <view class="flex-row-sb-c h1">
-          <view>交易名称</view>
-          <view>-299.00</view>
-        </view>
-        <view class="type">购买套餐</view>
-        <view class="time">2302-05-23 12:00:00</view>
-      </view>
-      <view class="record">
-        <view class="flex-row-sb-c h1">
-          <view>交易名称</view>
-          <view>-299.00</view>
-        </view>
-        <view class="type">购买套餐</view>
-        <view class="time">2302-05-23 12:00:00</view>
-      </view>
-      <view class="record">
-        <view class="flex-row-sb-c h1">
-          <view>交易名称</view>
-          <view>-299.00</view>
-        </view>
-        <view class="type">购买套餐</view>
-        <view class="time">2302-05-23 12:00:00</view>
-      </view>
-      <view class="record">
-        <view class="flex-row-sb-c h1">
-          <view>交易名称</view>
-          <view>-299.00</view>
-        </view>
-        <view class="type">购买套餐</view>
-        <view class="time">2302-05-23 12:00:00</view>
-      </view>
-      <view class="record">
-        <view class="flex-row-sb-c h1">
-          <view>交易名称</view>
-          <view>-299.00</view>
-        </view>
-        <view class="type">购买套餐</view>
-        <view class="time">2302-05-23 12:00:00</view>
-      </view>
-      <view class="record">
-        <view class="flex-row-sb-c h1">
-          <view>交易名称</view>
-          <view>-299.00</view>
-        </view>
-        <view class="type">购买套餐</view>
-        <view class="time">2302-05-23 12:00:00</view>
-      </view>
-      <view class="record">
-        <view class="flex-row-sb-c h1">
-          <view>交易名称</view>
-          <view>-299.00</view>
-        </view>
-        <view class="type">购买套餐</view>
-        <view class="time">2302-05-23 12:00:00</view>
-      </view>
-      <view class="record">
-        <view class="flex-row-sb-c h1">
-          <view>交易名称</view>
-          <view>-299.00</view>
-        </view>
-        <view class="type">购买套餐</view>
-        <view class="time">2302-05-23 12:00:00</view>
-      </view>
-      <view class="record">
-        <view class="flex-row-sb-c h1">
-          <view>交易名称</view>
-          <view>-299.00</view>
-        </view>
-        <view class="type">购买套餐</view>
-        <view class="time">2302-05-23 12:00:00</view>
+        <view class="type">{{ item.typeText }}</view>
+        <view class="time">{{ item.time }}</view>
       </view>
     </scroll-view>
   </view>
+  <Empty v-else text="没有找到您的交易记录" />
 </template>
 
 <style lang="scss" scoped>
@@ -103,6 +55,9 @@
     .h1 {
       font-size: 32rpx;
       font-weight: bold;
+    }
+    .income {
+      color: #FA5151;
     }
     .type {
       font-size: 28rpx;
