@@ -3,6 +3,7 @@ export interface Api<T> {
   data: T | any
   msg: string
 }
+
 export type TabBarType = {
   text?: string
   icon?: string
@@ -20,9 +21,9 @@ export type UserAddressType = {
     lat: number | null
     lng: number | null
   }
-}
-// 账户信息
-export type AccountInfoType = {
+} 
+// 账户信息(登录成功返回)
+export interface LoginSuccess {
   accountUid: string
   batteryStatus: string
   comboStatus: string
@@ -30,7 +31,10 @@ export type AccountInfoType = {
   organizationId: number
   phone: string
   token: string
-  userName: string
+}
+// 登录失败 
+export interface LoginFail {
+  openId: string
 }
 // 用户个人资料
 export interface UserInfo {
@@ -54,4 +58,9 @@ export interface Activities {
   introduce: string
   id: number
   status: number
+}
+// 实名认证(实名认证身份证返回信息)
+export interface RealName {
+  name: string
+  idCard: string
 }
