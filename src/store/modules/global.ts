@@ -1,33 +1,27 @@
 import { defineStore } from "pinia";
-import type { UserAddressType } from '@/types/global'
+import type { UserAddressType, UserInfo, LoginSuccess } from '@/types/global'
+import type { UserBattery } from '@/types/assets'
 import useStore from '@/store'
 
-// 用户拒绝授权定位
-const authReject = () => {
-  const { global } = useStore() 
-  uni.showToast({
-    title: '您拒绝了授权位置信息！我们将无法为您提供更多服务',
-    icon: 'none',
-    duration: 2 * 1000
-  })
-  global.setUserAddress('clear')
-}
 export default defineStore('global', {
   state: () => ({
-    paddingBottomHeight: 0,
+    openId: '',
     scrollHeight: 750,
-    deviceType: '',
+    batteryInfo: {} as UserBattery,
     authCodeTimer: 0,
     usingCity: '福州',
     userAddress: {} as UserAddressType,
-    accountInfo: uni.getStorageSync('accountInfo') || {}
+    accountInfo: uni.getStorageSync('accountInfo') as LoginSuccess,
+    userInfo: {} as UserInfo
   }),
   actions: {
-    setPaddingBottomHeight(val: number) {
-      this.paddingBottomHeight = val
+    // 电池信息
+    setBatteryInfo(val: UserBattery) {
+      this.batteryInfo = val
     },
-    setDeviceType(val: string) {
-      this.deviceType = val
+    // openId(只在新用户注册用)
+    setOpenId(val: string) {
+      this.openId = val
     },
     // 获取用户位置
     setUserAddress(val?: string) {
@@ -121,9 +115,13 @@ export default defineStore('global', {
         }
       })
     },
-    // 用户信息
-    setAccountInfo(val: object) {
+    // 登录账号信息
+    setAccountInfo(val: LoginSuccess) {
       this.accountInfo = val 
+    },
+    // 用户信息
+    setUserInfo(val: UserInfo) {
+      this.userInfo = val
     },
     // 屏幕可用高度
     setScrollHeight(val: number) {
@@ -139,3 +137,14 @@ export default defineStore('global', {
     }
   }
 })
+
+// 用户拒绝授权定位
+const authReject = () => {
+  const { global } = useStore() 
+  uni.showToast({
+    title: '您拒绝了授权位置信息！我们将无法为您提供更多服务',
+    icon: 'none',
+    duration: 2 * 1000
+  })
+  global.setUserAddress('clear')
+}

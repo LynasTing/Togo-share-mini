@@ -12,6 +12,10 @@ const goMine = () => {
 const goRecord = () => {
   uni.navigateTo({ url: '/pages/customer-services/wallet/trading-records/index' })
 }
+// 跳套餐
+const goCombo = () => {
+  uni.navigateTo({ url: '/pages/customer-services/wallet/my-combo/index' })
+}
 </script>
 
 <template>
@@ -35,6 +39,10 @@ const goRecord = () => {
         <view>共3000.00元</view>
         <view class="iconfont icon-youjiantou" ></view>
       </view>
+    </view>
+    <view class="brown-card flex-row-sb-c" @click="goCombo">
+      <view>我的套餐</view>
+      <view class="iconfont icon-youjiantou"></view>
     </view>
     <view class="brown-card flex-row-sb-c" @click="goRecord">
       <view>交易明细</view>

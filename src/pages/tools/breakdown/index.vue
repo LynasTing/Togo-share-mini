@@ -27,7 +27,6 @@ const scanCabinetCode = () =>{
     onlyFromCamera: true,
     scanType: ['qrCode'],
     success: res => {
-      console.log(`res + ::>>`, res)
       const { result } = res
       const regex = /deviceUid=([^&]+)/
       const match = result.match(regex)

@@ -11,6 +11,7 @@ const params = ref({
   longitude: global.userAddress.location.lng || 0
 })
 onLoad((options) => {
+  console.log(`options + ::>>`, options)
   if(options?.id) params.value.id = options.id
 })
 // 租赁柜信息
