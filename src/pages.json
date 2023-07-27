@@ -27,17 +27,24 @@
 			}
 		},
 		{
-			"path": "pages/login/auth/index",
+			"path": "pages/user-access/login/index",
 			"style": {
 				"disableScroll": true,
 				"navigationBarTitleText": "欢迎使用途歌共享"
 			}
 		},
 		{
-			"path": "pages/login/sign-in/index",
+			"path": "pages/user-access/register/auth/index",
 			"style": {
 				"disableScroll": true,
-				"navigationBarTitleText": "欢迎登录途歌共享"
+				"navigationBarTitleText": "欢迎使用注册途歌共享"
+			}
+		},
+		{
+			"path": "pages/user-access/register/code/index",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "欢迎使用注册途歌共享"
 			}
 		},
 		{
@@ -51,7 +58,7 @@
 			"path": "pages/global/tab-bar/activity/index",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#FFF"
+				"navigationBarBackgroundColor": "#f9fbfc"
 			}
 		},
 		{
@@ -64,7 +71,8 @@
 		{
 			"path": "pages/global/tab-bar/scan/lease/index",
 			"style": {
-				"navigationBarTitleText": "电源租用"
+				"navigationBarTitleText": "电源租用",
+				"disableSwipeBack": true
 			}
 		},
 		{
@@ -120,6 +128,7 @@
 			"style": {
 				"navigationBarTitleText": "租赁柜",
 				"navigationBarTextStyle": "white",
+				"disableSwipeBack": true,
 				"navigationBarBackgroundColor": "#373c50"
 			}
 		},
@@ -186,7 +195,7 @@
 		{
 			"path": "pages/customer-services/wallet/deposit-pay/index",
 			"style": {
-				"disableScroll": true,
+				// "disableScroll": true,
 				"navigationBarTitleText": "押金服务"
 			}
 		},
@@ -264,7 +273,7 @@
       },
 			{
         "pagePath": "pages/global/tab-bar/mall/index",
-        "text": "商城"
+        "text": "订单"
       },
 			{
         "pagePath": "pages/global/tab-bar/mine/index",

@@ -8,13 +8,13 @@ button::after{
 // 调整禁用时的样式
 button[disabled] {
   background-color: #fff;
-  color: #eee;
+  color: #666;
 }
 // 修改点击时的样式
-.button-hover {
-  color:#F85959;
-  background-color:#fff;
-}
+// .button-hover {
+//   color:#F85959;
+//   background-color:#fff;
+// }
 .search-input {
   position: relative;
   top: 0;
