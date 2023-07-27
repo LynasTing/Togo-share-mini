@@ -2,7 +2,8 @@
 import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 import useStore from '@/store'
 import { post } from '@/utils/request'
-import { splitString } from '@/utils/tools.js'
+import { splitString } from '@/utils/tools'
+import { notLoginIn } from '@/hooks/index'
 import type { UserInfo } from '@/types/global'
 
 const { global } = useStore()
@@ -10,7 +11,7 @@ watch(() => global.accountInfo.token, (n) => {
   if(n) {
     post<UserInfo>('/changing/tuGeRecUserInfo', '', 'json').then(res => global.setUserInfo(res as UserInfo))
   }
-})
+}, { immediate: true })
 
 const csMenu = reactive([
   { path: '/pages/customer-services/battery/index' },
@@ -20,27 +21,44 @@ const csMenu = reactive([
 ])
 // 跳菜单
 const goCS = e => {
+  if(!global.accountInfo.token) {
+    notLoginIn()
+    return
+  }
   uni.navigateTo({ url:  e.path })
 }
 // 跳个人资料
 const goUserInfo = () => {
+  if(!global.accountInfo.token) {
+    notLoginIn()
+    return
+  }
   uni.navigateTo({ url: '/pages/global/tab-bar/mine/user-info/index' })
 }
 // 跳实名认证
 const goRealName = () => {
+  if(!global.accountInfo.token) {
+    notLoginIn()
+    return
+  }
   uni.navigateTo({ url: '/pages/global/tab-bar/mine/real-name-auth/index' })
 }
 const tools = reactive([
   { text: '我的消息', path: '/pages/tools/message/index' },
   { text: '分享', path: '/pages/tools/share/index' },
   { text: '意见反馈', path: '/pages/tools/feedback/index' },
-  { text: '关于我们', path: '/pages/tools/about-us/index' },
+  { text: '关于我们', path: '/pages/tools/about-us/index', whiteList: true },
   { text: '故障上报', path: '/pages/tools/breakdown/index' },
   { text: '邀请码', path: '/pages/tools/invitation-code/index' },
-  { text: '应用设置', path: '/pages/tools/setting/index' },
+  { text: '应用设置', path: '/pages/tools/setting/index', whiteList: true },
   { text: '开通套餐', path: '/pages/tools/activate-package/index' }
 ])
+// 常用功能
 const toolsNavigate = e => {
+  if(!global.accountInfo.token && !e.whiteList) {
+    notLoginIn()
+    return
+  }
   uni.navigateTo({
     url: e.path
   })

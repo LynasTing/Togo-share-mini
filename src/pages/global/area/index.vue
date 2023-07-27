@@ -22,7 +22,6 @@ watch(() => global.userAddress, (n, o) => {
 			longitude: global.userAddress.location?.lng
 		})
 		post('/cabinet/getCityInfoByOrganizationId', { ...hotCityParams.value }, '').then(res => {
-			console.log(`res + ::>>`, res)
 			if(res.allRegionList.length) hotCities.value = res.allRegionList
 		})
   }

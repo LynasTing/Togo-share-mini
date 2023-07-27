@@ -7,7 +7,7 @@ export interface UserBattery {
 }
 // 押金记录
 export interface DepositRecords {
-  data: string
+  date: string
   depositType: string
   money: string
   orderNumber: string
