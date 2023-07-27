@@ -1,19 +1,20 @@
 import { _showLoading, _hideLoading } from "./loading"
 import type { Api } from '@/types/global'
 import useStore from '@/store'
+import { notLoginIn } from '@/hooks/index'
 
 export function post<T>(url: string, data?: any, type?: string, noLoading?: boolean): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     let base_url
     switch (uni.getAccountInfoSync().miniProgram.envVersion) {
       case 'develop':
-        base_url = 'http://fz.hthuandian.cn/apptuge'
+        base_url = 'https://hthd.hthuandian.cn/apptest'
         break
       case 'trial':
-        base_url = 'http://fz.hthuandian.cn/apptuge'
+        base_url = 'https://hthd.hthuandian.cn/apptest'
         break  
       case 'release':
-        base_url = 'http://fz.hthuandian.cn/apptuge'
+        base_url = 'https://hthd.hthuandian.cn/apptest'
         break
     }
     // 项目有两种类型接口, json 和 x-www-form-urlencoded
@@ -31,30 +32,15 @@ export function post<T>(url: string, data?: any, type?: string, noLoading?: bool
       data,
       method: 'POST',
       header,
-      success: async res => {
+      success: res => {
         _hideLoading()
         const { code, data, msg } = res.data as Api<T>
         if(code === '000000') {
           data ? resolve(data as T) : resolve({} as T)
         } else if(code === '000005'){
-          uni.showToast({
-            title: '登录状态已过期，请重新登录',
-            icon: 'none',
-            duration: 2 * 1000
-          })
-          var pages = await getCurrentPages()
-          const url = pages[pages.length - 1]?.route
-          if(url !== 'pages/login/auth/index') {
-            setTimeout(() => {
-              uni.redirectTo({ url: `/pages/login/auth/index?url=${'/' + url}` })
-            }, 2 * 1000)
-          }else {
-            setTimeout(() => {
-              uni.redirectTo({ url: `/pages/login/auth/index` })
-            }, 2 * 1000)
-          }
+          notLoginIn()
         } else {
-          console.log(`res.data + ::>>`, res.data)
+          console.log(`请求错误 res + ::>>`, res)
           uni.showToast({
             title: msg || '请求错误',
             icon: 'none',
