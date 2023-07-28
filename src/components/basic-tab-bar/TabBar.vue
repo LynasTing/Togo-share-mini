@@ -84,9 +84,14 @@ const goScan = () => {
         icon: 'none',
         duration: 2.5 * 1000
       })
-      return
-    }
-    if(res.batteryStatus) {
+    }else if(res.batteryStatus === '2') {
+      uni.showToast({
+        title: '您的押金处于审核状态，无法为您提供服务',
+        icon: 'none',
+        mask: true,
+        duration: 2.5 * 1000
+      }) 
+    }else {
       global.setAccountInfo({ ...global.accountInfo, batteryStatus: res.batteryStatus })
       uni.setStorageSync('accountInfo', { ...global.accountInfo, batteryStatus: res.batteryStatus })
       uni.navigateTo({ url: '/pages/global/tab-bar/scan/index' })
