@@ -2,11 +2,15 @@
 import useStore from '@/store'
 import type { UserInfo } from '@/types/global'
 import { post } from '@/utils/request'
+import { onShow } from '@dcloudio/uni-app'
 
-post<UserInfo>('/changing/tuGeRecUserInfo', '', 'json').then(res => 
-  global.setUserInfo(res as UserInfo)
-)
 const { global } = useStore()
+onShow(() => {
+  if(global.accountInfo.token) {
+    post<UserInfo>('/changing/tuGeRecUserInfo', '', 'json').then(res => global.setUserInfo(res as UserInfo))
+  }
+})
+
 // 跳填写个人信息
 const goFillOut = () => {
   uni.navigateTo({ url: '/pages/global/tab-bar/mine/fill-out/index' })
@@ -19,17 +23,17 @@ const goRealName = () => {
 
 <template>
   <view class="info-page">
-    <view class="avatar flex-row-sb-c">
+    <view class="avatar flex-row-sb-c" @click="goFillOut">
       <view>头像</view>
-      <view class="flex--c" @click="goFillOut">
-        <image mode="widthFix" :src="global.userInfo.userPhoto || '@/static/imgs/cabinet/lightning.png'"  />
+      <view class="flex--c">
+        <image mode="widthFix" :src="global.userInfo.userPhoto || '/static/imgs/cabinet/lightning.png'"  />
         <text class="iconfont icon-youjiantou"></text>
       </view>
     </view>
     <view class="px-30">
-      <view class="has-border">
+      <view class="has-border" @click="goFillOut">
         <view>昵称</view>
-        <view @click="goFillOut">
+        <view >
           <text>{{ global.userInfo.nickname || '请前往填写' }}</text>
           <text class="iconfont icon-youjiantou"></text>
         </view>
@@ -42,9 +46,9 @@ const goRealName = () => {
       </view>
     </view>
     <view class="px-30">
-      <view class="has-border">
+      <view class="has-border" @click="goRealName">
         <view>实名认证</view>
-        <view @click="goRealName">
+        <view>
           <text>{{ global.userInfo.status === '0' ? '未完成认证' : '已完成认证' }}</text>
           <text class="iconfont icon-youjiantou"></text>
         </view>

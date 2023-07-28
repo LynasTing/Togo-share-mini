@@ -1,41 +1,24 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
+import useStore from '@/store'
 
-const avatar = ref('https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0')
+const { global } = useStore()
 const params = ref({
-  userPhoto: '',
-  userNickname: '',
+  userPhoto: global.userInfo.userPhoto || 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
+  userNickname: global.userInfo.nickname || '',
   appId: uni.getAccountInfoSync().miniProgram.appId
 })
 console.log(`uni.getAccountInfoSync + ::>>`, uni.getAccountInfoSync())
 // 头像选择回调
 const onChooseAvatar = (e) => {
-  avatar.value = e.detail.avatarUrl
-  toBase64()
+  params.value.userPhoto = e.detail.avatarUrl
 }
 // input输入回调
 const nicknameInput = (e) => {
   params.value.userNickname = e.detail.value
 }
-const toBase64 = () => {
-  uni.getFileSystemManager().readFile({
-    filePath: avatar.value,
-    encoding: 'base64',
-    success: res => {
-      if(res.errMsg === 'readFile:ok') params.value.userPhoto = res.data as string
-    }
-  })
-}
 // 提交
 const submit = () => {
-  if(!params.value.userNickname || !params.value.userPhoto) {
-    uni.showToast({
-      title: '不能提交空的内容哦',
-      icon: 'none',
-      duration: 1.5 * 1000
-    })
-    return 
-  }
   post('/changing/tuGeUpdateUserInfo', { ...params.value }, 'json').then(res => {
     if(Object.getOwnPropertyNames(res).length === 0) {
       uni.showToast({
@@ -49,18 +32,43 @@ const submit = () => {
     }
   })
 }
+// 验证
+const verify = () => {
+  if(!params.value.userNickname || !params.value.userPhoto) {
+    uni.showToast({
+      title: '不能提交空的内容哦',
+      icon: 'none',
+      duration: 1.5 * 1000
+    })
+    return 
+  }
+  if(params.value.userPhoto.startsWith('http://fz.hthuandian.cn') || params.value.userPhoto.startsWith('https://')) {
+    submit()
+  }else {
+    uni.getFileSystemManager().readFile({
+      filePath: params.value.userPhoto,
+      encoding: 'base64',
+      success: res => {
+        if(res.errMsg === 'readFile:ok') {
+          params.value.userPhoto = res.data as string
+          submit()
+        }
+      }
+    })
+  }
+}
 </script>
 
 <template>
   <view>
     <button class="avatar-wrapper overflow-h" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
-      <image class="w-full h-full" :src="avatar"></image>
+      <image class="w-full h-full" :src="params.userPhoto"></image>
     </button> 
     <view class="flex-c input">
       <view class="label">昵称</view>
-      <input type="nickname" v-model="params.userNickname" placeholder="请输入昵称" @input="nicknameInput" @blur="nicknameInput"  />
+      <input type="nickname" v-model="params.userNickname" placeholder="请输入昵称" @input="nicknameInput" maxlength="8" @blur="nicknameInput"  />
     </view>
-    <view class="btn" @click="submit">
+    <view class="btn" @click="verify">
       提交
     </view>
   </view>
