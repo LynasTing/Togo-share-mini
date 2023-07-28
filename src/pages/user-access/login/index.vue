@@ -12,6 +12,13 @@ const tabBarPage = ref([
 ])
 const { global } = useStore()
 const redirect = ref<string>('')
+const platform = ref<string>('wx')
+uni.getSystemInfo({
+  success: res => { platform.value = res.uniPlatform }
+})
+// #ifdef MP-ALIPAY
+my.setNavigationBar({ textStyle: 'black' })
+// #endif
 onLoad(option => {
   if(option?.path) redirect.value = decodeURIComponent(option?.path)
 })
@@ -65,10 +72,10 @@ const authLogin = (e: any) => {
     }
   })
 }
-
 const agreeCheck = ref<boolean>(false)
 // 同意用户协议
 const agreeCheckChange = () => {
+  console.log(`agreeCheck.value + ::>>`, agreeCheck.value)
   agreeCheck.value = !agreeCheck.value
 }
 // 跳用户协议页面
@@ -80,14 +87,14 @@ const goUserAgreement = () => {
   <view class="flex-col-c login-page">
     <image src="@/static/imgs/global/login_logo.png" mode="widthFix" class="logo"/>
     <view class="desc w-full">即将开启途歌共享</view>
-    <button class="wx-login w-full button relative" @click="authLogin" >微信授权一键登录</button>
-    <label class="flex-c w-full agreement" @click.stop="agreeCheckChange">  
+    <button class="wx-login w-full button relative" @click="authLogin">{{ platform === 'mp-alipay' ? '支付宝' : '微信' }}授权一键登录</button>
+    <view class="flex-c w-full agreement" @click.stop="agreeCheckChange">  
       <radio :value="agreeCheck" :checked="agreeCheck" color="#fcc300" style="transform: scale(0.8)" />
       <view>
         请阅读并同意
         <text @click.stop="goUserAgreement">《用户协议》</text>
       </view>
-    </label>
+    </view>
   </view>
 </template>
 
@@ -111,12 +118,14 @@ const goUserAgreement = () => {
     font-weight: 600;
     color: #54555A;
     background: linear-gradient(135deg, transparent 30rpx, rgb(252,195,0) 0);
+    border: none;
     margin-bottom: 50rpx;;
     letter-spacing: 4rpx;
   }
   .agreement {
     text-align: left;
     font-size: 24rpx;
+    z-index: 9;
     text {
       color: #0B5CA3;
     }

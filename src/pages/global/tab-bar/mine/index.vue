@@ -5,6 +5,7 @@ import { post } from '@/utils/request'
 import { splitString } from '@/utils/tools'
 import { notLoginIn } from '@/hooks/index'
 import type { UserInfo } from '@/types/global'
+import { onShow } from '@dcloudio/uni-app'
 
 const { global } = useStore()
 watch(() => global.accountInfo.token, (n) => {
@@ -12,7 +13,11 @@ watch(() => global.accountInfo.token, (n) => {
     post<UserInfo>('/changing/tuGeRecUserInfo', '', 'json').then(res => global.setUserInfo(res as UserInfo))
   }
 }, { immediate: true })
-
+onShow(() => {
+  // #ifdef MP-ALIPAY
+  uni.hideTabBar()
+  // #endif
+})
 const csMenu = reactive([
   { path: '/pages/customer-services/battery/index' },
   { path: '/pages/customer-services/records/index' },

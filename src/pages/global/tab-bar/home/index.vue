@@ -48,6 +48,9 @@ watch(() => batteryInfo.value?.batteryId, (n) => {
   }
 }, { immediate: true })
 onShow(() => {
+  // #ifdef MP-ALIPAY
+  uni.hideTabBar()
+  // #endif
   getNearbyCabinet()
 })
 // 小程序隐藏或页面销毁时清除定时器(节省性能)

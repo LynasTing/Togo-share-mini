@@ -3,12 +3,18 @@ import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 import useStore from '@/store'
 import type { Activities } from '@/types/global'
 import { post } from '@/utils/request'
+import { onShow } from '@dcloudio/uni-app'
 
 const { global } = useStore() 
 const activities = ref<Activities[]>([])
 post<Activities[]>('/tuge/tuGeActivityList', '', 'json').then(res => {
   console.log(`res + ::>>`, res)
   activities.value = res
+})
+onShow(() => {
+  // #ifdef MP-ALIPAY
+  uni.hideTabBar()
+  // #endif
 })
 </script>
 

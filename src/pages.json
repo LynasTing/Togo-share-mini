@@ -30,6 +30,8 @@
 			"path": "pages/user-access/login/index",
 			"style": {
 				"disableScroll": true,
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#333333",
 				"navigationBarTitleText": "欢迎使用途歌共享"
 			}
 		},
@@ -195,7 +197,6 @@
 		{
 			"path": "pages/customer-services/wallet/deposit-pay/index",
 			"style": {
-				// "disableScroll": true,
 				"navigationBarTitleText": "押金服务"
 			}
 		},
