@@ -64,3 +64,19 @@ export interface RealName {
   name: string
   idCard: string
 }
+/**
+ * 实名认证身份证背面照
+ */
+export interface RealNameBack {
+  /**
+   * 所在派出所
+   * @type {string}
+   */
+  authority : string
+
+  /**
+   * 身份证有效期
+   * @type {string}
+   */
+  timelimit : string
+}

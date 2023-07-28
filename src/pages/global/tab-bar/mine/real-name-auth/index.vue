@@ -1,22 +1,83 @@
 <script lang="ts" setup>
+import { post } from '@/utils/request'
+import type { RealName, RealNameBack } from '@/types/global'
+
+// 微信临时图片转base64
+const toBase64 = (file: string) => {
+  const result = uni.getFileSystemManager().readFileSync(file, 'base64')
+  return result  
+}
+const frontImg = ref<string>('')
+const backImg = ref<string>('')
 // 图片上传
-const imgUpload = () => {
+const imgUpload = (type: number) => {
   uni.chooseMedia({
     count: 1,
     mediaType: ['image'],
     sourceType: ['album', 'camera'],
-    maxDuration: 30,
     camera: 'back',
     success(res) {
-      console.log(`res + ::>>`, res)
-      // params.value.imgUrl = params.value.imgUrl.concat(res.tempFiles[0].tempFilePath)
+      if(res.tempFiles[0].size / 1024 / 1024 > 4) {
+        uni.showToast({
+          title: '请您上传4MB以内的图片~',
+          icon: 'none'
+        })
+        return
+      }
+      let path = res.tempFiles[0].tempFilePath
+      type ? backImg.value = path : frontImg.value = path
+      path = toBase64(res.tempFiles[0].tempFilePath) as string
+      type ? backVerify(path) : FrontVerify(path)
     }
   })
 }
-// 图片删除
-// const imgDel = (e: string) => {
-//   params.value.imgUrl = params.value.imgUrl.filter((obj: string) => obj !== e)
-// }
+// 身份证照片正面验证
+const FrontVerify = (userPhoto: string) => {
+  post<RealName>('/changing/userPhotoDoRealNameHead', { userPhoto }, 'json').then(res => {
+    if(res.idCard) {
+      realNameParams.value = res as RealName
+      uni.showToast({
+        title: '上传成功',
+        icon: 'success'
+      })
+    }else {
+      frontImg.value = ''
+      uni.showToast({
+        title: '无法识别您上传的照片，请重试',
+        icon: 'none',
+        mask: false
+      })
+    }
+  })
+}
+// 身份证照片反面验证
+const backVerify = (userPhoto: string) => {
+  post<RealNameBack>('/changing/userPhotoDoRealName', { userPhoto }, 'json').then(res => {
+    if(!res.authority) {
+      backImg.value = ''
+      uni.showToast({
+        title: '无法识别您上传的照片，请重试',
+        icon: 'none',
+        mask: false
+      })
+    }else {
+      uni.showToast({
+        title: '上传成功',
+        icon: 'success'
+      })
+    }
+  })
+}
+// 提交实名认证
+const realNameParams = ref<RealName>({
+  name: '',
+  idCard: ''
+})
+const submit = () => {
+  post('/changing/tuGeDoRealName', { ...realNameParams.value }, 'json').then(res => {
+    console.log(`提交实名认证 res + ::>>`, res)
+  }) 
+}
 </script>
 
 <template>
@@ -26,20 +87,21 @@ const imgUpload = () => {
       为保障您的权益，请先实名认证！<br />
       信息以安全加密，仅用于实名认证审核
     </view>
-    <view class="auth-id-card auth-front" @click="imgUpload">
-    </view>
-    <view class="auth-id-card auth-back">
-    </view>
+    <image v-if="!frontImg" class="auth-id-img auth-id-card" src="@/static/imgs/mine/id_card_front.png" @click="imgUpload(0)" />
+    <image v-else :src="frontImg" class="auth-id-img" />
+    <image v-if="!backImg" class="auth-id-img auth-id-card" src="@/static/imgs/mine/id_card_back.png" @click="imgUpload(1)" />
+    <image v-else :src="backImg" class="auth-id-img" />
+    <view class="desc">依据身份证照片读取您的身份信息可能会有误差<br />请您在仔细确认后再提交</view>
     <view class="auth-title relative user-info">个人信息</view>
     <view class="input-box flex-c">
       <view>真实姓名</view>
-      <input type="text" placeholder="请输入您的真实姓名" placeholder-style="font-size: 30rpx; color: #ccc">
+      <input class="flex-1" type="text" v-model="realNameParams.name" placeholder="请填写您的真实姓名" placeholder-style="font-size: 30rpx; color: #ccc">
     </view>
     <view class="input-box flex-c">
       <view>身份证号</view>
-      <input type="idcard" placeholder="请输入您的真实身份证号" placeholder-style="font-size: 30rpx; color: #ccc">
+      <input class="flex-1" type="idcard" v-model="realNameParams.idCard" maxlength="18" placeholder="请填写您的身份证号" placeholder-style="font-size: 30rpx; color: #ccc">
     </view>
-    <view class="submit">提交认证</view>
+    <view class="submit" @click="submit">提交认证</view>
   </view>
 </template>
 
@@ -63,6 +125,10 @@ const imgUpload = () => {
       opacity: 0.7;
     }
   }
+  .desc {
+    font-size: 26rpx;
+    color: #888;
+  }
   .user-info {
     width: 144rpx;
     margin: 60rpx 0 40rpx;
@@ -79,6 +145,11 @@ const imgUpload = () => {
     background-position: 100% 100%;
     background-repeat: no-repeat;
     background-size: cover;
+  }
+  .auth-id-img {
+    width: 100%;
+    height: 418rpx;
+    border-radius: 12rpx;
   }
   .auth-front {
     background-image: url('@/static/imgs/mine/id_card_front.png');
