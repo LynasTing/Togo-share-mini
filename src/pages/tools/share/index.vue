@@ -1,14 +1,17 @@
 <script lang="ts" setup>
+import { post } from '@/utils/request'
+import useStore from '@/store'
+
+const { global } = useStore()
 // 滚动条
 const scrollTop = ref(0)
 const old = ref({
 	scrollTop: 0
 })
 const scroll = (e: any) => {
-	console.log(e)
 	old.value.scrollTop = e.detail.scrollTop
 }
-
+post('/changing/tuGePromotions', { appId: uni.getAccountInfoSync().miniProgram.appId, accountUid: global.accountInfo.accountUid }, 'json')
 
 const records = ref([
   {

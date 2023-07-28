@@ -1,13 +1,39 @@
 <script lang="ts" setup>
-const currAmount = ref<number>(0)
-const changeSpecies = (val: number) => {
-  currAmount.value = val
+import { post } from '@/utils/request'
+import useStore from '@/store'
+import type { DepositPay } from '@/types/assets'
+
+const { global } = useStore()
+const deposits = ref<DepositPay[]>()
+post('/changing/tuGeGetDepositList', { organizationId: 143 }, 'json').then(res => {
+  deposits.value = res as DepositPay[]
+  currCombo.value.amount = deposits.value[0].depositMoney
+})
+const currCombo = ref<any>({
+  index: 0,
+  amount: 0
+})
+const changeSpecies = (item: DepositPay, index: number) => {
+  currCombo.value.amount = item!.depositMoney
+  payParams.value.id = item!.id
+  currCombo.value.index = index
+}
+// 支付
+const payParams = ref({
+  organizationId: global.accountInfo.organizationId,
+  openId: global.openId || '',
+  id: -1
+})
+const payToDeposit = () => {
+  post('/changing/tuGePayDeposit', { ...payParams.value }, 'json').then(res => {
+    console.log(`res + ::>>`, res)
+  })
 }
 </script>
 
 <template>
   <div class="serve-page">
-    <view class="species flex-row-sb-c" @click="changeSpecies(0)" :class="currAmount ? '' : 'curr-type'">
+    <!-- <view class="species flex-row-sb-c" @click="changeSpecies" :class="currAmount ? '' : 'curr-type'">
       <view class="flex-c">
         <view class="iconfont icon-weixin"></view>
         <view>
@@ -19,27 +45,25 @@ const changeSpecies = (val: number) => {
         <view>免押金</view>
         <view class="text-sm free">￥3000.00</view>
       </view>
-    </view>
-    <view class="species flex-row-sb-c" @click="changeSpecies(3000)" :class="currAmount ? 'curr-type' : ''">
+    </view> -->
+    <view class="species flex-row-sb-c" v-for="(item, index) in deposits" :key="index" @click="changeSpecies(item, index)" :class="currCombo.index === index ? 'curr-type' : ''">
       <view class="flex-c">
         <view class="iconfont icon-rmb"></view>
         <view>
           <view>支付押金</view>
-          <view class="text-sm">归还电池后可退</view>
+          <view class="text-sm">{{ item.batteryTypeName || '--'}}(归还电池后可退)</view>
         </view>
       </view>
       <view>
-        <view class="text-sm">￥3000.00</view>
+        <view class="text-sm">￥{{ item.depositMoney }}</view>
       </view>
     </view>
     <view class="flex-row-sb-c pay-card w-full">
       <view class="flex-c">
-        <view class="text-sm">金额<text v-show="!currAmount">（免押金）</text>：</view>
-        <view class="num">￥{{ currAmount }}</view>
+        <view class="text-sm">金额<text v-show="!currCombo.amount">（免押金）</text>：</view>
+        <view class="num">￥{{ currCombo.amount }}</view>
       </view>
-      <view>
-        <button>立即支付</button>
-      </view>
+      <button @click="payToDeposit">立即支付</button>
     </view>
   </div>
 </template>
@@ -97,6 +121,7 @@ const changeSpecies = (val: number) => {
       color: white;
       background-color: $yellow;
       border-radius: 999rpx;
+      margin: 0;
       padding: 0 80rpx;
       letter-spacing: 2rpx;
     }
