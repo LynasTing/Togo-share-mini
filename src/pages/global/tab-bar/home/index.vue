@@ -3,21 +3,11 @@ import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 import useStore from '@/store'
 import { post } from '@/utils/request'
 import { onShow, onHide, onUnload } from '@dcloudio/uni-app';
-import { displayTime } from '@/utils/tools.ts'
+import { displayTime } from '@/utils/tools'
 import type { UserBattery } from '@/types/assets'
 import type { CabinetsType } from '@/types/cabinet' 
-import type { BatteryStatus } from '@/types/controls'
 
 const { global } = useStore()
-// 获取用户最新拥有电池状态
-const getBatteryStatus = () => {
-  post<BatteryStatus>('/account/batterySituation', '', 'json').then(res => {
-    if(res.batteryStatus) {
-      global.setAccountInfo({ ...global.accountInfo, batteryStatus: res.batteryStatus })
-      uni.setStorageSync('accountInfo', { ...global.accountInfo, batteryStatus: res.batteryStatus })
-    }
-  })
-}
 // 电池信息
 const intervalId = ref()
 const nowTime = ref<string>('')
@@ -32,9 +22,8 @@ const getBatteryInfo = () => {
     }
   })
 }
-watch(() => global.accountInfo.token, (n1) => {
-  if(n1) {
-    getBatteryStatus()
+watch(() => global.accountInfo.token, (n) => {
+  if(n) {
     getBatteryInfo()
   }else {
     batteryInfo.value = {} as UserBattery
@@ -61,7 +50,7 @@ watch(() => batteryInfo.value?.batteryId, (n) => {
 onShow(() => {
   getNearbyCabinet()
 })
-// 小程序隐藏或页面销毁时清除定时器
+// 小程序隐藏或页面销毁时清除定时器(节省性能)
 onHide(() => {
   clearInterval(intervalId.value)
 })
@@ -69,18 +58,16 @@ onUnload(() => {
   clearInterval(intervalId.value)
 })
 const cabinets = ref<CabinetsType[]>()
-
 // 附近柜子
 const getNearbyCabinet = ()  => {
   global.setUserAddress()
 }
-const tabs = reactive([{ text: '附近租赁柜' }])
 // 跳柜子信息
 const goCabinetInfo = (e: CabinetsType) => {
   uni.navigateTo({ url: `/pages/cabinet/info/index?id=${e.id}` })
 }
 // 机柜导航
-const mapNavigation = (i:CabinetsType) => {
+const mapNavigation = (i: CabinetsType) => {
   uni.openLocation({
     latitude: i.latitude,
     longitude: i.longitude,

@@ -1,37 +1,54 @@
 <script lang="ts" setup>
-const cabinetUid = ref('')
+import { post } from '@/utils/request'
+
+// 识别机柜信息
+const recognizeCabinet = () => {
+  setTimeout(() => {
+    timer.value = true
+  }, 3 * 1000)
+  post('/account/checkCabinet', { ...obj.value }, 'json').then(res => {
+    console.log(`扫码拿到的机柜信息res + ::>>`, res)
+    uni.redirectTo({ url: `/pages/global/tab-bar/scan/lease/index?cabinetUid=${res}` })
+  })
+}
 // 识别到二维码回调
-const scanCodeCallBack = e => {
-  console.log(`e + ::>>`, e)
+const obj = ref<any>()
+const timer = ref<boolean>(true)
+const scanCodeCallBack = (e: { detail: { result: any } }) => {
+  if(!timer.value) return
   if(e?.detail?.result) {
     /**
-     * @_1 公众号、万维、迪川: 如果res中包含deviceUid,就使用device作为主体请求参数;
-     * @_2 当res中只有一个参数时,就使用这个参数做主体请求参数;(暂时保留)
-     * @_3 当res有多个参数且不包含deviceUid,则识别第一个参数作为主体请求参数;(暂时保留)
+     * @_1 公众号、万维、迪川: 如果res中包含deviceUid,就使用device作为主体请求参数
+     * @_2 当res中只有一个参数时,就使用这个参数做主体请求参数(暂时保留)
+     * @_3 当res有多个参数且不包含deviceUid,则识别第一个参数作为主体请求参数(暂时保留)
      * @_4 康普顿(厂商APK)当res并非请求地址(http开头),例如 HTDC122305001 则直接将二维码内容作为请求参数
      */
     const { result } = e?.detail
     const _d = 'deviceUid'
-    let start
-    let end
-    if(result.indexOf(_d) !== -1) {
-      start = result.indexOf(_d) 
-      end = result.indexOf('&')
-      cabinetUid.value = end !== -1 ? result.substring(start + 10, end) : result.slice(start + 10)
-      uni.navigateTo({ url: `/pages/global/tab-bar/scan/lease/index?cabinetUid=${cabinetUid.value}` })
-    }else if(!result.includes('http')) {
-      cabinetUid.value = result
-      uni.navigateTo({ url: `/pages/global/tab-bar/scan/lease/index?cabinetUid=${cabinetUid.value}` })
-    }else {
-      uni.showToast({
-        title: '不支持的类型',
-        icon: 'none'
-      })
-      return
+    if(result.includes(_d)) {
+      const startIndex = result.indexOf(_d)
+      const endIndex = result.indexOf('&', startIndex + _d.length)
+      if (endIndex !== -1) {
+        obj.value = { qrCodeInfo: result.substring(startIndex + _d.length + 1, endIndex) }
+      } else {
+        obj.value = { qrCodeInfo: result.slice(startIndex + _d.length + 1) }
+      }
+    }else if (!result.includes('http')) {
+      obj.value = { deviceId: result }
     }
+    timer.value = false
+    recognizeCabinet()
   }
 }
 const flashLight = ref<boolean>(false)
+// 输入换电码
+const inputCabinetUid = () => {
+  uni.showToast({
+    title: '暂未开放，敬请期待~',
+    icon: 'none',
+    duration: 1 * 1000
+  })
+}
 // 打开/关闭手电筒
 const flashChange = () => {
   flashLight.value = !flashLight.value
@@ -54,7 +71,7 @@ const flashChange = () => {
     <cover-view class="flex-1 scan-container"></cover-view>
     <cover-view class="controls fixed bottom-0 left-0 flex-row-sa-c">
       <cover-view class="flex-col-c">
-        <cover-image src="@/static/imgs/global/bar_code.png" class="icon" />
+        <cover-image src="@/static/imgs/global/bar_code.png" class="icon" @click="inputCabinetUid" />
         <cover-view>输入换电码</cover-view>
       </cover-view>
       <cover-view class="flex-col-c">
@@ -87,7 +104,6 @@ const flashChange = () => {
     opacity: 0.1;
     z-index: 9;
   }
- 
   .controls {
     width: 100%;
     font-size: 28rpx;
@@ -102,7 +118,6 @@ const flashChange = () => {
       margin-bottom: 14rpx;
     }
   }
-  
 }
 
 </style>
