@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
-import type { TradingRecord, TradingRecordType } from '@/types/assets'
+import type { TradingRecord, TradingRecordType } from '@/types/assets/payment'
 import { splitString } from '@/utils/tools'
 
 const params = ref({

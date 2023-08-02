@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
-import type { MyCombo } from '@/types/assets'
+import type { MyCombo } from '@/types/assets/combo'
 
 // 套餐类型
 const formatComboType = computed(() => {
@@ -71,7 +71,7 @@ post<MyCombo[]>('/account/userCombo', '', 'json').then(res => {
       </view>
     </scroll-view>
   </view>
-  <Empty text="您还未购买套餐" />
+  <Empty v-else text="您还未购买套餐" />
 </template>
 
 <style lang="scss" scoped>

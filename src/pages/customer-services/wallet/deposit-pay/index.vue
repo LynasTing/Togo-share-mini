@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
 import useStore from '@/store'
-import type { DepositPay } from '@/types/assets'
+import type { DepositPay } from '@/types/assets/deposit'
+import type { WxPay } from '@/types/assets/payment'
+import { payHook } from '@/hooks'
 
 const { global } = useStore()
 const deposits = ref<DepositPay[]>()
@@ -21,12 +23,23 @@ const changeSpecies = (item: DepositPay, index: number) => {
 // 支付
 const payParams = ref({
   organizationId: global.accountInfo.organizationId,
-  openId: global.openId || '',
+  openId: global.openId || 'olU0D5n2MMHqCx_t7pKDLoDS0bQg',
   id: -1
 })
 const payToDeposit = () => {
-  post('/changing/tuGePayDeposit', { ...payParams.value }, 'json').then(res => {
-    console.log(`res + ::>>`, res)
+  // post<WxPay>('/changing/tuGePayDeposit', { ...payParams.value }, 'json').then(res => {
+  post<WxPay>('/miniapp/payDeposit', { ...payParams.value }, '').then(res => {
+    if(res.paySign) {
+      payHook(res)
+      .then(() => {
+        setTimeout(() => {
+          uni.navigateBack()
+        }, 1.5 * 1000)
+      })
+      .catch(() => {
+        console.log(`支付失败, 走了catch + ::>>`, )
+      })
+    }
   })
 }
 </script>
