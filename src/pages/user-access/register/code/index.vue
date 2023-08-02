@@ -99,7 +99,7 @@ const formSubmit = () => {
     <view class="desc w-full">欢迎您注册途歌共享</view>
     <view class="login-params">
       <view class="flex-c phone-box">
-        <input type="number" class="flex-1" v-model="loginParams.phone" border="none" maxlength="11" clearable @input="inputPhone" />
+        <input type="number" class="flex-1" placeholder="请输入手机号码" v-model="loginParams.phone" border="none" maxlength="11" clearable @input="inputPhone" />
         <button class="code-btn" :loading="timerCount < 60 ? true : false" :disabled="timerCount < 60 ? true : false" @click="sendCode">
           {{ timerCount < 60 ? `请在${timerCount}秒后重试` : '获取验证码' }}
         </button>

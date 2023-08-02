@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request';
 import { onHide, onShow, onUnload } from '@dcloudio/uni-app'
-import type { UserBattery } from '@/types/assets'
+import type { UserBattery } from '@/types/assets/battery'
 import { displayTime } from '@/utils/tools'
 import useStore from '@/store'
 
@@ -12,7 +12,6 @@ const batteryInfo = ref<UserBattery>()
 // 电池信息
 const getBatteryInfo = () => {
   post<UserBattery>('/account/battery', '', 'json').then(res => {
-    console.log(`电池信息Battery res + ::>>`, res)
     if(res.batteryId) {
       batteryInfo.value = res 
     }
@@ -26,7 +25,6 @@ watch(() => batteryInfo.value?.batteryId, n => {
   }
 }, { immediate: true })
 onShow(() => {
-  console.log(`onShow执行了 + ::>>`, )
   getBatteryInfo()
 })
 

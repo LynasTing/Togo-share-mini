@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import useStore from '@/store'
 import { post } from '@/utils/request'
- 
+import type { CityList } from '@/types/controls'  
+
 const { global } = useStore()
 // 城市索引列表
-const indexList = ref([])
-const cities = ref([])
-post('/tuge/area', {}, 'json').then(res => {
+const indexList = ref<string[]>([])
+const cities = ref<string[]>([])
+post<CityList>('/tuge/area', '', 'json').then(res => {
 	if(res?.list.length) {
 		indexList.value = res.list
 		cities.value = res.data

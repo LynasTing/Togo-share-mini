@@ -75,7 +75,6 @@ const authLogin = (e: any) => {
 const agreeCheck = ref<boolean>(false)
 // 同意用户协议
 const agreeCheckChange = () => {
-  console.log(`agreeCheck.value + ::>>`, agreeCheck.value)
   agreeCheck.value = !agreeCheck.value
 }
 // 跳用户协议页面

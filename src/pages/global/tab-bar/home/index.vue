@@ -4,7 +4,7 @@ import useStore from '@/store'
 import { post } from '@/utils/request'
 import { onShow, onHide, onUnload } from '@dcloudio/uni-app';
 import { displayTime } from '@/utils/tools'
-import type { UserBattery } from '@/types/assets'
+import type { UserBattery } from '@/types/assets/battery'
 import type { CabinetsType } from '@/types/cabinet' 
 
 const { global } = useStore()
@@ -14,7 +14,6 @@ const nowTime = ref<string>('')
 const batteryInfo = ref<UserBattery>()
 const getBatteryInfo = () => {
   post<UserBattery>('/account/battery', '', 'json').then(res => {
-    console.log(`电池信息Home res + ::>>`, res)
     if(res.batteryId) {
       batteryInfo.value = res 
       global.setBatteryInfo(res)
@@ -22,8 +21,8 @@ const getBatteryInfo = () => {
     }
   })
 }
-watch(() => global.accountInfo.token, (n) => {
-  if(n) {
+watch(() => global.accountInfo.token, (n, o) => {
+  if(n && n !== o) {
     getBatteryInfo()
   }else {
     batteryInfo.value = {} as UserBattery

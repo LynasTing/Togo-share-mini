@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import type { UserAddressType, UserInfo, LoginSuccess } from '@/types/global'
-import type { UserBattery } from '@/types/assets'
+import type { UserBattery } from '@/types/assets/battery'
 import useStore from '@/store'
 
 export default defineStore('global', {

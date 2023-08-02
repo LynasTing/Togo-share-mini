@@ -30,8 +30,6 @@
 			"path": "pages/user-access/login/index",
 			"style": {
 				"disableScroll": true,
-				"navigationBarTextStyle": "black",
-				"navigationBarBackgroundColor": "#333333",
 				"navigationBarTitleText": "欢迎使用途歌共享"
 			}
 		},
@@ -220,6 +218,15 @@
 				"navigationBarTitleText": "开通套餐",
 				"navigationBarBackgroundColor": "#363c4f",
 				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/tools/activate-package/select-coupon/index",
+			"style": {
+				"navigationBarTitleText": "选择优惠券",
+				"disableScroll": true,
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black"
 			}
 		},
 		{
