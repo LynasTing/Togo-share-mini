@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
 import type { RealName, RealNameBack } from '@/types/global'
+import useStore from '@/store'
 
 // 微信临时图片转base64
 const toBase64 = (file: string) => {
@@ -24,10 +25,16 @@ const imgUpload = (type: number) => {
         })
         return
       }
-      let path = res.tempFiles[0].tempFilePath
-      type ? backImg.value = path : frontImg.value = path
-      path = toBase64(res.tempFiles[0].tempFilePath) as string
-      type ? backVerify(path) : FrontVerify(path)
+      uni.compressImage({
+        src: res.tempFiles[0].tempFilePath,
+        quality: 10,
+        success: compressRes => {
+          let path = compressRes.tempFilePath
+          type ? backImg.value = path : frontImg.value = path
+          path = toBase64(path) as string
+          type ? backVerify(path) : FrontVerify(path)
+        }
+      })
     }
   })
 }
@@ -75,7 +82,18 @@ const realNameParams = ref<RealName>({
 })
 const submit = () => {
   post('/changing/tuGeDoRealName', { ...realNameParams.value }, 'json').then(res => {
-    console.log(`提交实名认证 res + ::>>`, res)
+    if(Object.getOwnPropertyNames(res).length === 0 ) {
+      uni.showToast({
+        title: '恭喜您完成认证',
+        icon: 'success'
+      })
+      const { global } = useStore()
+      global.setAccountInfo({ ...global.accountInfo, isRealName: 1 })
+      uni.setStorageSync('accountInfo', { ...uni.getStorageSync('accountInfo'), isRealName: 1 })
+      setTimeout(() => {
+        uni.navigateBack()
+      }, 1.5 * 1000)
+    }
   }) 
 }
 </script>
@@ -91,7 +109,7 @@ const submit = () => {
     <image v-else :src="frontImg" class="auth-id-img" />
     <image v-if="!backImg" class="auth-id-img auth-id-card" src="@/static/imgs/mine/id_card_back.png" @click="imgUpload(1)" />
     <image v-else :src="backImg" class="auth-id-img" />
-    <view class="desc">依据身份证照片读取您的身份信息可能会有误差<br />请您在仔细确认后再提交</view>
+    <view class="desc">依据身份证照片读取您的身份信息可能会有误差<br />请您在仔细确认后提交</view>
     <view class="auth-title relative user-info">个人信息</view>
     <view class="input-box flex-c">
       <view>真实姓名</view>
