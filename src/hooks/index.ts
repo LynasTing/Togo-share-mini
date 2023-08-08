@@ -1,4 +1,5 @@
 import type { WxPay } from '@/types/assets/payment'
+import useStore from '@/store'
 
 function paramsToPath(obj: { [key: string]: string }, path: string): string {
   const queryParams = Object.keys(obj).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`).join('&')
@@ -39,7 +40,6 @@ export function payHook (order: WxPay) {
         signType: order.signType,
         paySign: order.paySign,
         success: payRes => {
-          console.log(`payRes + ::>>`, payRes)
           if(Object.getOwnPropertyNames(payRes).length) {
             uni.showToast({
               title: '支付成功',
@@ -53,7 +53,8 @@ export function payHook (order: WxPay) {
           uni.showToast({
             title: '支付失败',
             icon: 'error',
-            duration: 1.5 * 1000 
+            duration: 1.5 * 1000,
+            mask: true 
           })
           reject('payFail')
           console.log(`payErr + ::>>`, payErr)
@@ -62,4 +63,14 @@ export function payHook (order: WxPay) {
       }
     })
   })
+}
+
+/**
+ * 登录失效或退出登录
+ */
+export function logoutHook() {
+  const { global, controls } = useStore()
+  uni.clearStorageSync()
+  global.$reset()
+  controls.$reset()
 }
