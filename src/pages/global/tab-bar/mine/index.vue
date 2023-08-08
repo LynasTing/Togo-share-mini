@@ -8,8 +8,8 @@ import type { UserInfo } from '@/types/global'
 import { onShow } from '@dcloudio/uni-app'
 
 const { global } = useStore()
-watch(() => global.accountInfo.token, (n) => {
-  if(n) {
+watch(() => global.accountInfo.token, (n, o) => {
+  if(n && o && n === o) {
     post<UserInfo>('/changing/tuGeRecUserInfo', '', 'json').then(res => global.setUserInfo(res as UserInfo))
   }
 }, { immediate: true })
@@ -49,14 +49,14 @@ const goRealName = () => {
   uni.navigateTo({ url: '/pages/global/tab-bar/mine/real-name-auth/index' })
 }
 const tools = reactive([
-  { text: '我的消息', path: '/pages/tools/message/index' },
+  { text: '开通套餐', path: '/pages/tools/activate-package/index' },
   { text: '分享', path: '/pages/tools/share/index' },
   { text: '意见反馈', path: '/pages/tools/feedback/index' },
   { text: '关于我们', path: '/pages/tools/about-us/index', whiteList: true },
   { text: '故障上报', path: '/pages/tools/breakdown/index' },
-  { text: '邀请码', path: '/pages/tools/invitation-code/index' },
   { text: '应用设置', path: '/pages/tools/setting/index', whiteList: true },
-  { text: '开通套餐', path: '/pages/tools/activate-package/index' }
+  // { text: '我的消息', path: '/pages/tools/message/index' },
+  // { text: '邀请码', path: '/pages/tools/invitation-code/index' },
 ])
 // 常用功能
 const toolsNavigate = e => {
@@ -85,7 +85,7 @@ const toolsNavigate = e => {
           </div>
         </div>
         <div class="auth">
-          <div v-if="global.userInfo.status === '1'" class="has-auth">感谢您使用途歌共享，请爱护设备。 </div>
+          <div v-if="global.accountInfo.isRealName || global.userInfo.status === '1' " class="has-auth">感谢您使用途歌共享，请爱护设备。 </div>
           <view v-else class="flex-row-sb-c need-real" >
             <div class="flex-col-se h-full">
               <div>您还未实名认证</div>
@@ -102,7 +102,7 @@ const toolsNavigate = e => {
         </div>
         <div class="tools flex-col">
           <div class="title">常用功能</div>
-          <div class="flex-1 sprite flex-wrap flex-row-sb-c">
+          <div class="flex-1 sprite flex-wrap flex">
             <div class="flex-col-c tool-item" v-for="(item, index) in tools" :key="index" @click="toolsNavigate(item)">
               <image :src="`/static/imgs/mine/tools_${index}.png`" />
               <div>{{ item.text }}</div>
