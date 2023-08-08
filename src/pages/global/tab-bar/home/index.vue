@@ -21,6 +21,12 @@ const getBatteryInfo = () => {
     }
   })
 }
+onShow(() => {
+  global.setUserAddress()
+  // #ifdef MP-ALIPAY
+  uni.hideTabBar()
+  // #endif
+})
 watch(() => global.accountInfo.token, (n, o) => {
   if(n && n !== o) {
     getBatteryInfo()
@@ -29,8 +35,9 @@ watch(() => global.accountInfo.token, (n, o) => {
     clearInterval(intervalId.value)
   }
 }, { immediate: true })
-watch(() => global.userAddress, (n, o) => {
-  if(n?.location || o?.location) {
+
+watch(() => global?.userAddress, (n, o) => {
+  if(n?.location) {
     post<CabinetsType[]>('/tuge/homePageCabinetList', { longitude: n.location.lng, latitude: n.location.lat }, 'json').then(res => {
       if(res?.length) cabinets.value = res 
     })
@@ -46,12 +53,7 @@ watch(() => batteryInfo.value?.batteryId, (n) => {
     clearInterval(intervalId.value)
   }
 }, { immediate: true })
-onShow(() => {
-  // #ifdef MP-ALIPAY
-  uni.hideTabBar()
-  // #endif
-  getNearbyCabinet()
-})
+
 // 小程序隐藏或页面销毁时清除定时器(节省性能)
 onHide(() => {
   clearInterval(intervalId.value)
@@ -64,6 +66,7 @@ const cabinets = ref<CabinetsType[]>()
 const getNearbyCabinet = ()  => {
   global.setUserAddress()
 }
+getNearbyCabinet()
 // 跳柜子信息
 const goCabinetInfo = (e: CabinetsType) => {
   uni.navigateTo({ url: `/pages/cabinet/info/index?id=${e.id}` })
