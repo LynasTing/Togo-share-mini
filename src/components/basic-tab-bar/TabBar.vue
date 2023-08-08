@@ -76,20 +76,34 @@ const goScan = () => {
     }, 2 * 1000)
     return
   }
-  // 查询取电资格
+  /**
+   * 用户无套餐
+   */
+  if(global.accountInfo.comboStatus !== '0' && global.accountInfo.comboStatus !== '1') {
+    uni.showToast({
+      title: '您当前无法使用套餐功能',
+      icon: 'none'
+    })
+    return
+  }
+
+  /**
+   * 查询取电资格
+   * @function
+   */
   post<BatteryStatus>('/account/batterySituation', '', 'json').then(res => {
     if(Object.getOwnPropertyNames(res).length === 0) {
       uni.showToast({
         title: '您暂无法取电，请确认是否缴纳押金以及购买套餐',
         icon: 'none',
-        duration: 2.5 * 1000
+        duration: 3 * 1000
       })
     }else if(res.batteryStatus === '2') {
       uni.showToast({
         title: '您的押金处于审核状态，无法为您提供服务',
         icon: 'none',
         mask: true,
-        duration: 2.5 * 1000
+        duration: 3 * 1000
       }) 
     }else {
       global.setAccountInfo({ ...global.accountInfo, batteryStatus: res.batteryStatus })
