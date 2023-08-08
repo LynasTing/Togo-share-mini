@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
 import useStore from '@/store'
-import type { LoginSuccess } from '@/types/global'
+import type { AccountInfo } from '@/types/global'
 
 const { global } = useStore()
 // 登录
 const loginParams = ref({
   phone: '',
   authCode: '',
-  openId: global.openId
+  openId: global.accountInfo.openId
 })
 // 验证码输入事件
 const authCodeChange = (e: string) => {
@@ -77,7 +77,7 @@ const formSubmit = () => {
     })
     return
   }
-  post<LoginSuccess>('/tuge/login', { ...loginParams.value }, 'json').then(res => {
+  post<AccountInfo>('/tuge/login', { ...loginParams.value }, 'json').then(res => {
     if('token' in res) {
       uni.showToast({
         title: '登录成功',

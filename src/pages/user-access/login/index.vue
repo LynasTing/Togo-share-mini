@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
 import { onLoad } from '@dcloudio/uni-app'
-import type { LoginSuccess, LoginFail } from '@/types/global'
+import type { AccountInfo, LoginFail } from '@/types/global'
 import useStore from '@/store'
 
 const tabBarPage = ref([
@@ -23,7 +23,7 @@ onLoad(option => {
   if(option?.path) redirect.value = decodeURIComponent(option?.path)
 })
 // 登录成功
-const loginSuccess = (val: any) => {
+const accountInfo = (val: any) => {
   uni.showToast({
     title: '登录成功',
     icon: 'success',
@@ -32,15 +32,7 @@ const loginSuccess = (val: any) => {
   global.setAccountInfo(val)
   uni.setStorageSync('accountInfo', val)
   setTimeout(() => {
-    if(redirect.value) {
-      if(tabBarPage.value.includes(redirect.value)) {
-        uni.switchTab({ url: redirect.value })
-      }else {
-        uni.redirectTo({ url: redirect.value })
-      }
-    }else {
-      uni.switchTab({ url: '/pages/global/tab-bar/home/index' })
-    } 
+    uni.switchTab({ url: '/pages/global/tab-bar/home/index' })
   }, 1 * 1500)
 }
 // 一键登录
@@ -55,19 +47,20 @@ const authLogin = (e: any) => {
   }
   uni.login({
     success: successRes => {
-      post<LoginSuccess | LoginFail>('/tuge/authorizedLogin', { code: successRes.code, wxAppId: uni.getAccountInfoSync().miniProgram.appId }, 'json').then(res => {
-        if('openId' in res) {
+      post<AccountInfo | LoginFail>('/tuge/authorizedLogin', { code: successRes.code, wxAppId: uni.getAccountInfoSync().miniProgram.appId }, 'json').then(res => {
+        if(Object.getOwnPropertyNames(res).length === 1 && 'openId' in res) {
           uni.showToast({
             title: '您还未注册，请先注册',
             icon: 'none'
           })
-          global.setOpenId(res.openId as string)
+          global.setAccountInfo(res as AccountInfo)
+          uni.setStorageSync('accountInfo', res)
           setTimeout(() => {
             uni.navigateTo({ url: '/pages/user-access/register/auth/index' })
           }, 2 * 1000)
-          return 
+          return
         }
-        loginSuccess(res)
+        accountInfo(res)
       })
     }
   })

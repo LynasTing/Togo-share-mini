@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
 import useStore from '@/store'
-import type { LoginSuccess } from '@/types/global'
+import type { AccountInfo } from '@/types/global'
 
 const { global } = useStore()
 
@@ -16,23 +16,23 @@ const authLogin = (e: any) => {
     return
   }
   const params = {
-    openId: global.openId,
+    openId: global.accountInfo.openId,
     phone: e.detail.encryptedData,
     iv: e.detail.iv,
     wxAppId: uni.getAccountInfoSync().miniProgram.appId
   }
-  post<LoginSuccess>('/tuge/register', { ...params }, 'json').then(res => {
+  post<AccountInfo>('/tuge/register', { ...params }, 'json').then(res => {
     if(res.token) {
-      uni.showToast({
-        title: '登录成功',
-        icon: 'success',
-        duration: 1 * 1500
-      })
       global.setAccountInfo(res)
       uni.setStorageSync('accountInfo', res)
+      uni.showToast({
+        title: '注册成功，欢迎使用',
+        icon: 'success',
+        duration: 2 * 1000
+      })
       setTimeout(() => {
         uni.switchTab({ url: '/pages/global/tab-bar/home/index' })
-      }, 1 * 1500)
+      }, 2 * 1000)
     }
   })
 }
