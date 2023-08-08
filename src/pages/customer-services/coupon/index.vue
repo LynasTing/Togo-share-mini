@@ -1,17 +1,56 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
 import useStore from '@/store'
-import type { MyCoupon } from '@/types/assets'
+import type { MyCoupon } from '@/types/assets/coupon'
 
-const { global } = useStore()
+const { controls } = useStore()
+
+/**
+ * 优惠券列表
+ */
 const coupons = ref<MyCoupon[]>()
-post<MyCoupon[]>('/account/coupon', '', 'json').then(res => {
-  if(res.length) coupons.value = res
-})
+const getCoupons = () => {
+  post<MyCoupon[]>('/account/coupon', '', 'json').then(res => {
+    if(res.length) coupons.value = res
+  })
+}
+getCoupons()
 // 使用
 const useCoupon = (i: MyCoupon) => {
-  if(i.status !== 0) return
-  uni.navigateTo({ url: '/pages/tools/activate-package/index' })
+  if(i.status !== 0) {
+    uni.showToast({
+      title: '当前优惠券已无法使用~',
+      icon: 'none',
+      duration: 1.5 * 1000
+    })
+    return
+  }
+  if(i.type === 0) {
+    uni.showModal({
+      title: '使用兑换券',
+      content: '您确定要兑换当前券吗？',
+      success: res => {
+        if(res.confirm) {
+          post('/account/useExchange', { couponId: i.couponId }, 'json').then(res => {
+            if(Object.getOwnPropertyNames(res).length === 0) {
+              uni.setStorageSync('account', { ...uni.getStorageSync('account'), comboStatus: '1'} )
+              uni.showToast({
+                title: '套餐兑换成功',
+                icon: 'success',
+                duration: 1.5 * 1000
+              })
+              setTimeout(() => {
+                getCoupons()
+              }, 1.5 * 1000)
+            }
+          })
+        }
+      }
+    })
+  }else {
+    controls.setPayCoupon(i)
+    uni.navigateTo({ url: '/pages/tools/activate-package/index' })
+  }
 }
 // 使用规则
 const useRules = (e: MyCoupon) => {
@@ -26,13 +65,13 @@ const formatType = computed(() => {
   return function (type: number) {
     switch (type) {
       case 0:
-        return '兑换'
+        return '兑换券'
       case 1:
-        return '现金'
+        return '现金券'
       case 2:
-        return '满减'
+        return '满减券'
       case 3:
-        return '折扣'
+        return '折扣券'
     }
   }
 })
@@ -58,9 +97,10 @@ const formatStatus = computed(() => {
         <view class="mb-20">
           <text class="num" v-if="item.money" :class="item.money?.length > 5 ? 'text-3xl' : ''">{{ item.money }}</text>
           <text class="num" v-if="item.discount">{{ item.discount }}</text>
-          <text>{{ item.money ? '元' : '折' }}</text>
+          <text v-if="item.type === 0" class="exchange">{{ item.comboName }}</text>
+          <text v-else>{{ item.type === 3 ? '折' : '元' }}</text>
         </view>
-        <view>{{ formatType(item.type) }}</view>
+        <view>{{ formatType(item.type) }}<text v-if="item.limitationMoney" class="threshold">满{{ item.limitationMoney }}可用</text></view>
       </view>
       <!-- 有效期 -->
       <view class="validity flex-col-sb-c">
@@ -75,7 +115,7 @@ const formatStatus = computed(() => {
       </view>
       <view class="use">
         <view>{{ formatStatus(item.status) }}</view>
-        <view @click="useCoupon(item)" class="use-btn">使用</view>
+        <view @click="useCoupon(item)" :class="item.status === 0 ? 'use-btn' : 'use-disable'">{{ item.status === 0 ? '使用' : '无法使用' }}</view>
       </view>
     </view>
   </view>
@@ -110,9 +150,17 @@ const formatStatus = computed(() => {
       }
       .mb-20 {
         margin-bottom: 10rpx;
+        .exchange {
+          font-size: 24rpx;
+        }
         .text-3xl {
           font-size: 48rpx;
         }
+      }
+      .threshold {
+        font-size: 22rpx;
+        color: #ccc;
+        margin-left: 6rpx;
       }
     }
     .validity {
@@ -135,7 +183,18 @@ const formatStatus = computed(() => {
         border-radius: 999rpx;
         opacity: 0;
       }
+      &-disable {
+        width: 162rpx;
+        height: 60rpx;
+        font-size: 28rpx;
+        color: white;
+        border-radius: 999rpx;
+        opacity: 1;
+        background-color: #0a292c;
+        z-index: 9;
+      }
     }
+    
   }
 }
 </style>
