@@ -23,7 +23,7 @@ const changeSpecies = (item: DepositPay, index: number) => {
 // 支付
 const payParams = ref({
   organizationId: global.accountInfo.organizationId,
-  openId: global.openId || 'olU0D5n2MMHqCx_t7pKDLoDS0bQg',
+  openId: global.accountInfo.openId,
   id: -1
 })
 const payToDeposit = () => {
@@ -32,6 +32,8 @@ const payToDeposit = () => {
     if(res.paySign) {
       payHook(res)
       .then(() => {
+        uni.setStorageSync('accountInfo', { depositStatus: '1', ...uni.getStorageSync('accountInfo') })
+        global.setAccountInfo({ ...global.accountInfo, depositStatus: '1' })
         setTimeout(() => {
           uni.navigateBack()
         }, 1.5 * 1000)

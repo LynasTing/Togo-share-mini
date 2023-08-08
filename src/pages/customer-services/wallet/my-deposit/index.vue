@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request';
+import useStore from '@/store'
 import type { DepositRecords, UserDeposit } from '@/types/assets/deposit'
 
 /**
@@ -31,8 +32,11 @@ const refund = () => {
     content: '您确定要发起退款吗？',
     success: res => {
       if(res.confirm) {
-        post('/miniapp/returnDeposit', { depositOrderNumber: '4eddb85b8cec43b08198021f581dbfbb' }, '').then(res => {
+        post('/miniapp/returnDeposit', { depositOrderNumber: userDeposit.value?.orderNumber }, '').then(res => {
           if(Object.getOwnPropertyNames(res).length === 0) {
+            const { global } = useStore()
+            global.setAccountInfo({ ...global.accountInfo, depositStatus: '0' })
+            uni.setStorageSync('accountInfo', { ...uni.getStorageSync('accountInfo'), depositStatus: '0' })
             getUserDeposit()
             uni.showToast({
               title: '申请已提交，将会在1~7个工作日内退款',
