@@ -11,7 +11,6 @@ const params = ref({
   longitude: global.userAddress.location.lng || 0
 })
 onLoad((options) => {
-  console.log(`options + ::>>`, options)
   if(options?.id) params.value.id = options.id
 })
 // 租赁柜信息
@@ -35,9 +34,7 @@ const mapNavigation = () => {
     longitude: cabinetInfo.value.longitude,
     address: cabinetInfo.value.address,
     name: cabinetInfo.value.cabinetName,
-    success: res =>  {
-      console.log(`机柜导航成功 + ::>>`, res)
-    }
+    success: res =>  {}
   })
 }
 </script>

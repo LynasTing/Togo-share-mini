@@ -8,7 +8,6 @@ import { onShow } from '@dcloudio/uni-app'
 const { global } = useStore() 
 const activities = ref<Activities[]>([])
 post<Activities[]>('/tuge/tuGeActivityList', '', 'json').then(res => {
-  console.log(`res + ::>>`, res)
   activities.value = res
 })
 onShow(() => {

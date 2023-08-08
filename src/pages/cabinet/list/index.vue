@@ -70,9 +70,7 @@ const mapNavigation = (item: any) => {
     longitude: item.longitude,
     address: item.address,
     name: item.name,
-    success: res =>  {
-      console.log(`res + ::>>`, res)
-    }
+    success: res =>  {}
   })
 }
 </script>

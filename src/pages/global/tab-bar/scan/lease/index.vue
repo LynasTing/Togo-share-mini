@@ -53,7 +53,7 @@ const checkBoxCloseFn = (type: string) => {
         }, 3 * 1000)
       }
     }).catch(err => {
-      console.log(`err + ::>>`, err)
+      console.log(`换电出现err + ::>>`, err)
       clearInterval(intervalId.value)
       uni.showToast({
         title: `请求错误，请联系管理员`,

@@ -8,7 +8,6 @@ const params = ref({
   userNickname: global.userInfo.nickname || '',
   appId: uni.getAccountInfoSync().miniProgram.appId
 })
-console.log(`uni.getAccountInfoSync + ::>>`, uni.getAccountInfoSync())
 // 头像选择回调
 const onChooseAvatar = (e) => {
   params.value.userPhoto = e.detail.avatarUrl
@@ -66,7 +65,7 @@ const verify = () => {
     </button> 
     <view class="flex-c input">
       <view class="label">昵称</view>
-      <input type="nickname" v-model="params.userNickname" placeholder="请输入昵称" @input="nicknameInput" maxlength="8" @blur="nicknameInput"  />
+      <input type="nickname" v-model="params.userNickname" placeholder="请输入昵称" @input="nicknameInput" maxlength="16" @blur="nicknameInput"  />
     </view>
     <view class="btn" @click="verify">
       提交

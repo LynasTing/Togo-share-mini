@@ -7,7 +7,6 @@ const recognizeCabinet = () => {
     timer.value = true
   }, 3 * 1000)
   post('/account/checkCabinet', { ...obj.value }, 'json').then(res => {
-    console.log(`扫码拿到的机柜信息res + ::>>`, res)
     uni.redirectTo({ url: `/pages/global/tab-bar/scan/lease/index?cabinetUid=${res}` })
   })
 }

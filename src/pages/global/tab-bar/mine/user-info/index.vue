@@ -17,6 +17,13 @@ const goFillOut = () => {
 }
 // 跳实名认证
 const goRealName = () => {
+  if(global.accountInfo.isRealName || global.userInfo.status) {
+    uni.showToast({
+      title: '您已完成实名认证，请开始使用吧~',
+      icon: 'none'
+    })
+    return
+  }
   uni.navigateTo({ url: '/pages/global/tab-bar/mine/real-name-auth/index' })
 }
 </script>
@@ -50,7 +57,7 @@ const goRealName = () => {
         <view>实名认证</view>
         <view>
           <text>{{ global.userInfo.status === '0' ? '未完成认证' : '已完成认证' }}</text>
-          <text class="iconfont icon-youjiantou"></text>
+          <text class="iconfont icon-youjiantou" v-if="!global.accountInfo.isRealName"></text>
         </view>
       </view>
     </view>

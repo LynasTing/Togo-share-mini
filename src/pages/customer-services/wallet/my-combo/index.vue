@@ -38,7 +38,6 @@ const surplusDays = computed(() => {
     const targetDate = new Date(times)
     var timeDiff = targetDate.getTime() - today.getTime()
     return Math.ceil(timeDiff / (1000 * 60 * 60 *24))
-    console.log(`daysDiff + ::>>`, daysDiff)
   }
 })
 const combos = ref<MyCombo[]>()

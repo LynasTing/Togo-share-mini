@@ -34,7 +34,7 @@ const props = defineProps({
 <style lang="scss" scoped>
 .empty {
   color: black;
-  background-color: #f7f7f7;
+  background-color: transparent;
   margin: 0rpx 0;
   border-radius: 16rpx;
   padding-bottom: 30rpx;
@@ -46,7 +46,7 @@ const props = defineProps({
     }
   }
   .iconfont {
-    color: $yellow;
+    color: $darkgray;
     font-size: 100rpx;
     margin: 30rpx 0 10rpx;
   }

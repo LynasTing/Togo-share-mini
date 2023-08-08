@@ -216,6 +216,7 @@
 			"path": "pages/tools/activate-package/index",
 			"style": {
 				"navigationBarTitleText": "开通套餐",
+				"disableScroll": true,
 				"navigationBarBackgroundColor": "#363c4f",
 				"navigationBarTextStyle": "white"
 			}
