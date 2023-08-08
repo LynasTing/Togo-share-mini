@@ -2,19 +2,20 @@ import { _showLoading, _hideLoading } from "./loading"
 import type { Api } from '@/types/global'
 import useStore from '@/store'
 import { notLoginIn } from '@/hooks/index'
+import { logoutHook } from '@/hooks'
 
 export function post<T>(url: string, data?: any, type?: string, noLoading?: boolean): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     let base_url
     switch (uni.getAccountInfoSync().miniProgram.envVersion) {
       case 'develop':
-        base_url = 'https://hthd.hthuandian.cn/apptest'
+        base_url = 'https://hthd.hthuandian.cn/apptest1'
         break
       case 'trial':
-        base_url = 'https://hthd.hthuandian.cn/apptest'
+        base_url = 'https://hthd.hthuandian.cn/apptest1'
         break  
       case 'release':
-        base_url = 'https://hthd.hthuandian.cn/apptest'
+        base_url = 'https://hthd.hthuandian.cn/apptest1'
         break
     }
     // 项目有两种类型接口, json 和 x-www-form-urlencoded
@@ -39,6 +40,7 @@ export function post<T>(url: string, data?: any, type?: string, noLoading?: bool
           data ? resolve(data as T) : resolve({} as T)
         } else if(code === '000005'){
           notLoginIn()
+          logoutHook()
         } else {
           console.log(`请求错误 res + ::>>`, res)
           uni.showToast({
