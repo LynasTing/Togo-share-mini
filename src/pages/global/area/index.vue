@@ -27,25 +27,7 @@ watch(() => global.userAddress, (n, o) => {
 		})
   }
 }, { immediate: true, deep: true })
-// 选择热门城市
-const hotCitySelect = (item) => {
-	uni.showModal({
-		title: '提示',
-		content: `您确定要将地区切换为${item.cityName}吗？`,
-		success: res => {
-			if (res.confirm) {
-				global.setUsingCity(item.cityName)
-				uni.showToast({
-					title: '操作成功',
-					duration: 1.5 * 1000
-				})
-				setTimeout(() => {
-					uni.navigateBack()
-				}, 1.5 * 1000)
-			}
-		}
-	})
-}
+
 // 刷新位置
 const requestCount = ref<number>(3)
 const inRotation = ref<boolean>(false)
@@ -65,34 +47,53 @@ const refreshPosition = () => {
     inRotation.value = false
   }, requestCount.value * 1000)
 }
-// 选择城市
-const selectCity = (sub : string) => {
-	if(!hotCities.value.some(item => item.cityName === sub)) {
-		uni.showToast({
-			title: '您所选的城市暂未开通服务',
-			icon: 'none',
-			duration: 1.5 * 1000,
-			mask: false
-		})
-		return
-	}
-	uni.showModal({
-		title: '提示',
-		content: `您确定要将地区切换为${sub}吗？`,
-		success: res => {
-			if (res.confirm) {
-				global.setUsingCity(sub)
-				uni.showToast({
-					title: '操作成功',
-					duration: 1.5 * 1000
-				})
-				setTimeout(() => {
-					uni.navigateBack()
-				}, 1.5 * 1000)
-			}
-		}
-	})
+
+/**
+ * 地区切换
+ */
+const switchCity = (organizationId, cityName) => {
+  post('/account/switchCity', { organizationId }, 'json')
+    .then(res => {
+      global.setUsingCity(cityName)
+      uni.showToast({
+        title: '操作成功',
+        duration: 1.5 * 1000
+      })
+      setTimeout(() => {
+        uni.navigateBack()
+      }, 1.5 * 1000)
+    })
 }
+const showModalAndSwitchCity = (item) => {
+  uni.showModal({
+    title: '提示',
+    content: `您确定要将地区切换为${item.cityName}吗？`,
+    success: res => {
+      if (res.confirm) {
+        switchCity(item.organizationId, item.cityName)
+      }
+    }
+  })
+}
+// 选择热门城市
+const hotCitySelect = (item) => {
+  showModalAndSwitchCity(item)
+}
+// 选择城市
+const selectCity = (sub) => {
+  const selectedCity = hotCities.value.find(item => item.cityName === sub)
+  if (!selectedCity) {
+    uni.showToast({
+      title: '您所选的城市暂未开通服务',
+      icon: 'none',
+      duration: 1.5 * 1000,
+      mask: false
+    })
+    return
+  }
+  showModalAndSwitchCity(selectedCity)
+}
+
 </script>
 
 <template>
