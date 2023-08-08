@@ -4,8 +4,22 @@ import { splitString } from '@/utils/tools'
 import type { SelectableCoupon } from '@/types/assets/coupon.ts'
 import { getMaturityTime } from '@/utils/tools'
 import useStore from '@/store'
+import { onShow } from '@dcloudio/uni-app'
 
-const { controls } = useStore()
+const { controls, assets } = useStore()
+/**
+ * 可用券列表
+ */
+const coupons = ref<SelectableCoupon[]>([])
+onShow(() => {
+  coupons.value = assets.usableCoupons
+  if(controls.payCoupon.couponId) {
+    const i = coupons.value.findIndex(i => i.couponId === controls.payCoupon.couponId)
+    coupons.value[i].showChoose = true
+    currCoupon.value = coupons.value[i]
+  }
+})
+
 /**
  * 当前选中优惠券
  */
@@ -21,15 +35,6 @@ const radioChange = (e: SelectableCoupon) => {
     currCoupon.value = coupons.value[i]
   }
 }
-const coupons = ref<SelectableCoupon[]>([])
-post<SelectableCoupon[]>('/account/available', '', 'json').then(res => {
-  coupons.value = res
-  if(controls.payCoupon.couponId) {
-    const i = coupons.value.findIndex(i => i.couponId === controls.payCoupon.couponId)
-    coupons.value[i].showChoose = true
-    currCoupon.value = coupons.value[i]
-  }
-})
 
 // 优惠券选择完毕
 const chooseCoupon = () => {
@@ -45,7 +50,7 @@ const chooseCoupon = () => {
       <text>可选1张</text>
     </view>
     <scroll-view scroll-y class="coupon-list w-full h-screen">
-      <view class="coupon flex-row-sb-c"  v-for="(item, index) in coupons" :key="index">
+      <view class="coupon flex-row-sb-c" v-for="(item, index) in coupons" :key="index" @click="radioChange(item)">
         <view class="flex">
           <view class="flex-col-sb-c coupon-discount">
             <view class="coupon-discount-price price-color">
@@ -53,14 +58,14 @@ const chooseCoupon = () => {
               <text class="text-3xl">{{ item.discount ? item.discount : item.money }}</text>
               <text v-if="item.discount">折</text>
             </view>
-            <view>{{ `满${item.limitationMoney}可用` }}</view>
+            <view v-if="item.type !== 1">{{ `满${item.limitationMoney}可用` }}</view>
           </view>
           <view class="flex-col-se">
             <view class="coupon-name">{{ splitString(item.name, 11) }}</view>
             <view class="coupon-time price-color">{{ getMaturityTime(item.ctime, item.effectiveDay) }} 到期</view>
           </view>
         </view>
-        <view class="coupon-check-box flex--c" @click="radioChange(item)">
+        <view class="coupon-check-box flex--c">
           <view class="iconfont icon-xuanzhong" v-show="item.showChoose"></view>
         </view>
       </view>
@@ -72,7 +77,7 @@ const chooseCoupon = () => {
         <text>可{{ currCoupon?.discount ? '打' : '减' }}</text>
         <text class="price-color">
           <text v-if="currCoupon?.money">￥</text>
-          <text class="text-3xl">{{ currCoupon?.discount }}</text>
+          <text class="text-3xl">{{ currCoupon?.discount ? currCoupon?.discount :  currCoupon.money }}</text>
           <text v-if="currCoupon?.discount">折</text>
         </text>
       </view>

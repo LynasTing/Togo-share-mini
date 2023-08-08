@@ -1,54 +1,118 @@
 <script lang="ts" setup>
-import { post } from '@/utils/request';
+import { post } from '@/utils/request'
+import useStore from '@/store'
+import type { ComboList } from '@/types/assets/combo'
+import type { WxPay } from '@/types/assets/payment'
+import type { MyCoupon } from '@/types/assets/coupon'
+import { payHook } from '@/hooks'
+import { onUnload } from '@dcloudio/uni-app'
+import type { SelectableCoupon } from '@/types/assets/coupon.ts'
 
+const { global, controls } = useStore()
 const currIndex = ref<number>(0)
-const selectCombo = ref({}) 
-const combos = ref([])
-post('/wallet/comboList', { latelyOrganizationId: 143 }, '').then(res => {
-  if(res?.comboList.length) {
-    combos.value = res?.comboList
-    selectCombo.value = res.comboList[0]
+const selectCombo = ref<ComboList>() 
+const combos = ref<ComboList[]>([])
+const getCombos = () => {
+  post<ComboList[]>('/account/comboList', { organizationId: global.accountInfo.organizationId }, 'json').then(res => {
+    if(res.length) {
+      combos.value = res
+      selectCombo.value = res[0]
+    }
+  })
+}
+getCombos()
+watch([() => controls.payCoupon, () => combos.value.length], ([n1], [n2]) => {
+  if(n1?.couponId && n2) {
+    combos.value.forEach(item => {     
+      switch (n1.type) {
+        case 1:
+          item.discountedPrice = (Number(item.comboMoney) - Number(n1.money)).toFixed(2)
+          break;
+        case 2:
+          if(Number(item.comboMoney) >= Number(n1.limitationMoney)) item.discountedPrice = (Number(item.comboMoney) - Number(n1.money)).toFixed(2)
+          break
+        case 3: 
+          item.discountedPrice = (Math.floor(Number(item.comboMoney) * (Number(n1.discount) / 10) * 100) / 100).toFixed(2)
+          break
+      }
+    })
   }
-})
+}, { immediate: true, deep: true })
+
 // 选择套餐
-const comboSelect = (item, i) => {
+const comboSelect = (item: ComboList, i: number) => {
   selectCombo.value = item
   currIndex.value = i
 }
+// 选择优惠券
+const chooseCoupon = () => {
+  uni.navigateTo({ url: '/pages/tools/activate-package/select-coupon/index' })
+}
+
+/**
+ * 可用优惠券列表
+ * @function 
+ */
+const { assets } = useStore()
+post<SelectableCoupon[]>('/account/available', '', 'json').then(res => {
+  assets.setUsableCoupons(res)
+})
+
 // 付款
 const bayCombo = () => {
-  uni.getProvider({
-    service: 'payment',
-    success: res => {
-      post('user/overduePayment')
-      uni.requestPayment({
-        provider: res.provider[0]
+  const params = ref({
+    openId: global.accountInfo.openId,
+    organizationId: global.accountInfo.organizationId,
+    comboId: selectCombo.value?.id,
+    couponId: controls.payCoupon.couponId || ''
+  })
+  post<WxPay>('/wallet/user/buyCombo', { ...params.value }).then(res => {
+    if(res.paySign) {
+      payHook(res)
+      .then(() => {
+        uni.setStorageSync('accountInfo', { ...uni.getStorageSync('account'), comboStatus: '1' })
+        global.setAccountInfo({ ...global.accountInfo, comboStatus: '1' })
+        setTimeout(() => {
+          uni.navigateBack()
+        }, 1.5 * 1000)
+      })
+      .catch(() => {
+        console.log(`支付失败, 走了catch + ::>>`, )
       })
     }
   })
-  
 }
+onUnload(() => {
+  controls.setPayCoupon({} as MyCoupon)
+})
 </script>
 
 <template>
-  <view class="active-package">
-    <scroll-view scroll-y style="height: 100%;" class="scroll-y">
+  <view class="active-package flex-col">
+    <view class="flex-row-sb-c choose-coupon" @click="chooseCoupon" v-if="assets.usableCoupons?.length">
+      <view>{{ controls.payCoupon.name ? '已选择优惠券' : '您还未选择优惠券' }}</view>
+      <view class="flex-c">
+        <text class="price" v-if="controls.payCoupon.name">{{ controls.payCoupon.name || '--'}}</text>
+        <text class="iconfont icon-youjiantou"></text>
+      </view>
+    </view>
+    <scroll-view scroll-y class="scroll-y">
       <view class="combo flex-row-sb-c" v-for="(item, index) in combos" :key="index" :class="currIndex === index ? 'select-combo' : ''" @click="comboSelect(item, index)">
         <view>
-          <view class="combo-name">{{ item.comboInfo || '套餐名字xxx' }}</view>
+          <view class="combo-name">{{ item.comboName || '套餐名字xxx' }}</view>
           <view class="">{{ item.comboCount === '9999' ? '无限次换电（不可退）' : `共可换${item.comboCount}次（不可退）` }}</view>
           <view class="">有效期至 2023-10-01</view>
         </view>
         <view class="flex-col">
-          <view class="price-now price">￥{{ item.comboMoney || '2999.00' }}</view>
-          <view class="original-price">原价:￥{{ item.comboMoney || '3000' }}</view>
+          <view class="price-now price">￥{{ item.discountedPrice || item.comboMoney }}</view>
+          <view class="original-price" v-if="item.discountedPrice">原价:￥{{ item.comboMoney }}</view>
         </view>
       </view>
     </scroll-view>
     <view class="fixed bottom-0 left-0 pay w-full flex-row-sb-c">
       <view class="pay-price">
-        <view class="price">￥{{ selectCombo.comboMoney || '1000' }}</view>
-        <view class="price">已优惠10000元</view>
+        <view class="price">￥{{ selectCombo?.discountedPrice || selectCombo?.comboMoney }}</view>
+        <view></view>
       </view>
       <view class="pay-btn" @click="bayCombo">立即支付</view>
     </view>
@@ -58,10 +122,20 @@ const bayCombo = () => {
 <style lang="scss" scoped>
 .active-package {
   height: 100vh;
-  background-color: #fafcfe;
-  padding: 30rpx 30rpx 0;
+  background-color: #e7eaec;
+  .choose-coupon {
+    font-size: 28rpx;
+    background-color: rgb(255, 255, 255);
+    margin-top: 30rpx;
+    padding: 20rpx 50rpx;
+    box-shadow: 0rpx 0rpx 4rpx 0rpx rgba(0,0,0,0.16);
+    .iconfont {
+      margin-left: 10rpx;
+    }
+  }
   .scroll-y {
-    padding-bottom: 210rpx;
+    flex: 1;
+    padding: 30rpx 30rpx 210rpx;
   }
   .price {
     color: #FA5151;
@@ -74,7 +148,7 @@ const bayCombo = () => {
     margin-bottom: 32rpx;
     padding: 34rpx 20rpx 38rpx 30rpx;
     border-radius: 24rpx ;
-    border: 1rpx solid transparent;
+    border: 2rpx solid transparent;
     box-shadow: 0rpx 0rpx 12rpx 2rpx rgba(0,95,175,0.1);
     &-name {
       font-size: 32rpx;
@@ -94,10 +168,10 @@ const bayCombo = () => {
     }
   }
   .select-combo {
-    border: 1rpx solid $yellow;
+    border: 2rpx solid $yellow;
   }
   .pay {
-    padding: 60rpx 30rpx 42rpx;
+    padding: 30rpx 30rpx 22rpx;
     background-color: #FFFFFF;
     box-shadow: 0rpx 0rpx 12rpx 2rpx rgba(0,0,0,0.16);
     &-price > view:first-child {
