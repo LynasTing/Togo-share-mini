@@ -34,6 +34,12 @@ export interface SelectableCoupon {
   limitationMoney: string
 
   /**
+   * 0 兑换券 1 现金券 2 满减券 3 折扣券
+   * @type {number}
+   */
+  type: number
+
+  /**
    * 折扣
    * @type {string}
    */
@@ -122,6 +128,12 @@ export interface MyCoupon {
    * @type {string}
    */
   discount?: string
+
+  /**
+   * 使用门槛
+   * @type {string}
+   */
+  limitationMoney: string
 
   /**
    * 使用规则

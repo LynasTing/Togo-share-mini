@@ -1,44 +1,115 @@
-
+/**
+ * 租赁记录
+ * @interface
+ */
 export interface LeaseRecord {
   /**
-   * @orderNumber 订单编号
-   * @getBatteryId 租用电池ID
-   * @getCabinetName 租用机柜
-   * @ctime 租用时间
-   * @returnBatteryId 归还电池ID
-   * @returnCabinetName 归还机柜
-   * @endTime 归还时间
-   * @status 租赁状态
+   * 租用时间
+   * @type {string}
    */
   ctime: string
+
+  /**
+   * 订单编号
+   * @type {string}
+   */
   orderNumber: string
+
+  /**
+   * 订单状态 0 租赁中 1已结束
+   * @type {number} 
+   */
   status: number
+
+  /**
+   * 归还电池ID
+   * @type {string}
+   */
   returnBatteryId: string
+
+  /**
+   * 租用电池ID
+   * @type {string}
+   */
   getBatteryId: string
+
+  /**
+   * 租用机柜名
+   * @type {string}
+   */
   getCabinetName: string
+
+  /**
+   * 归还电池名
+   * @type {string}
+   */
   returnCabinetName: string
+
+  /**
+   * 归还时间
+   * @type {string}
+   */
   endTime: string
 }
-// 机柜基本信息
+
+/**
+ * 机柜基本信息
+ * @interface
+ */
 export interface CabinetInfo {
   /**
-   * @uid 柜子uid
-   * @cabinetName 柜子名称
-   * @address 柜子地址
-   * @name 电池类型
-   * @userFromDistance 到用户距离
-   * @useAbleNum 可用电池数
-   * @noLessThanSoc 大于设置电量电池
+   * uid
+   * @type {string}
    */
   uid: string
+
+  /**
+   * 柜子名称
+   * @type {string}
+   */
   cabinetName: string
+
+  /**
+   * 柜子地址
+   * @type {string}
+   */
   address: string
+
+  /**
+   * 距用户距离
+   * @type {number}
+   */
   userFromDistance: number
+
+  /**
+   * 纬度
+   * @type {number}
+   */
   latitude: number
+
+  /**
+   * 经度
+   * @type {number}
+   */
   longitude: number
+
   list: {
+    /**
+     * 电池类型
+     * @type {string}
+     */
     name: string
+
+    /**
+     * 大于设置电量电池
+     * @type {number}
+     */
     noLessThanSoc: number
+
+    /**
+     * 可用电池数
+     * @type {number}
+     */
     useAbleNum: number
   }[]
 }
@@ -85,6 +156,12 @@ export interface MapMarkersType {
   id: number
   latitude: number
   longitude: number
+  
+  /**
+   * 是否参与点聚合
+   * @type {boolean}
+   */
+  joinCluster: boolean
 }
 // 地图单个Markers卡片信息
 export type MapCardType = {

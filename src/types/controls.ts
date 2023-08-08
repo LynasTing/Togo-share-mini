@@ -10,3 +10,26 @@ export interface batteryCtrlType {
 export interface BatteryStatus {
   batteryStatus: string
 }
+export type CityListType = string[]
+export type CityIndexType = string[]
+/**
+ * 全国城市列表
+ * @interface
+ */
+export interface CityList {
+ /**
+   * 城市
+   * @type {Array<string>}
+   */
+  data: string[]
+  /**
+   * 索引首字母
+   * @type {string}
+   */
+  list: string[]
+}
+
+/**
+ * 分享
+ * @interface
+ */

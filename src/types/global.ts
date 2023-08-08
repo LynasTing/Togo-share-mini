@@ -22,18 +22,74 @@ export type UserAddressType = {
     lng: number | null
   }
 } 
-// 账户信息(登录成功返回)
-export interface LoginSuccess {
+/**
+ * 账户信息(登录或注册成功返回)
+ * @interface
+ */
+export interface AccountInfo {
+  /**
+   * accountUid
+   * @type {string}
+   */
   accountUid: string
+
+  /**
+   * 用户拥有电池状态 '0' 没有 '1' 有
+   * @type {string}
+   */
   batteryStatus: string
+
+  /**
+   * 用户拥有套餐状态 '0' 有套餐未使用 '1' 使用中 '2'套餐已结束
+   * @type {string}
+   */
   comboStatus: string
+
+  /**
+   * 用户拥有押金状态 '0' 没有 '1' 有
+   * @type {string}
+   */
   depositStatus: string
+
+  /**
+   * 用户地区id 
+   * @type {number}
+   */
   organizationId: number
+
+  /**
+   * 用户实名状态
+   * @type {number}
+   */
+  isRealName: number
+
+  /**
+   * openId
+   * @type {string}
+   */
+  openId: string
+
+  /**
+   * 用户手机号码
+   * @type {string}
+   */
   phone: string
+
+  /**
+   * token身份校验令牌
+   * @type {string}
+   */
   token: string
 }
-// 登录失败 
+
+/**
+ * 登录失败 一般用于获取openId
+ * @interface
+ */
 export interface LoginFail {
+  /**
+    * openId
+    */
   openId: string
 }
 // 用户个人资料
