@@ -6,9 +6,16 @@ export default defineStore('controls', {
   state: () => ({
     ctrlBattery: {} as batteryCtrlType,
     ctrlType: '',
+    hasCoupon: false,
     payCoupon: {} as MyCoupon | SelectableCoupon
   }),
   actions: {
+    /**
+     * 用户当前是否拥有优惠券
+     */
+    setHasCoupon(val: boolean) {
+      this.hasCoupon = val
+    },
     // 用户当前操作电池信息
     setCtrlBattery(val: batteryCtrlType) {
       this.ctrlBattery = val
@@ -20,6 +27,6 @@ export default defineStore('controls', {
     // 用户当前选中优惠券
     setPayCoupon(val: MyCoupon | SelectableCoupon) {
       this.payCoupon = val
-    }
+    },
   }
 })

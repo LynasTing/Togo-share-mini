@@ -1,27 +1,22 @@
 import { defineStore } from "pinia";
-import type { UserAddressType, UserInfo, LoginSuccess } from '@/types/global'
+import type { UserAddressType, UserInfo, AccountInfo } from '@/types/global'
 import type { UserBattery } from '@/types/assets/battery'
 import useStore from '@/store'
 
 export default defineStore('global', {
   state: () => ({
-    openId: '',
     scrollHeight: 750,
     batteryInfo: {} as UserBattery,
     authCodeTimer: 0,
     usingCity: '福州',
     userAddress: {} as UserAddressType,
-    accountInfo: uni.getStorageSync('accountInfo') as LoginSuccess,
+    accountInfo: uni.getStorageSync('accountInfo') as AccountInfo,
     userInfo: {} as UserInfo
   }),
   actions: {
     // 电池信息
     setBatteryInfo(val: UserBattery) {
       this.batteryInfo = val
-    },
-    // openId(只在新用户注册用)
-    setOpenId(val: string) {
-      this.openId = val
     },
     // 获取用户位置
     setUserAddress(val?: string) {
@@ -116,7 +111,7 @@ export default defineStore('global', {
       })
     },
     // 登录账号信息
-    setAccountInfo(val: LoginSuccess) {
+    setAccountInfo(val: AccountInfo) {
       this.accountInfo = val 
     },
     // 用户信息
