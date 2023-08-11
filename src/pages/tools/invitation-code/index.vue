@@ -2,9 +2,7 @@
 </script>
 
 <template>
-  <div>
-    邀请码
-  </div>
+  <Empty text="敬请期待~" />
 </template>
 
 <style lang="scss" scoped>

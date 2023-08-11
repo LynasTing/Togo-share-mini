@@ -46,7 +46,9 @@ export default defineStore('global', {
       })
       const that = this
       uni.getLocation({
-        type: 'gcj02',
+        // #ifdef MP-WEIXIN
+        type: 'wgs84 ',
+        // #endif
         success: uniRes => {
           // 2.开始获取位置
           uni.request({
@@ -60,6 +62,7 @@ export default defineStore('global', {
               uni.hideLoading()
               const { result } = aMapRes.data as any
               const { city, district, street, street_number } = result?.address_component
+              this.setUsingCity(city)
               this.userAddress.address = city + district + street + street_number
               this.userAddress.location = result.location
             },

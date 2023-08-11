@@ -2,12 +2,12 @@
 import TabBar from '@/components/basic-tab-bar/TabBar.vue'
 import useStore from '@/store'
 import { post } from '@/utils/request'
-import { onShow, onHide, onUnload } from '@dcloudio/uni-app';
+import { onLoad, onShow, onHide, onUnload } from '@dcloudio/uni-app';
 import { displayTime } from '@/utils/tools'
 import type { UserBattery } from '@/types/assets/battery'
 import type { CabinetsType } from '@/types/cabinet' 
 
-const { global } = useStore()
+const { global, controls } = useStore()
 // 电池信息
 const intervalId = ref()
 const nowTime = ref<string>('')
@@ -21,6 +21,9 @@ const getBatteryInfo = () => {
     }
   })
 }
+onLoad((options) => {
+  if(options?.scene) controls.setInvitationCode(options!.scene)
+})
 onShow(() => {
   global.setUserAddress()
   // #ifdef MP-ALIPAY
@@ -142,7 +145,7 @@ const contactCS = () => {
         </view>
       </view>
     </view>
-    <image v-else mode="widthFix" src="@/static/imgs/cabinet/no_owned.png" class="w-full" />
+    <image v-else mode="widthFix" src="@/static/imgs/cabinet/no_owned.png" class="w-full default-img" />
     <!-- 附近租赁 -->
     <view class="nearby">
       <view class="header flex-c">
@@ -174,7 +177,9 @@ const contactCS = () => {
           </view>
         </li>
       </ul>
-      <Empty v-else  text="没有找到您附近的机柜" />
+      <view v-else class="empty-ls flex--c">
+        <Empty text="没有找到您附近的机柜" class="w-full" />
+      </view>
     </view>
     <!-- 轮播图 -->
     <view class="swiper-group">
@@ -245,6 +250,9 @@ const contactCS = () => {
     .use-situation {
       white-space: nowrap;
     }
+  }
+  .default-img {
+    margin-top: 10rpx;
   }
   .nearby {
     .header {
@@ -346,6 +354,9 @@ const contactCS = () => {
           }
         }
       }
+    }
+    .empty-ls {
+      min-height: 680rpx;
     }
   }
   .swiper-group {

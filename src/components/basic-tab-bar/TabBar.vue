@@ -76,12 +76,13 @@ const goScan = () => {
     }, 2 * 1000)
     return
   }
+
   /**
    * 用户无套餐
    */
   if(global.accountInfo.comboStatus !== '0' && global.accountInfo.comboStatus !== '1') {
     uni.showToast({
-      title: '您当前无法使用套餐功能',
+      title: '您当前无法使用套餐功能,请联系管理员',
       icon: 'none'
     })
     return

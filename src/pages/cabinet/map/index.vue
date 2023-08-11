@@ -15,7 +15,9 @@ const getCabinetMarkers = (lat: number, lng: number, keywords: string) => {
 }
 // 图标
 uni.getLocation({
-  type: 'gcj02',
+  // #ifdef MP-WEIXIN
+  type: 'wgs84 ',
+  // #endif
 	success: function (res) {
     lat.value = res.latitude
     lng.value = res.longitude

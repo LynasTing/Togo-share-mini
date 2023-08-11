@@ -13,10 +13,15 @@ const getUserDeposit = () => {
   })
 }
 getUserDeposit()
+/**
+ * 押金明细
+ */
+
 const records = ref<DepositRecords[]>([])
-post<DepositRecords[]>('/changing/tuGeRecDeposit', '', 'json').then(res => {
-  records.value = res
-})
+const getDepositRecords = () => {
+  post<DepositRecords[]>('/changing/tuGeRecDeposit', '', 'json').then(res => records.value = res)
+}
+getDepositRecords()
 // 退款
 const refund = () => {
   const status = userDeposit.value?.status
@@ -34,10 +39,8 @@ const refund = () => {
       if(res.confirm) {
         post('/miniapp/returnDeposit', { depositOrderNumber: userDeposit.value?.orderNumber }, '').then(res => {
           if(Object.getOwnPropertyNames(res).length === 0) {
-            const { global } = useStore()
-            global.setAccountInfo({ ...global.accountInfo, depositStatus: '0' })
-            uni.setStorageSync('accountInfo', { ...uni.getStorageSync('accountInfo'), depositStatus: '0' })
             getUserDeposit()
+            getDepositRecords
             uni.showToast({
               title: '申请已提交，将会在1~7个工作日内退款',
               icon: 'none',
@@ -61,7 +64,7 @@ const refund = () => {
       </view>
     </view>
     <view class="h3">押金明细</view>
-    <scroll-view scroll-y>
+    <scroll-view v-if="records?.length" scroll-y >
       <view class="detail" v-for="item in records" :key="item.orderNumber">
         <view class="type">{{ item.depositTypeText }}</view>
         <view class="flex-row-sb-c">
@@ -71,6 +74,7 @@ const refund = () => {
         <view>订单编号: {{ item.orderNumber }}</view>
       </view>
     </scroll-view>
+    <Empty v-else text="没有找到您的押金明细~" />
   </view>
 </template>
 

@@ -10,6 +10,7 @@ const typeChange = (e: number) => {
 }
 // 图片上传
 const imgUpload = () => {
+  // #ifdef MP-WEIXIN
   uni.chooseMedia({
     count: 3 - params.value.imgUrl.length,
     mediaType: ['image'],
@@ -20,6 +21,18 @@ const imgUpload = () => {
       params.value.imgUrl = params.value.imgUrl.concat(res.tempFiles[0].tempFilePath)
     }
   })
+  // #endif
+
+  // #ifdef MP-ALIPAY
+  uni.chooseImage({
+    count: 3 - params.value.imgUrl.length,
+    sizeType: ['original', 'compressed'], 
+    sourceType: ['album', 'camera'],
+    success(res) {
+      params.value.imgUrl = params.value.imgUrl.concat(res.tempFilePaths)
+    }
+  })
+  // #endif 
 }
 // 图片删除
 const imgDel = (e: string) => {
@@ -92,8 +105,8 @@ const submit = () => {
       </view>
     </view>    
     <view class="phone">
-      <text>联系方式</text>
-      <input v-model="params.phone" type="tel" class="phone-input" maxlength="11" placeholder="请输入联系方式" placeholder-style="color:rgb(219,219,219);"/>
+      <view>联系方式</view>
+      <input v-model="params.phone" type="tel" class="phone-input w-full" maxlength="11" placeholder="请输入联系方式" placeholder-style="color:rgb(219,219,219);"/>
     </view>
     <view class="submit flex--c" @click="submit">
       <view class="sub" >提交</view>
@@ -109,33 +122,30 @@ const submit = () => {
   padding: 30rpx ;
 }
 .btn-normal {
-  margin-top: 30rpx;
-  margin-left: 0;
-  margin-right: 0;
   width: 200rpx;
   height: 76rpx;
-  background: #fff;
-  border: 1px solid #707070 ;
-  border-radius: 15rpx;
+  line-height: 76rpx;
   color: #999;
-  font-weight: normal;
-  text-align: center;
-  letter-spacing: 2px;
-  line-height: 2.3rem;
-}
-.btn-choose {
+  background-color: #fff;
   margin-top: 30rpx;
-  margin-left: 0;
-  margin-right: 0;
-  width: 200rpx;
-  height: 76rpx;
-  background: rgb(10,34,44);
-  border-radius: 15rpx;
-  color: #fff;
-  font-weight: normal;
   text-align: center;
-  letter-spacing: 2px;
-  line-height: 2.3rem;
+  border: 2rpx solid #707070 ;
+  border-radius: 15rpx;
+  letter-spacing: 4rpx;
+}
+// .btn-choose {
+//   width: 200rpx;
+//   height: 76rpx;
+//   margin-top: 30rpx;
+//   border-radius: 15rpx;
+//   font-weight: normal;
+//   text-align: center;
+//   letter-spacing: 2px;
+//   line-height: 2.3rem;
+// }
+.btn-choose {
+  color: #fff;
+  background-color: rgb(10,34,44);
 }
 
 .description {
@@ -170,7 +180,6 @@ const submit = () => {
       top: -15rpx;
       right: -15rpx;
       font-size: 40rpx;
-      // color: white;
     }
   }
   .file-upload {
@@ -198,15 +207,15 @@ const submit = () => {
   .sub {
     width: 625rpx;
     height: 105rpx;
+    line-height: 105rpx;
     color:#fff;
     font-size: 35rpx;
     font-weight: 500;
-    line-height: 3rem;
     text-align: center;
-    background: linear-gradient(135deg, transparent 15px, rgb(252,195,0) 0);
+    background: linear-gradient(135deg, transparent 30rpx, rgb(252,195,0) 0);
     background-repeat: no-repeat;
     border-radius: 0;
-    letter-spacing: 1px;
+    letter-spacing: 4px;
   }
 }
 

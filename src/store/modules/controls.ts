@@ -7,7 +7,8 @@ export default defineStore('controls', {
     ctrlBattery: {} as batteryCtrlType,
     ctrlType: '',
     hasCoupon: false,
-    payCoupon: {} as MyCoupon | SelectableCoupon
+    payCoupon: {} as MyCoupon | SelectableCoupon,
+    invitationCode: ''
   }),
   actions: {
     /**
@@ -28,5 +29,11 @@ export default defineStore('controls', {
     setPayCoupon(val: MyCoupon | SelectableCoupon) {
       this.payCoupon = val
     },
+    /**
+     * 邀请码
+     */
+    setInvitationCode(val: string) {
+      this.invitationCode = val
+    }
   }
 })

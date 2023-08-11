@@ -6,12 +6,34 @@ import useStore from '@/store'
 // 微信临时图片转base64
 const toBase64 = (file: string) => {
   const result = uni.getFileSystemManager().readFileSync(file, 'base64')
+  // #ifdef MP-WEIXIN
   return result  
+  // #endif
+
+  // #ifdef MP-ALIPAY
+  return result.data
+  // #endif
 }
+
+/**
+ * 图片压缩
+ * @function
+ */
+const imgCompress = (type: number, e) => {
+  // #ifdef MP-WEIXIN
+  
+  // #endif
+
+  // #ifdef MP-ALIPAY
+ 
+  // #endif
+}
+
 const frontImg = ref<string>('')
 const backImg = ref<string>('')
 // 图片上传
 const imgUpload = (type: number) => {
+  // #ifdef MP-WEIXIN
   uni.chooseMedia({
     count: 1,
     mediaType: ['image'],
@@ -37,6 +59,34 @@ const imgUpload = (type: number) => {
       })
     }
   })
+  // #endif
+
+  // #ifdef MP-ALIPAY
+  uni.chooseImage({
+    count: 1,
+    sizeType: ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
+    sourceType: ['album', 'camera'],
+    success(res) {
+      if(res.tempFiles[0].size / 1024 / 1024 > 4) {
+        uni.showToast({
+          title: '请您上传4MB以内的图片~',
+          icon: 'none'
+        })
+        return
+      }
+      my.compressImage({
+        apFilePaths: res.apFilePaths,
+        compressLevel: 0,
+        success: compressRes => {
+          let path = compressRes.apFilePaths[0]
+          type ? backImg.value = path : frontImg.value = path
+          path = toBase64(path) as string
+          type ? backVerify(path) : FrontVerify(path)
+        }
+      })
+    }
+  })
+  // #endif
 }
 // 身份证照片正面验证
 const FrontVerify = (userPhoto: string) => {

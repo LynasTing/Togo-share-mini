@@ -7,9 +7,9 @@ import { payHook } from '@/hooks'
 
 const { global } = useStore()
 const deposits = ref<DepositPay[]>()
-post('/changing/tuGeGetDepositList', { organizationId: 143 }, 'json').then(res => {
+post('/changing/tuGeGetDepositList', { organizationId: 143 || global.accountInfo.organizationId }, 'json').then(res => {
   deposits.value = res as DepositPay[]
-  currCombo.value.amount = deposits.value[0].depositMoney
+  if(deposits.value.length) currCombo.value.amount = deposits.value[0].depositMoney
 })
 const currCombo = ref<any>({
   index: 0,
@@ -32,7 +32,7 @@ const payToDeposit = () => {
     if(res.paySign) {
       payHook(res)
       .then(() => {
-        uni.setStorageSync('accountInfo', { depositStatus: '1', ...uni.getStorageSync('accountInfo') })
+        uni.setStorageSync('accountInfo', { ...uni.getStorageSync('accountInfo'), depositStatus: '1' })
         global.setAccountInfo({ ...global.accountInfo, depositStatus: '1' })
         setTimeout(() => {
           uni.navigateBack()
@@ -61,19 +61,22 @@ const payToDeposit = () => {
         <view class="text-sm free">￥3000.00</view>
       </view>
     </view> -->
-    <view class="species flex-row-sb-c" v-for="(item, index) in deposits" :key="index" @click="changeSpecies(item, index)" :class="currCombo.index === index ? 'curr-type' : ''">
-      <view class="flex-c">
-        <view class="iconfont icon-rmb"></view>
+    <block v-if="deposits?.length">
+      <view class="species flex-row-sb-c" v-for="(item, index) in deposits" :key="index" @click="changeSpecies(item, index)" :class="currCombo.index === index ? 'curr-type' : ''">
+        <view class="flex-c">
+          <view class="iconfont icon-rmb"></view>
+          <view>
+            <view>支付押金</view>
+            <view class="text-sm">{{ item.batteryTypeName || '--'}}(归还电池后可退)</view>
+          </view>
+        </view>
         <view>
-          <view>支付押金</view>
-          <view class="text-sm">{{ item.batteryTypeName || '--'}}(归还电池后可退)</view>
+          <view class="text-sm">￥{{ item.depositMoney }}</view>
         </view>
       </view>
-      <view>
-        <view class="text-sm">￥{{ item.depositMoney }}</view>
-      </view>
-    </view>
-    <view class="flex-row-sb-c pay-card w-full">
+    </block>
+    <Empty v-else text="您当前地区没有可缴纳押金，请联系管理员" />
+    <view class="flex-row-sb-c pay-card w-full" v-if="deposits?.length">
       <view class="flex-c">
         <view class="text-sm">金额<text v-show="!currCombo.amount">（免押金）</text>：</view>
         <view class="num">￥{{ currCombo.amount }}</view>

@@ -3,7 +3,7 @@ import { post } from '@/utils/request'
 import useStore from '@/store'
 import type { AccountInfo } from '@/types/global'
 
-const { global } = useStore()
+const { global, controls } = useStore()
 
 // 一键登录
 const authLogin = (e: any) => {
@@ -19,6 +19,7 @@ const authLogin = (e: any) => {
     openId: global.accountInfo.openId,
     phone: e.detail.encryptedData,
     iv: e.detail.iv,
+    invitationCode: controls.invitationCode || 'omkcG3',
     wxAppId: uni.getAccountInfoSync().miniProgram.appId
   }
   post<AccountInfo>('/tuge/register', { ...params }, 'json').then(res => {
@@ -27,7 +28,7 @@ const authLogin = (e: any) => {
       uni.setStorageSync('accountInfo', res)
       uni.showToast({
         title: '注册成功，欢迎使用',
-        icon: 'success',
+        icon: 'none',
         duration: 2 * 1000
       })
       setTimeout(() => {
@@ -46,7 +47,7 @@ const goPhoneRegister = () => {
   <view class="flex-col-c login-page">
     <image src="@/static/imgs/global/login_logo.png" mode="widthFix" class="logo"/>
     <view class="desc w-full">欢迎您注册途歌共享</view>
-    <button class="wx-login w-full button" @getphonenumber="authLogin" open-type="getPhoneNumber">微信授权一键注册</button>
+    <button class="wx-login w-full button" @getphonenumber="authLogin" open-type="getPhoneNumber">快捷一键注册</button>
     <view class="other-login button w-full" @click="goPhoneRegister">手机号码注册</view>
   </view>
 </template>

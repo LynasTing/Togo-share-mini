@@ -49,14 +49,14 @@ const goRealName = () => {
   uni.navigateTo({ url: '/pages/global/tab-bar/mine/real-name-auth/index' })
 }
 const tools = reactive([
-  { text: '开通套餐', path: '/pages/tools/activate-package/index' },
+  { text: '我的消息', path: '/pages/tools/message/index' },
   { text: '分享', path: '/pages/tools/share/index' },
   { text: '意见反馈', path: '/pages/tools/feedback/index' },
   { text: '关于我们', path: '/pages/tools/about-us/index', whiteList: true },
   { text: '故障上报', path: '/pages/tools/breakdown/index' },
+  { text: '邀请码', path: '/pages/tools/invitation-code/index' },
   { text: '应用设置', path: '/pages/tools/setting/index', whiteList: true },
-  // { text: '我的消息', path: '/pages/tools/message/index' },
-  // { text: '邀请码', path: '/pages/tools/invitation-code/index' },
+  { text: '开通套餐', path: '/pages/tools/activate-package/index' }
 ])
 // 常用功能
 const toolsNavigate = e => {
@@ -64,9 +64,7 @@ const toolsNavigate = e => {
     notLoginIn()
     return
   }
-  uni.navigateTo({
-    url: e.path
-  })
+  uni.navigateTo({ url: e.path })
 }
 </script>
 
@@ -102,7 +100,7 @@ const toolsNavigate = e => {
         </div>
         <div class="tools flex-col">
           <div class="title">常用功能</div>
-          <div class="flex-1 sprite flex-wrap flex">
+          <div class="flex-1 sprite flex-wrap flex-row-sb-c">
             <div class="flex-col-c tool-item" v-for="(item, index) in tools" :key="index" @click="toolsNavigate(item)">
               <image :src="`/static/imgs/mine/tools_${index}.png`" />
               <div>{{ item.text }}</div>
@@ -184,14 +182,14 @@ const toolsNavigate = e => {
     }
     .tool-item {
       color: black;
-      font-size: 28rpx;
+      font-size: 26rpx;
       font-weight: normal;
-      width: 25%;
+      width: 22%;
       margin-bottom: 30rpx;
       letter-spacing: 2rpx;
       image {
-        width: 60rpx;
-        height: 60rpx;
+        width: 50rpx;
+        height: 50rpx;
         margin-bottom: 10rpx;
       }
     }

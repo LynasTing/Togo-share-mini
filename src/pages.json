@@ -30,6 +30,8 @@
 			"path": "pages/user-access/login/index",
 			"style": {
 				"disableScroll": true,
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFFFFF",
 				"navigationBarTitleText": "欢迎使用途歌共享"
 			}
 		},
@@ -51,6 +53,8 @@
 			"path": "pages/global/protocol/index",
 			"style": {
 				"disableScroll": true,
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFFFFF",
 				"navigationBarTitleText": "用户协议"
 			}
 		},
@@ -72,12 +76,16 @@
 			"path": "pages/global/tab-bar/scan/lease/index",
 			"style": {
 				"navigationBarTitleText": "电源租用",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFFFFF",
 				"disableSwipeBack": true
 			}
 		},
 		{
 			"path": "pages/global/tab-bar/scan/lease/succeed/index",
 			"style": {
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFFFFF",
 				"navigationBarTitleText": "租借成功"
 			}
 		},
@@ -111,6 +119,7 @@
 			"path": "pages/global/tab-bar/mine/real-name-auth/index",
 			"style": {
 				"navigationBarTitleText": "实名认证",
+				"navigationBarTextStyle": "black",
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
@@ -152,19 +161,24 @@
 			"path": "pages/customer-services/battery/index",
 			"style": {
 				"navigationBarTitleText": "我的电源",
-				"navigationBarBackgroundColor": "#FFF"
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
 			"path": "pages/customer-services/records/index",
 			"style": {
-				"navigationBarTitleText": "租赁记录"
+				"navigationBarTitleText": "租赁记录",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
 			"path": "pages/customer-services/coupon/index",
 			"style": {
-				"navigationBarTitleText": "我的优惠券"
+				"navigationBarTitleText": "我的优惠券",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
@@ -195,7 +209,9 @@
 		{
 			"path": "pages/customer-services/wallet/deposit-pay/index",
 			"style": {
-				"navigationBarTitleText": "押金服务"
+				"navigationBarTitleText": "押金服务",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFF"
 			}
 		},
 		{
@@ -209,7 +225,16 @@
 		{
 			"path": "pages/tools/about-us/index",
 			"style": {
-				"navigationBarTitleText": "关于我们"
+				"navigationBarTitleText": "关于我们",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFF"
+			}
+		},
+		{
+			"path": "pages/tools/about-us/boot-page/index",
+			"style": {
+				"navigationBarTitleText": "引导使用",
+				"navigationBarHidden": true
 			}
 		},
 		{
@@ -234,38 +259,50 @@
 			"path": "pages/tools/breakdown/index",
 			"style": {
 				"disableScroll": true,
-				"navigationBarTitleText": "故障上传"
+				"navigationBarTitleText": "故障上传",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFF"
 			}
 		},
 		{
 			"path": "pages/tools/feedback/index",
 			"style": {
 				"disableScroll": true,
-				"navigationBarTitleText": "意见反馈"
+				"navigationBarTitleText": "意见反馈",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFF"
 			}
 		},
 		{
 			"path": "pages/tools/invitation-code/index",
 			"style": {
-				"navigationBarTitleText": "邀请码"
+				"navigationBarTitleText": "邀请码",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFF"
 			}
 		},
 		{
 			"path": "pages/tools/message/index",
 			"style": {
-				"navigationBarTitleText": "我的消息"
+				"navigationBarTitleText": "我的消息",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFF"
 			}
 		},
 		{
 			"path": "pages/tools/setting/index",
 			"style": {
-				"navigationBarTitleText": "应用设置"
+				"navigationBarTitleText": "应用设置",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFF"
 			}
 		},
 		{
 			"path": "pages/tools/share/index",
 			"style": {
-				"navigationBarTitleText": "分享"
+				"navigationBarTitleText": "分享",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFF"
 			}
 		}
 	],

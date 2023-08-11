@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
+import type { Share, InvitationRecord } from '@/types/tools'
 import useStore from '@/store'
+import { splitString } from '@/utils/tools'
 
 const { global } = useStore()
 // 滚动条
@@ -11,71 +13,56 @@ const old = ref({
 const scroll = (e: any) => {
 	old.value.scrollTop = e.detail.scrollTop
 }
-post('/changing/tuGePromotions', { appId: uni.getAccountInfoSync().miniProgram.appId, accountUid: global.accountInfo.accountUid }, 'json')
 
-const records = ref([
-  {
-    avatar:'https://c-ssl.dtstatic.com/uploads/blog/202107/19/20210719201624_6d736.thumb.1000_0.png',
-    name: 'XXX',
-    time: '2023-03-20'
-  },
-  {
-    avatar:'https://c-ssl.dtstatic.com/uploads/blog/202107/19/20210719201624_6d736.thumb.1000_0.png',
-    name: 'XXX',
-    time: '2023-03-20'
-  },
-  {
-    avatar:'https://c-ssl.dtstatic.com/uploads/blog/202107/19/20210719201624_6d736.thumb.1000_0.png',
-    name: 'XXX',
-    time: '2023-03-20'
-  },
-  {
-    avatar:'https://c-ssl.dtstatic.com/uploads/blog/202107/19/20210719201624_6d736.thumb.1000_0.png',
-    name: 'XXX',
-    time: '2023-03-20'
-  },
-  {
-    avatar:'https://c-ssl.dtstatic.com/uploads/blog/202107/19/20210719201624_6d736.thumb.1000_0.png',
-    name: 'XXX',
-    time: '2023-03-20'
-  },
-  {
-    avatar:'https://c-ssl.dtstatic.com/uploads/blog/202107/19/20210719201624_6d736.thumb.1000_0.png',
-    name: 'XXX',
-    time: '2023-03-20'
-  }
-])
+/**
+ * 邀请码及分享二维码 
+ */
+const codeAndImage = ref<Share>() 
+const invitationRecords = ref<InvitationRecord[]>([])
+post<Share>('/changing/tuGePromotions', { appId: uni.getAccountInfoSync().miniProgram.appId, accountUid: global.accountInfo.accountUid }, 'json')
+  .then(res => {
+    codeAndImage.value = res
+    // 邀请记录
+    post<InvitationRecord[]>('/changing/tuGeInvitationRecord', { appId: uni.getAccountInfoSync().miniProgram.appId }, 'json').then(res => {
+      invitationRecords.value = res
+    })
+  })
+
+/**
+ * 复制邀请码
+ */
+const copyCode = () => {
+  if(!codeAndImage.value?.invitationCode) return
+  uni.setClipboardData({
+    data: codeAndImage.value?.invitationCode,
+  })
+}
 </script>
 
 <template>
   <view class="container">
-     <image src="@/static/imgs/mine/share.png" class="" />
-     <!-- 邀请码 -->
-     <view class="invitation-code flex-col-se-c">
+    <image src="@/static/imgs/mine/share.png" class="" />
+    <view class="invitation-code flex-col-se-c">
       <text>您的邀请码:</text>
-      <view>CF96DC20</view>
-      <image src="@/static/imgs/mine/share.png" />
-      <view class="copy-code flex-col-se-c">复制邀请码</view>
+      <view>{{ codeAndImage?.invitationCode || 'CF96DC20' }}</view>
+      <image :src="codeAndImage?.path || '@/static/imgs/mine/share.png'" />
+      <view class="copy-code flex-col-se-c" @click="copyCode">复制邀请码</view>
      </view>
-     <!-- 邀请记录 -->
-     <view class="invitation-record">
+    <view class="invitation-record" v-if="invitationRecords.length">
       <text>邀请记录</text>
       <view class="name-list">
-        <scroll-view :scroll-top="scrollTop" scroll-y="true" class="scroll-Y" @scroll="scroll">
-          <v-iew class="flex-row-sb-c mb-26" v-for="(item,index) in records" :key="index">
-            <image class="avatar" :src="item.avatar" />
-            <view>{{ item.name }}</view>
-            <view></view><view></view><view></view><view></view>
-            <view>{{ item.time }}</view>
-          </v-iew>
+        <scroll-view :scroll-top="scrollTop" scroll-y="true" class="scroll-y" @scroll="scroll">
+          <view class="flex-row-sb-c mb-26" v-for="(item,index) in invitationRecords" :key="index">
+            <view class="flex-c">
+              <image class="avatar" :src="item.userPhoto || 'https://c-ssl.dtstatic.com/uploads/blog/202107/19/20210719201624_6d736.thumb.1000_0.png'" />
+              <view>{{ splitString(item.userNickname, 7) }}</view>
+            </view>
+            <view class="time">{{ item.time }}</view>
+          </view>
         </scroll-view>
-
-
       </view>
-
      </view>
   </view>
-
 </template>
 
 <style lang="scss" scoped>
@@ -118,35 +105,34 @@ const records = ref([
   }
 }
 .invitation-record {
-  margin-top: 36rpx;
-  margin-left: 30rpx;
-  margin-right: 30rpx;
+  font-weight: 600;
+  margin: 36rpx 30rpx 0 30rpx;
   padding: 38rpx 32rpx;
-  height: 696rpx;
   background-color: #fff;
   border-radius: 28rpx;
-  font-weight: 700;
   letter-spacing: 1px;
   & > text {
     display: inline-block;
     margin-bottom: 48rpx;
   }
-  .name-list{
-    margin-bottom: 90rpx;
-    .scroll-Y {
-		  height: 500rpx;
+  .name-list {
+    .scroll-y {
+		  max-height: 500rpx;
 	  }
     .mb-26 {
       margin-bottom: 26rpx;
-    }
-    .avatar {
-      width: 76rpx;
-      height: 76rpx;
-      border-radius: 50% 50%;
+      font-size: 26rpx;
+      .avatar {
+        width: 66rpx;
+        height: 66rpx;
+        margin-right: 20rpx;
+        border-radius: 50% 50%;
+      }
+      .time {
+        font-size: 24rpx;
+      }
     }
   }
-
-
 }
 
 </style>

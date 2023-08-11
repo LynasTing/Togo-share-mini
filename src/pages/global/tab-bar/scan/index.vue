@@ -65,7 +65,7 @@ const flashChange = () => {
     @scancode="scanCodeCallBack"
   />
   <cover-view class="w-full h-screen absolute top-0 left-0 scan-page flex-col overflow-h">
-    <cover-image src="@/static/imgs/global/scan_animate.gif " class="animate-img absolute top-half left-half" />
+    <cover-image src="@/static/imgs/global/scan_animate.gif" class="animate-img absolute top-half left-half" />
     <cover-view class="desc absolute left-half">请扫描租赁柜屏幕上的二维码</cover-view>
     <cover-view class="flex-1 scan-container"></cover-view>
     <cover-view class="controls fixed bottom-0 left-0 flex-row-sa-c">
@@ -82,7 +82,7 @@ const flashChange = () => {
 </template>
 <style lang="scss" scoped>
 .scan-page {
-  z-index: 9;
+  background: rgba(49, 49, 49, 0.4);
   .animate-img {
     width: 460rpx;
     height: 460rpx;

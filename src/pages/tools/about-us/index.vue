@@ -1,4 +1,29 @@
 <script lang="ts" setup>
+
+const menuList = reactive([
+  { text: '公司简介', url: 'xxx' },
+  { text: '用户协议', url: 'xxx' },
+  { text: '版本信息', url: 'xxx' },
+  { text: '使用说明', url: '/pages/tools/about-us/boot-page/index' }
+])
+const menuFn = (i: any) => {
+  // uni.navigateTo({ url: item.url})
+
+  if(i !== 2) {
+    uni.showToast({
+      title: '敬请期待~',
+      icon: 'none',
+    })
+    return
+  }
+  uni.showModal({
+    title: '应用版本',
+    content: 'v0.0.3',
+    showCancel: false
+  })
+  // #ifdef MP-WEIXIN
+  // #endif
+}
 </script>
 
 <template>
@@ -8,24 +33,11 @@
     </view>
 
     <view class="menu-list flex-col">
-      <navigator url="" class="flex-row-sb-c">
-        <text>公司简介</text>
+      <view class="flex-row-sb-c" v-for="(item, index) in menuList" :key="index" @click="menuFn(index)">
+        <text>{{ item.text }}</text>
         <i class="iconfont icon-youjiantou text-base"></i>
-      </navigator>
-      <navigator url="" class="flex-row-sb-c">
-        <text>用户协议</text>
-        <i class="iconfont icon-youjiantou text-base"></i>
-      </navigator>
-      <navigator url="" class="flex-row-sb-c">
-        <text>版本信息</text>
-        <i class="iconfont icon-youjiantou text-base"></i>
-      </navigator>
-      <navigator url="" class="flex-row-sb-c">
-        <text>使用说明</text>
-        <i class="iconfont icon-youjiantou text-base"></i>
-      </navigator>
+      </view>
     </view>
-
   </view>
 </template>
 
@@ -52,10 +64,9 @@
   font-weight: Bold;
 }
 
-.menu-list navigator {
-  display: flex;
-  margin-top: 45rpx;
-  margin-bottom: 33rpx; 
+.menu-list view {
+  margin: 25rpx 0 23rpx;
+  border-bottom: 1rpx solid #f8f8f8;
 }
 
 

@@ -157,11 +157,11 @@ export interface MapMarkersType {
   latitude: number
   longitude: number
   
-  /**
-   * 是否参与点聚合
-   * @type {boolean}
-   */
-  joinCluster: boolean
+  // /**
+  //  * 是否参与点聚合
+  //  * @type {boolean}
+  //  */
+  // joinCluster: boolean
 }
 // 地图单个Markers卡片信息
 export type MapCardType = {

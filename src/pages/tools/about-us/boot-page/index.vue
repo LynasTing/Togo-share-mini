@@ -2,7 +2,9 @@
 </script>
 
 <template>
-  <Empty text="暂无消息~" />
+  <div>
+    引导页面
+  </div>
 </template>
 
 <style lang="scss" scoped>

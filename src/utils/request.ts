@@ -21,7 +21,7 @@ export function post<T>(url: string, data?: any, type?: string, noLoading?: bool
     // 项目有两种类型接口, json 和 x-www-form-urlencoded
     const { global } = useStore()
     const header = {
-      'HT-Token': type === 'json' ? global.accountInfo?.token : '',
+      'HT-Token': type === 'json' ? (global.accountInfo?.token) : '',
       'HT-Account-Uid': type === 'json' ? global.accountInfo?.accountUid : '',
       'Content-Type': `application/${type === 'json' ? 'json;charset=UTF-8' : 'x-www-form-urlencoded'}`,
     }
@@ -74,6 +74,34 @@ export function post<T>(url: string, data?: any, type?: string, noLoading?: bool
         reject(err)
       },
       complete(result) {
+      }
+    })
+  })
+}
+export function fetchAli(url, data) {
+  return new Promise((resolve, reject) => {
+    const baseUrl = 'https://hthd.hthuandian.cn/sso/'
+    uni.request({
+      url: baseUrl + url,
+      method: 'POST',
+      header: {'content-type': 'application/x-www-form-urlencoded'},
+      data,
+      success: res => {
+        const {code, data, msg } = res.data
+        if(code === '000000') {
+          resolve(data)
+        }else if(code === '000003'){
+         reject(code)
+        }else {
+          uni.showToast({
+            title: msg,
+            icon: 'none'
+          })
+        }
+      },
+      fail: err => {
+        reject(err)
+        console.log(`err + ::>>`, err)
       }
     })
   })

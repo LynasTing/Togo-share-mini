@@ -12,7 +12,7 @@ const props = defineProps({
   <view class="empty flex-1">
     <view class="banner-text">
       <image src="@/static/imgs/global/logo_op_1.png" mode="widthFix" />
-      <view class="flex-row-sb-c">
+      <view class="flex-row-sb-c ">
         <view>
           Realize the freedom of electricity <br>
           Made in TYBOL POWER
@@ -25,7 +25,7 @@ const props = defineProps({
       </view>
     </view>
     <view class="flex-col-c">
-      <text class="iconfont icon-neirongweikong1 "></text>
+      <image class="empty-img" src="@/static/imgs/global/togo_empty.png" />
       <view class="desc">{{ props.text }}</view>
     </view>
   </view>
@@ -40,7 +40,7 @@ const props = defineProps({
   padding-bottom: 30rpx;
   .banner-text {
     font-size: 20rpx;
-    padding: 30rpx 40rpx;
+    padding: 30rpx 0rpx;
     image {
       width: 200rpx;
     }
@@ -48,6 +48,10 @@ const props = defineProps({
   .iconfont {
     color: $darkgray;
     font-size: 100rpx;
+  }
+  .empty-img {
+    width: 250rpx;
+    height: 280rpx;
     margin: 30rpx 0 10rpx;
   }
   .desc {

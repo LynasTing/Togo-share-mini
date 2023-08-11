@@ -3,19 +3,30 @@ import type { MediaType } from "@/types/global";
 import { post } from "@/utils/request";
 
 // 图片上传
-const imgs = ref<MediaType[]>([])
 const imgUpload = () => {
+  // #ifdef MP-WEIXIN
   uni.chooseMedia({
-    count: 3 - imgs.value.length,
+    count: 3 - params.value.imgUrl.length,
     mediaType: ['image'],
     sourceType: ['album', 'camera'],
     maxDuration: 30,
     camera: 'back',
     success(res) {
-      console.log(res.tempFiles)
       params.value.imgUrl = params.value.imgUrl.concat(res.tempFiles[0].tempFilePath)
     }
   })
+  // #endif
+
+  // #ifdef MP-ALIPAY
+  uni.chooseImage({
+    count: 3 - params.value.imgUrl.length,
+    sizeType: ['original', 'compressed'],
+    sourceType: ['album', 'camera'],
+    success(res) {
+      params.value.imgUrl = params.value.imgUrl.concat(res.tempFilePaths)
+    }
+  })
+  // #endif
 }
 // 图片删除
 const imgDel = (e: string) => {
@@ -123,7 +134,7 @@ const submit = () => {
             <image class="w-full h-full" :src="item" />
             <view class="iconfont icon-jiaochacross78 icon-del" @click="imgDel(item)"></view>
           </view>
-          <image src="@/static/imgs/mine/upload_img.png" @click="imgUpload" v-if="imgs.length < 3" class="file-upload" />
+          <image src="@/static/imgs/mine/upload_img.png" @click="imgUpload" v-if="params.imgUrl.length < 3" class="file-upload" />
         </view>
       </view> 
       <view class="submit flex--c" @click="submit">
@@ -154,7 +165,7 @@ const submit = () => {
       height: 48rpx;
       font-size: 40rpx;
       color: rgb(114,114,114) ;
-      line-height: 1.5rem;
+      line-height: 48rpx;
       text-align: center;
       padding: 0 30rpx 0 20rpx;
       border-right: rgb(219,219,219) 2rpx solid;
@@ -210,10 +221,10 @@ const submit = () => {
   .sub {
     width: 625rpx;
     height: 96rpx;
+    line-height: 96rpx;
     color:#000;
     font-size: 35rpx;
     font-weight: 500;
-    line-height: 3rem;
     text-align: center;
     background-color: rgb(252,195,0);
     border-radius: 48rpx;

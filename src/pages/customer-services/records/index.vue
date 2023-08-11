@@ -27,7 +27,7 @@ getDataList()
 
 <template>
   <view class="record-page">
-    <scroll-view v-if="records.length" scroll-y="true" class="scroll-y-list overflow-h" :enable-back-to-top="true" @scrolltolower="scrollToLower">
+    <scroll-view v-if="records.length" scroll-y="true" class="scroll-y-list overflow-h px-30" :enable-back-to-top="true" @scrolltolower="scrollToLower">
       <view class="record relative" v-for="(item, index) in records" :key="index">
         <view class="title flex-row-sb-c">
           <view>订单状态</view>
@@ -66,12 +66,17 @@ getDataList()
         <view class="iconfont icon-sanjiao" :class="item.status ? 'return-icon': 'using-icon'"></view>
       </view>
     </scroll-view>
-    <Empty v-else text="没有找到您的租赁记录~" />
+    <view v-else class="px-30">
+      <Empty text="没有找到您的租赁记录~" />
+    </view>
   </view>
 </template>
 
 <style lang="scss" scoped>
 .record-page {
+  .px-30 {
+    padding: 0 30rpx;
+  }
   .scroll-y-list {
     height: 100vh;
     padding: 30rpx;

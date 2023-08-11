@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { post } from '@/utils/request'
+import { post,fetchAli } from '@/utils/request'
 import { onLoad } from '@dcloudio/uni-app'
 import type { AccountInfo, LoginFail } from '@/types/global'
 import useStore from '@/store'
@@ -16,9 +16,7 @@ const platform = ref<string>('wx')
 uni.getSystemInfo({
   success: res => { platform.value = res.uniPlatform }
 })
-// #ifdef MP-ALIPAY
-my.setNavigationBar({ textStyle: 'black' })
-// #endif
+
 onLoad(option => {
   if(option?.path) redirect.value = decodeURIComponent(option?.path)
 })
@@ -37,6 +35,7 @@ const accountInfo = (val: any) => {
 }
 // 一键登录
 const authLogin = (e: any) => {
+  // #ifdef MP-WEIXIN
   if(!agreeCheck.value) {
     uni.showToast({
       title: '请先同意用户协议',
@@ -64,7 +63,66 @@ const authLogin = (e: any) => {
       })
     }
   })
+  // #endif
+}  
+
+/**
+ *  支付宝登录
+ */
+const aliLogin = (e: any) => {
+  // #ifdef MP-ALIPAY  
+  if(!agreeCheck.value) {
+    uni.showToast({
+      title: '请先同意用户协议',
+      icon: 'none',
+      duration: 1 * 1500
+    })
+    return 
+  }
+  my.getAuthCode({
+    scopes: 'auth_base',
+    success: res => {
+      uni.showLoading()
+      fetchAli('/getAliAuthority', { authCode: res.authCode }).then(res => {
+        my.getPhoneNumber({
+          success: phoneRes => {
+            fetchAli('aliDecodePhone', { userId: res.userId, encodeMobile: phoneRes.response }).then(phoneNum => {
+              fetchAli('login', { appid: uni.getAccountInfoSync().miniProgram.appId, mobile: phoneNum })
+                .then(loginRes => {
+                  accountInfo(loginRes)
+                  uni.hideLoading()
+                })
+                .catch(err => {
+                  console.log(`err + ::>>`, err)
+                  if(err === '000003') alipayRegister(res.userId, phoneNum)
+                })
+            })
+          }
+        })
+      })
+    }
+  })
+  // #endif
 }
+
+/**
+ * 支付宝注册
+ */
+const alipayRegister = (userId, mobile) => {
+  fetchAli('register', {userId, mobile, mode: 1}).then(res => {
+    if(res == null) {
+      fetchAli('login', { appid: uni.getAccountInfoSync().miniProgram.appId, mobile})
+        .then(loginRes => {
+          accountInfo(loginRes)
+          uni.hideLoading()
+        })
+        .catch(err => {
+          uni.hideLoading()
+        })
+    }
+  })
+}
+
 const agreeCheck = ref<boolean>(false)
 // 同意用户协议
 const agreeCheckChange = () => {
@@ -79,7 +137,7 @@ const goUserAgreement = () => {
   <view class="flex-col-c login-page">
     <image src="@/static/imgs/global/login_logo.png" mode="widthFix" class="logo"/>
     <view class="desc w-full">即将开启途歌共享</view>
-    <button class="wx-login w-full button relative" @click="authLogin">{{ platform === 'mp-alipay' ? '支付宝' : '微信' }}授权一键登录</button>
+    <button class="wx-login w-full button relative" open-type="getAuthorize" @getAuthorize="aliLogin" @click="authLogin" scope="phoneNumber">授权一键登录</button>
     <view class="flex-c w-full agreement" @click.stop="agreeCheckChange">  
       <radio :value="agreeCheck" :checked="agreeCheck" color="#fcc300" style="transform: scale(0.8)" />
       <view>
