@@ -119,8 +119,10 @@ const formatStatus = computed(() => {
       </view>
     </view>
   </view>
-  <Empty v-else text="您暂无优惠券" />
-</template>
+  <view v-else class="coupon-page">
+    <Empty text="您暂无优惠券" />
+  </view>
+  </template>
 
 <style lang="scss" scoped>
 .coupon-page {

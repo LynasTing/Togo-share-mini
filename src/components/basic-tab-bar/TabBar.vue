@@ -80,9 +80,9 @@ const goScan = () => {
   /**
    * 用户无套餐
    */
-  if(global.accountInfo.comboStatus !== '0' && global.accountInfo.comboStatus !== '1') {
+  if(global.accountInfo.comboStatus == '2') {
     uni.showToast({
-      title: '您当前无法使用套餐功能,请联系管理员',
+      title: '您未购买套餐或套餐被冻结,请联系管理员',
       icon: 'none'
     })
     return

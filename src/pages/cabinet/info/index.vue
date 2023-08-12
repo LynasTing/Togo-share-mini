@@ -1,4 +1,4 @@
-<script lang="ts" setup async >
+<script lang="ts" setup>
 import { post } from '@/utils/request'
 import type { CabinetInfo } from '@/types/cabinet' 
 import { onLoad } from '@dcloudio/uni-app'
@@ -7,9 +7,9 @@ import useStore from '@/store'
 const { global } = useStore()
 const params = ref({
   id: 0,
-  latitude: global.userAddress.location.lat || 0,
+  latitude: global.userAddress.location?.lat || 0,
   longitude: global.userAddress.location.lng || 0
-})
+})  
 onLoad((options) => {
   if(options?.id) params.value.id = options.id
 })

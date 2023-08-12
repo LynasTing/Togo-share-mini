@@ -85,10 +85,14 @@ const bayCombo = () => {
 onUnload(() => {
   controls.setPayCoupon({} as MyCoupon)
 })
+const isAliPay = ref<boolean>(false)
+// #ifdef MP-ALIPAY
+isAliPay.value = true
+// #endif
 </script>
 
 <template>
-  <view class="active-package flex-col">
+  <view class="active-package flex-col" v-if="!isAliPay">
     <view class="flex-row-sb-c choose-coupon" @click="chooseCoupon" v-if="assets.usableCoupons?.length">
       <view>{{ controls.payCoupon.name ? '已选择优惠券' : '您还未选择优惠券' }}</view>
       <view class="flex-c">
@@ -116,6 +120,9 @@ onUnload(() => {
       </view>
       <view class="pay-btn" @click="bayCombo">立即支付</view>
     </view>
+  </view>
+  <view class="active-package" v-else>
+    <Empty text="套餐功能仅对内部开放，请联系管理员或使用优惠券兑换"></Empty>
   </view>
 </template>
 

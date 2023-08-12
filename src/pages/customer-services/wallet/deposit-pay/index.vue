@@ -1,34 +1,43 @@
 <script lang="ts" setup>
-import { post } from '@/utils/request'
+import { post, fetchAli } from '@/utils/request'
 import useStore from '@/store'
 import type { DepositPay } from '@/types/assets/deposit'
 import type { WxPay } from '@/types/assets/payment'
 import { payHook } from '@/hooks'
+import { onShow } from '@dcloudio/uni-app'
 
 const { global } = useStore()
 const deposits = ref<DepositPay[]>()
-post('/changing/tuGeGetDepositList', { organizationId: 143 || global.accountInfo.organizationId }, 'json').then(res => {
-  deposits.value = res as DepositPay[]
-  if(deposits.value.length) currCombo.value.amount = deposits.value[0].depositMoney
+onShow(() => {
+  post('/changing/tuGeGetDepositList', { organizationId: global.accountInfo.organizationId || 143 }, 'json').then(res => {
+    deposits.value = res as DepositPay[]
+    if(deposits.value.length) {
+      currDeposit.value.amount = deposits.value[0].depositMoney
+      currDeposit.value.id = deposits.value[0].id
+    }
+  })
 })
-const currCombo = ref<any>({
+
+/**
+ * 切换押金
+ */
+const changeSpecies = (item: DepositPay, index: number) => {
+  currDeposit.value.amount = item!.depositMoney
+  currDeposit.value.id = item!.id
+  currDeposit.value.index = index
+}
+/**
+ * 当前选择押金
+ */
+const currDeposit = ref({
+  id: -1,
   index: 0,
   amount: 0
 })
-const changeSpecies = (item: DepositPay, index: number) => {
-  currCombo.value.amount = item!.depositMoney
-  payParams.value.id = item!.id
-  currCombo.value.index = index
-}
-// 支付
-const payParams = ref({
-  organizationId: global.accountInfo.organizationId,
-  openId: global.accountInfo.openId,
-  id: -1
-})
 const payToDeposit = () => {
-  // post<WxPay>('/changing/tuGePayDeposit', { ...payParams.value }, 'json').then(res => {
-  post<WxPay>('/miniapp/payDeposit', { ...payParams.value }, '').then(res => {
+  // #ifdef MP-WEIXIN
+  post<WxPay>('/miniapp/payDeposit', { organizationId: global.accountInfo.organizationId, openId: global.accountInfo.openId, id: currDeposit.value.id }, '')
+  .then(res => {
     if(res.paySign) {
       payHook(res)
       .then(() => {
@@ -43,6 +52,27 @@ const payToDeposit = () => {
       })
     }
   })
+  // #endif
+
+  // #ifdef MP-ALIPAY
+  fetchAli('pay/aliFundFreezeOrder', { organizationId: global.accountInfo.organizationId, accountUid: global.accountInfo.accountUid, depositId: currDeposit.value.id })
+  .then(res => {
+    my.tradePay({
+      orderStr: res,
+      success: res => {
+        if(res.resultCode == '9000') {
+          uni.showToast({
+            title: '支付成功！',
+            duration: 2000
+          })
+        }
+      },
+      fail: err => {
+        console.log(`失败err + ::>>`, err)
+      }
+    })
+  })
+  // #endif
 }
 </script>
 
@@ -62,7 +92,7 @@ const payToDeposit = () => {
       </view>
     </view> -->
     <block v-if="deposits?.length">
-      <view class="species flex-row-sb-c" v-for="(item, index) in deposits" :key="index" @click="changeSpecies(item, index)" :class="currCombo.index === index ? 'curr-type' : ''">
+      <view class="species flex-row-sb-c" v-for="(item, index) in deposits" :key="index" @click="changeSpecies(item, index)" :class="currDeposit.index === index ? 'curr-type' : ''">
         <view class="flex-c">
           <view class="iconfont icon-rmb"></view>
           <view>
@@ -78,8 +108,8 @@ const payToDeposit = () => {
     <Empty v-else text="您当前地区没有可缴纳押金，请联系管理员" />
     <view class="flex-row-sb-c pay-card w-full" v-if="deposits?.length">
       <view class="flex-c">
-        <view class="text-sm">金额<text v-show="!currCombo.amount">（免押金）</text>：</view>
-        <view class="num">￥{{ currCombo.amount }}</view>
+        <view class="text-sm">金额<text v-show="!currDeposit.amount">（免押金）</text>：</view>
+        <view class="num">￥{{ currDeposit.amount }}</view>
       </view>
       <button @click="payToDeposit">立即支付</button>
     </view>

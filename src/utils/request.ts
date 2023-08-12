@@ -1,10 +1,11 @@
 import { _showLoading, _hideLoading } from "./loading"
-import type { Api } from '@/types/global'
-import useStore from '@/store'
 import { notLoginIn } from '@/hooks/index'
 import { logoutHook } from '@/hooks'
+import type { Api } from '@/types/global'
+import useStore from '@/store'
 
 export function post<T>(url: string, data?: any, type?: string, noLoading?: boolean): Promise<T> {
+  const { global } = useStore()
   return new Promise<T>((resolve, reject) => {
     let base_url
     switch (uni.getAccountInfoSync().miniProgram.envVersion) {
@@ -19,7 +20,6 @@ export function post<T>(url: string, data?: any, type?: string, noLoading?: bool
         break
     }
     // 项目有两种类型接口, json 和 x-www-form-urlencoded
-    const { global } = useStore()
     const header = {
       'HT-Token': type === 'json' ? (global.accountInfo?.token) : '',
       'HT-Account-Uid': type === 'json' ? global.accountInfo?.accountUid : '',
@@ -72,15 +72,15 @@ export function post<T>(url: string, data?: any, type?: string, noLoading?: bool
           }
         })
         reject(err)
-      },
-      complete(result) {
       }
     })
   })
 }
 export function fetchAli(url, data) {
+  const { global } = useStore()
   return new Promise((resolve, reject) => {
     const baseUrl = 'https://hthd.hthuandian.cn/sso/'
+    data = { ...data, ...{ ACCUID: global.accountInfo.accountUid, TOKEN: global.accountInfo.token } }
     uni.request({
       url: baseUrl + url,
       method: 'POST',

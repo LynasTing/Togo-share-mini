@@ -47,7 +47,6 @@ const openCard = (e: any) => {
   }
   post<MapCardType>('/tuge/mapExchangeId', { ...params }, 'json').then(res => {
     if(res.cabinetName) cabinetInfo.value = res
-    console.log(`cabinetInfo + ::>>`, cabinetInfo.value)
     showCard.value = true
   })
 }
@@ -97,13 +96,13 @@ const nowPosition = () => {
       @markertap="openCard"
       id="map"
       ref="map"
-    >
-      <cover-image class="absolute regression" src="@/static/imgs/cabinet/central_point.png"  @click="nowPosition" />
+    />
+    <cover-image class="absolute regression" src="@/static/imgs/cabinet/central_point.png"  @click="nowPosition" />
       <cover-view class="card-box absolute" :class="showCard ? 'slide-in-y' : 'slide-out-y'">
-        <cover-view v-show="showCard" class="close-icon absolute" @click.stop="closeCard">
-          <cover-image src="http://fz.hthuandian.cn/static/apptuge/close.png"></cover-image>
+        <cover-view v-show="true" class="close-icon absolute" @click.stop="closeCard">
+          <cover-image src="@/static/imgs/cabinet/close.png" />
         </cover-view>
-        <cover-view class="mark-card">
+        <cover-view class="mark-card flex-col-sb">
           <!-- 上 -->
           <cover-view class="flex-row-sb-c usable-number">         
             <cover-view class="flex-row-sb-c number-box" v-for="(item, index) in cabinetInfo?.list" :key="index">
@@ -127,12 +126,9 @@ const nowPosition = () => {
             </cover-view>
           </cover-view>
           <!-- 下 -->
-          <cover-view class="nav-btn flex--c" @click.stop="goWxNavigation">
-            <cover-view>地图导航</cover-view>
-          </cover-view>
+          <cover-view class="nav-btn flex--c" @click.stop="goWxNavigation">地图导航</cover-view>
         </cover-view>
       </cover-view>
-    </map>
   </view>
 </template>
 
@@ -145,8 +141,9 @@ const nowPosition = () => {
     z-index: 9;
   }
   .regression {
-    top: 2%;
-    left: 4%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 56rpx;
     height: 56rpx;
   }
@@ -156,9 +153,10 @@ const nowPosition = () => {
     align-items: flex-end;
     box-sizing: border-box;
     left: 0;
-    bottom: 12%;
+    bottom: 2%;
     width: 100%;
     height: 460rpx;
+    background-color: transparent;
     .close-icon {
       top: 1%;
       right: 1%;
@@ -173,7 +171,7 @@ const nowPosition = () => {
     box-sizing: border-box;
     width: 92%;
     height: 430rpx;
-    padding: 40rpx 36rpx 0;
+    padding: 40rpx 36rpx 10rpx;
     background-color: white;
     border-radius: 24rpx;
     border: 1rpx solid #ccc;
@@ -250,10 +248,11 @@ const nowPosition = () => {
     .nav-btn {
       width: 98%;
       transform: translateX(1%);
-      font-size: 34rpx;
+      font-size: 30rpx;
+      text-align: center;
       color: white;
       background-color: #fec400;  
-      padding: 28rpx ;
+      padding: 20rpx 0rpx ;
       border-radius: 999rpx;
       letter-spacing: 4rpx;
       box-shadow: 0rpx 0rpx 6rpx 2rpx rgba(0, 0, 0, 0.4);

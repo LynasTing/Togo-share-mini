@@ -55,7 +55,7 @@ const copyCode = () => {
           <view class="flex-row-sb-c mb-26" v-for="(item,index) in invitationRecords" :key="index">
             <view class="flex-c">
               <image class="avatar" :src="item.userPhoto || 'https://c-ssl.dtstatic.com/uploads/blog/202107/19/20210719201624_6d736.thumb.1000_0.png'" />
-              <view>{{ splitString(item.userNickname, 7) }}</view>
+              <view>{{ splitString(item.userNickname, 7) || '用户暂未设置昵称 ' }}</view>
             </view>
             <view class="time">{{ item.time }}</view>
           </view>

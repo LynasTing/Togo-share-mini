@@ -32,7 +32,7 @@ const goCombo = () => {
         <view class="btn top-up">充值</view>
       </view>
     </view>
-    <view class="brown-card flex-row-sb-c" @click="goPayDeposit" v-if="global.accountInfo.depositStatus === '0'">
+    <view class="brown-card flex-row-sb-c" @click="goPayDeposit" v-if="global.accountInfo.depositStatus == '0'">
       <view>支付押金</view>
       <view class="iconfont icon-youjiantou"></view>
     </view>

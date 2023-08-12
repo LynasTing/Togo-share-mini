@@ -42,7 +42,7 @@ const goScan = () => {
 </script>
 
 <template>
-  <view class="batter-page" v-if="batteryInfo?.batteryId">
+  <view class="battery-page" v-if="batteryInfo?.batteryId">
     <view class="flex-col-c">
       <text class="using">正在使用</text>
       <text>{{ nowTime }}</text>
@@ -56,11 +56,13 @@ const goScan = () => {
     </view>
     <view class="btn" @click="goScan">归还电源</view>
   </view>
-  <Empty v-else text="您还未租借电池" />
+  <view v-else class="battery-page">
+    <Empty text="您还未租借电池" />
+  </view>
 </template>
 
 <style lang="scss" scoped>
-.batter-page {
+.battery-page {
   padding: 60rpx 30rpx;
   .using {
     font-size: 28rpx;
