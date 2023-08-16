@@ -276,9 +276,9 @@
 		{
 			"path": "pages/tools/invitation-code/index",
 			"style": {
-				"navigationBarTitleText": "邀请码",
-				"navigationBarTextStyle": "black",
-				"navigationBarBackgroundColor": "#FFF"
+				"disableScroll": true,
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#f9fbfc"
 			}
 		},
 		{
