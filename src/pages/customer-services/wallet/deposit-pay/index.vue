@@ -36,7 +36,7 @@ const currDeposit = ref({
 })
 const payToDeposit = () => {
   // #ifdef MP-WEIXIN
-  post<WxPay>('/miniapp/payDeposit', { organizationId: global.accountInfo.organizationId, openId: global.accountInfo.openId, id: currDeposit.value.id }, '')
+  post<WxPay>('/changing/tuGePayDeposit', { organizationId: global.accountInfo.organizationId, openId: global.accountInfo.openId, id: currDeposit.value.id }, 'json')
   .then(res => {
     if(res.paySign) {
       payHook(res)
@@ -57,10 +57,12 @@ const payToDeposit = () => {
   // #ifdef MP-ALIPAY
   fetchAli('pay/aliFundFreezeOrder', { organizationId: global.accountInfo.organizationId, accountUid: global.accountInfo.accountUid, depositId: currDeposit.value.id })
   .then(res => {
+    console.log(`预授权参数 + ::>>`, res)
     my.tradePay({
       orderStr: res,
-      success: res => {
-        if(res.resultCode == '9000') {
+      success: payRes => {
+        console.log(`payRes + ::>>`, payRes)
+        if(payRes.resultCode == '9000') {
           uni.showToast({
             title: '支付成功！',
             duration: 2000

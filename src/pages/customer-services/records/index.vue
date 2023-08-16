@@ -51,15 +51,15 @@ getDataList()
           <view>租借电池编号：</view>
           <view>{{ item.getBatteryId }}</view>
         </view>
-        <view class="record-info">
+        <view class="record-info" v-if="item.status">
           <view>归还时间：</view>
           <view>{{ item.endTime }}</view>
         </view>
-        <view class="record-info">
+        <view class="record-info" v-if="item.status">
           <view>归还机柜：</view>
           <view>{{ item.returnCabinetName }}</view>
         </view>
-        <view class="record-info">
+        <view class="record-info" v-if="item.status">
           <view>归还电池编号：</view>
           <view>{{ item.returnBatteryId }}</view>
         </view>
@@ -96,7 +96,7 @@ getDataList()
         font-weight: bold;
         padding: 0 10rpx 20rpx;
         border-bottom: 1rpx solid #7d9c9c;
-        box-shadow: 0rpx 0rpx 10rpx 0rpx rgba(71, 77, 82, 0.102);
+        box-shadow: 0rpx 0rpx 6rpx 0rpx rgba(71, 77, 82, 0.102);
         .status {
           font-size: 26rpx;
           margin-right: 30rpx;

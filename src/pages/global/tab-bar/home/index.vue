@@ -66,10 +66,10 @@ onUnload(() => {
 })
 const cabinets = ref<CabinetsType[]>()
 // 附近柜子
-const getNearbyCabinet = ()  => {
-  global.setUserAddress()
-}
-getNearbyCabinet()
+// const getNearbyCabinet = ()  => {
+//   global.setUserAddress()
+// }
+// getNearbyCabinet()
 // 跳柜子信息
 const goCabinetInfo = (e: CabinetsType) => {
   uni.navigateTo({ url: `/pages/cabinet/info/index?id=${e.id}` })
@@ -113,7 +113,7 @@ const contactCS = () => {
     <view class="flex-c">
       <image src="@/static/imgs/global/logo.png" class="logo-img" mode="widthFix" />
       <view class="flex-c" @click="goAreaSelect">
-        <span>{{ global.usingCity || '福州' }}</span>
+        <span>{{ global.usingCity || '' }}</span>
         <view class="ar-down"></view>
       </view>
     </view>

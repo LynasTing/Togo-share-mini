@@ -13,10 +13,10 @@ const getUserDeposit = () => {
   })
 }
 getUserDeposit()
+
 /**
  * 押金明细
  */
-
 const records = ref<DepositRecords[]>([])
 const getDepositRecords = () => {
   post<DepositRecords[]>('/changing/tuGeRecDeposit', '', 'json').then(res => records.value = res)

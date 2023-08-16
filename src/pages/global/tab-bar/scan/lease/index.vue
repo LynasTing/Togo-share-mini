@@ -2,14 +2,17 @@
 import { onLoad, onUnload } from '@dcloudio/uni-app'
 import { post } from '@/utils/request'
 import useStore from '@/store'
-import type { batteryCtrlType, BatteryStatus } from '@/types/controls'
+import type { batteryCtrlType } from '@/types/controls'
 
 const { global, controls } = useStore()
 const cabinetUid = ref<string>('')
 onLoad(options => {
   if(options?.cabinetUid) cabinetUid.value = options.cabinetUid
 })
-// 租赁/归还操作
+
+/**
+ * 租赁/归还操作
+ */
 const batteryControls = (type: string) => {
   post(`/battery/${type === '0' ? 'getBattery' : 'returnBattery'}`, { cabinetUid: cabinetUid.value }).then(res => {
     if(Object.getOwnPropertyNames(res).length === 0) checkBoxCloseFn(type)
