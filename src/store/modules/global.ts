@@ -8,7 +8,7 @@ export default defineStore('global', {
     scrollHeight: 750,
     batteryInfo: {} as UserBattery,
     authCodeTimer: 0,
-    usingCity: '福州',
+    usingCity: '未选择',
     userAddress: {} as UserAddressType,
     accountInfo: uni.getStorageSync('accountInfo') as AccountInfo,
     userInfo: {} as UserInfo
