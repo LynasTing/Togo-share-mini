@@ -42,6 +42,8 @@ export function post<T>(url: string, data?: any, type?: string, noLoading?: bool
           notLoginIn()
           logoutHook()
         } else {
+          console.log(`请求错误 url + ::>>`, url)
+          console.log(`请求错误 data + ::>>`, data)
           console.log(`请求错误 res + ::>>`, res)
           uni.showToast({
             title: msg || '请求错误',
