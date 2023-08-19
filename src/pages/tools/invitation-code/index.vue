@@ -1,6 +1,16 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request';
+import type { InvitationRecord } from '@/types/tools'
+import { splitString } from '@/utils/tools'
 
+/**
+ * 获取已绑定上级
+ */
+const upStream = ref<InvitationRecord>() 
+post<InvitationRecord>('/changing/tuGesuperiorCode', { appId: uni.getAccountInfoSync().miniProgram.appId }, 'json').then(res => {
+  console.log(`res + ::>>`, res)
+  if(res?.time) upStream.value = res
+})
 /**
  * 手动绑定邀请码 
  */
@@ -33,9 +43,18 @@ const submit = () => {
 
 <template>
   <view class="invitation-code h-screen">
-    <view class="title">邀请码</view>
-    <input type="text" maxlength="6" v-model="params.invitationCode" placeholder="请输入邀请码" class="code-input">
-    <view class="btn" @click="submit">确定</view>
+    <view class="title">{{ upStream?.time ? '您已绑定' : '邀请码'}}</view>
+    <view class="flex-row-sb-c mb-26" v-if="upStream?.time">
+      <view class="flex-c">
+        <image class="avatar" :src="upStream?.userPhoto || 'https://c-ssl.dtstatic.com/uploads/blog/202107/19/20210719201624_6d736.thumb.1000_0.png'" />
+        <view>{{ splitString(upStream!.userNickname, 7) || '用户暂未设置昵称 ' }}</view>
+      </view>
+      <view class="time">{{ upStream?.time }}</view>
+    </view>
+    <block v-else>
+      <input type="text" maxlength="6" v-model="params.invitationCode" placeholder="请输入邀请码" class="code-input">
+      <view class="btn" @click="submit">确定</view>
+    </block>
   </view>
 </template>
 
@@ -47,6 +66,19 @@ const submit = () => {
     font-size: 40rpx;
     font-weight: 600;
     margin-bottom: 100rpx;
+  }
+  .mb-26 {
+    margin-bottom: 26rpx;
+    font-size: 26rpx;
+    .avatar {
+      width: 66rpx;
+      height: 66rpx;
+      margin-right: 20rpx;
+      border-radius: 50% 50%;
+    }
+    .time {
+      font-size: 24rpx;
+    }
   }
   .desc {
     font-size: 34rpx;
