@@ -1,16 +1,11 @@
 <script lang="ts" setup>
 import { post } from '@/utils/request'
 
-// 识别机柜信息
-const recognizeCabinet = () => {
-  setTimeout(() => {
-    timer.value = true
-  }, 3 * 1000)
-  post('/account/checkCabinet', { ...obj.value }, 'json').then(res => {
-    uni.redirectTo({ url: `/pages/global/tab-bar/scan/lease/index?cabinetUid=${res}` })
-  })
-}
-// 识别到二维码回调
+
+/**
+ * 识别到二维码回调
+ * @function
+ */
 const obj = ref<any>()
 const timer = ref<boolean>(true)
 const scanCodeCallBack = (e: { detail: { result: any } }) => {
@@ -38,6 +33,18 @@ const scanCodeCallBack = (e: { detail: { result: any } }) => {
     timer.value = false
     recognizeCabinet()
   }
+}
+/**
+ * 识别机柜信息
+ * @function
+ */
+const recognizeCabinet = () => {
+  setTimeout(() => {
+    timer.value = true
+  }, 3 * 1000)
+  post('/account/checkCabinet', { ...obj.value }, 'json').then(res => {
+    uni.redirectTo({ url: `/pages/global/tab-bar/scan/lease/index?cabinetUid=${res}` })
+  })
 }
 const flashLight = ref<boolean>(false)
 // 输入换电码
