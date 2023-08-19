@@ -26,8 +26,8 @@ export function notLoginIn() {
     }, 2 * 1000)
   }
 }
-// 支付 
-export function payHook (order: WxPay) {
+// 微信支付 
+export function weChatPayHook (order: WxPay) {
   return new Promise((resolve, reject) => {
     uni.getProvider({
       service: 'payment',
@@ -62,6 +62,37 @@ export function payHook (order: WxPay) {
       })
       }
     })
+  })
+}
+
+/**
+ * 支付宝支付
+ */
+export const alipayHook = (tradeNO: string) => {
+  my.tradePay({
+    tradeNO,
+    success: payRes => {
+      console.log(`payRes+ ::>>`, payRes)
+      if(payRes.resultCode === '9000') {
+        uni.showToast({
+          title: '支付成功',
+          icon: 'success',
+          duration: 1.5 * 1000 
+        })
+        setTimeout(() => {
+          uni.navigateBack()
+        }, 1.5 * 1000)
+      }else {
+        uni.showToast({
+          title: '支付未完成',
+          icon: 'error',
+          duration: 1.5 * 1000,
+        })
+      }
+    },
+    fail: err => {
+      console.log(`err + ::>>`, err)
+    }
   })
 }
 

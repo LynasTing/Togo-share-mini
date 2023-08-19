@@ -3,13 +3,13 @@ import { post, fetchAli } from '@/utils/request'
 import useStore from '@/store'
 import type { DepositPay } from '@/types/assets/deposit'
 import type { WxPay } from '@/types/assets/payment'
-import { payHook } from '@/hooks'
+import { alipayHook, weChatPayHook } from '@/hooks'
 import { onShow } from '@dcloudio/uni-app'
 
 const { global } = useStore()
 const deposits = ref<DepositPay[]>()
 onShow(() => {
-  post('/changing/tuGeGetDepositList', { organizationId: global.accountInfo.organizationId || 143 }, 'json').then(res => {
+  post('/changing/tuGeGetDepositList', { organizationId: 143 }, 'json').then(res => {
     deposits.value = res as DepositPay[]
     if(deposits.value.length) {
       currDeposit.value.amount = deposits.value[0].depositMoney
@@ -39,7 +39,7 @@ const payToDeposit = () => {
   post<WxPay>('/changing/tuGePayDeposit', { organizationId: global.accountInfo.organizationId, openId: global.accountInfo.openId, id: currDeposit.value.id }, 'json')
   .then(res => {
     if(res.paySign) {
-      payHook(res)
+      weChatPayHook(res)
       .then(() => {
         uni.setStorageSync('accountInfo', { ...uni.getStorageSync('accountInfo'), depositStatus: '1' })
         global.setAccountInfo({ ...global.accountInfo, depositStatus: '1' })
@@ -55,25 +55,40 @@ const payToDeposit = () => {
   // #endif
 
   // #ifdef MP-ALIPAY
-  fetchAli('pay/aliFundFreezeOrder', { organizationId: global.accountInfo.organizationId, accountUid: global.accountInfo.accountUid, depositId: currDeposit.value.id })
-  .then(res => {
-    console.log(`预授权参数 + ::>>`, res)
-    my.tradePay({
-      orderStr: res,
-      success: payRes => {
-        console.log(`payRes + ::>>`, payRes)
-        if(payRes.resultCode == '9000') {
-          uni.showToast({
-            title: '支付成功！',
-            duration: 2000
-          })
-        }
-      },
-      fail: err => {
-        console.log(`失败err + ::>>`, err)
-      }
-    })
+  // fetchAli('pay/aliFundFreezeOrder', { organizationId: global.accountInfo.organizationId, accountUid: global.accountInfo.accountUid, depositId: currDeposit.value.id })
+  // .then(res => {
+  //   console.log(`预授权参数 + ::>>`, res)
+  //   my.tradePay({
+  //     orderStr: res,
+  //     success: payRes => {
+  //       console.log(`payRes + ::>>`, payRes)
+  //       if(payRes.resultCode == '9000') {
+  //         uni.showToast({
+  //           title: '支付成功！',
+  //           duration: 2000
+  //         })
+  //       }
+  //     },
+  //     fail: err => {
+  //       console.log(`失败err + ::>>`, err)
+  //     }
+  //   })
+  // })
+  
+  my.getAuthCode({
+    scopes: 'auth_base',
+    success: res => {
+      const params = ref({
+        organizationId: 143,
+        id: currDeposit.value.id,
+        authCode: res.authCode
+      })
+      post('/changing/tuGeAliPayDeposit', { ...params.value }, 'json').then((res: any) => {
+        alipayHook(res.tradeNo)
+      })
+    }
   })
+ 
   // #endif
 }
 </script>

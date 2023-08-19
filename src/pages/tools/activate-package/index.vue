@@ -4,7 +4,7 @@ import useStore from '@/store'
 import type { ComboList } from '@/types/assets/combo'
 import type { WxPay } from '@/types/assets/payment'
 import type { MyCoupon } from '@/types/assets/coupon'
-import { payHook } from '@/hooks'
+import { weChatPayHook, alipayHook } from '@/hooks'
 import { onUnload } from '@dcloudio/uni-app'
 import type { SelectableCoupon } from '@/types/assets/coupon.ts'
 
@@ -13,7 +13,7 @@ const currIndex = ref<number>(0)
 const selectCombo = ref<ComboList>() 
 const combos = ref<ComboList[]>([])
 const getCombos = () => {
-  post<ComboList[]>('/account/comboList', { organizationId: global.accountInfo.organizationId }, 'json').then(res => {
+  post<ComboList[]>('/account/comboList', { organizationId: 143 }, 'json').then(res => {
     if(res.length) {
       combos.value = res
       selectCombo.value = res[0]
@@ -60,15 +60,16 @@ post<SelectableCoupon[]>('/account/available', '', 'json').then(res => {
 
 // 付款
 const bayCombo = () => {
-  const params = ref({
+  // #ifdef MP-WEIXIN
+  const weixinPayParams = ref({
     openId: global.accountInfo.openId,
     organizationId: global.accountInfo.organizationId,
     comboId: selectCombo.value?.id,
     couponId: controls.payCoupon.couponId || ''
   })
-  post<WxPay>('/wallet/user/buyCombo', { ...params.value }).then(res => {
+  post<WxPay>('/wallet/user/buyCombo', { ...weixinPayParams.value }).then(res => {
     if(res.paySign) {
-      payHook(res)
+      weChatPayHook(res)
       .then(() => {
         uni.setStorageSync('accountInfo', { ...uni.getStorageSync('account'), comboStatus: '1' })
         global.setAccountInfo({ ...global.accountInfo, comboStatus: '1' })
@@ -81,13 +82,31 @@ const bayCombo = () => {
       })
     }
   })
+  // #endif
+  // #ifdef MP-ALIPAY  
+  my.getAuthCode({
+    scopes: 'auth_base',
+    success: res => {
+      const params = ref({
+        authCode: res.authCode,
+        organizationId: 143,
+        comboId: selectCombo.value?.id,
+        couponId: controls.payCoupon.couponId || ''
+      })
+      post('/changing/tuGeAliPayCombo', { ...params.value }, 'json').then((res: any) => {
+        alipayHook(res.tradeNo)
+      })
+    }
+  })
+ 
+  // #endif
 }
 onUnload(() => {
   controls.setPayCoupon({} as MyCoupon)
 })
 const isAliPay = ref<boolean>(false)
 // #ifdef MP-ALIPAY
-isAliPay.value = true
+// isAliPay.value = true
 // #endif
 </script>
 
@@ -100,7 +119,7 @@ isAliPay.value = true
         <text class="iconfont icon-youjiantou"></text>
       </view>
     </view>
-    <scroll-view scroll-y class="scroll-y">
+    <scroll-view scroll-y class="scroll-y h-full">
       <view class="combo flex-row-sb-c" v-for="(item, index) in combos" :key="index" :class="currIndex === index ? 'select-combo' : ''" @click="comboSelect(item, index)">
         <view>
           <view class="combo-name">{{ item.comboName || '套餐名字xxx' }}</view>
@@ -121,9 +140,6 @@ isAliPay.value = true
       <view class="pay-btn" @click="bayCombo">立即支付</view>
     </view>
   </view>
-  <view class="active-package" v-else>
-    <Empty text="套餐功能仅对内部开放，请联系管理员或使用优惠券兑换"></Empty>
-  </view>
 </template>
 
 <style lang="scss" scoped>
@@ -141,8 +157,7 @@ isAliPay.value = true
     }
   }
   .scroll-y {
-    flex: 1;
-    padding: 30rpx 30rpx 210rpx;
+    padding: 30rpx 30rpx 150rpx;
   }
   .price {
     color: #FA5151;
