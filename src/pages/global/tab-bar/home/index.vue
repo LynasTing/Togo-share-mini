@@ -148,8 +148,8 @@ const contactCS = () => {
     <image v-else mode="widthFix" src="@/static/imgs/cabinet/no_owned.png" class="w-full default-img" />
     <!-- 附近租赁 -->
     <view class="nearby">
-      <view class="header flex-c">
-        <view class="relative" >附近租赁柜</view>
+      <view class="flex-c">
+        <view class="relative">附近租赁柜</view>
         <view class="flex-c flex-1 flex-end">
           <view class="text-xs" @click="goMore">查看更多</view>
           <i class="iconfont icon-more text-base"></i>

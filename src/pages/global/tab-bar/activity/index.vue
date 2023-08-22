@@ -15,6 +15,7 @@ onShow(() => {
   uni.hideTabBar()
   // #endif
 })
+
 </script>
 
 <template>
@@ -44,7 +45,7 @@ onShow(() => {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 10rpx 30rpx 90rpx;
+    padding: 10rpx 30rpx 84rpx;
     &-item {
       width: 98%;
       height: 432rpx;
