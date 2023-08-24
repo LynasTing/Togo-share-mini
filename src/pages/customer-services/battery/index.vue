@@ -45,7 +45,7 @@ const goScan = () => {
   <view class="battery-page" v-if="batteryInfo?.batteryId">
     <view class="flex-col-c">
       <text class="using">正在使用</text>
-      <text>{{ nowTime }}</text>
+      <text>{{ nowTime || '--天--时--分--秒' }}</text>
       <image src="@/static/imgs/home/battery.png" mode="widthFix" class="battery" />
     </view>
     <view class="info">

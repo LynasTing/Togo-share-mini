@@ -68,20 +68,20 @@ const goRealName = () => {
         <view class="has-border">
           <view>性别</view>
           <view @click="goFillOut">
-            <text class="pr-20">男</text>
+            <text class="pr-20">{{ global.userInfo.sex || '--' }}</text>
           </view>
         </view>
       </view>
       <view class="px-30">
         <view class="has-border">
           <view>出生年月</view>
-          <view @click="goFillOut" class="pr-20">1997-06</view>
+          <view @click="goFillOut" class="pr-20">{{ global.userInfo.birthDate || '1997-06' }}</view>
         </view>
       </view>
       <view class="px-30">
         <view class="has-border no-border">
           <view>归属地区</view>
-          <view @click="goFillOut" class="pr-20">福建福州</view>
+          <view @click="goFillOut" class="pr-20">{{ global.userInfo.belongingRegion || '福建福州' }}</view>
         </view>
       </view>
     </view>

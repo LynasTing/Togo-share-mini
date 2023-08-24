@@ -1,5 +1,6 @@
 import type { WxPay } from '@/types/assets/payment'
 import useStore from '@/store'
+import { _showLoading, _hideLoading } from "@/utils/loading"
 
 function paramsToPath(obj: { [key: string]: string }, path: string): string {
   const queryParams = Object.keys(obj).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`).join('&')
@@ -28,6 +29,7 @@ export function notLoginIn() {
 }
 // 微信支付 
 export function weChatPayHook (order: WxPay) {
+  _showLoading()
   return new Promise((resolve, reject) => {
     uni.getProvider({
       service: 'payment',
@@ -51,7 +53,7 @@ export function weChatPayHook (order: WxPay) {
         },
         fail: payErr => {
           uni.showToast({
-            title: '支付失败',
+            title: '支付未完成',
             icon: 'error',
             duration: 1.5 * 1000,
             mask: true 
@@ -59,6 +61,9 @@ export function weChatPayHook (order: WxPay) {
           reject('payFail')
           console.log(`payErr + ::>>`, payErr)
         },
+        complete: eventually => {
+          _hideLoading()
+        }
       })
       }
     })
