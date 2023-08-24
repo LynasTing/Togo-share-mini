@@ -28,6 +28,54 @@ export interface DepositRecords {
   money: string
 }
 
+export type UnpaidOrderType = {
+  /**
+   * 订单id
+   */
+   id: number
+
+  /**
+   * 订单编号
+   * @type {string}
+   */
+  orderNumber: string
+
+  /**
+    * 租赁时间
+    * @type {string}
+    */
+  ctime: string
+
+  /**
+    * 结束时间
+    * @type {string}
+    */
+  endTime: string
+
+  /**
+    * 订单金额
+    * @type {string}
+    */
+  money: string
+} 
+
+/**
+ * 待支付订单
+ * @interface
+ */
+export interface UnpaidOrder {
+  /**
+   * 总金额
+   */
+  totalMoney: string
+
+  /**
+   * 总数
+   */
+  total: number
+  list: UnpaidOrderType[]
+}
+
 /**
  * 可缴纳的押金列表
  * @interface

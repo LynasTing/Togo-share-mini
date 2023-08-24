@@ -6,8 +6,27 @@ import { onLoad, onShow, onHide, onUnload } from '@dcloudio/uni-app';
 import { displayTime } from '@/utils/tools'
 import type { UserBattery } from '@/types/assets/battery'
 import type { CabinetsType } from '@/types/cabinet' 
+import type { UnpaidOrder } from '@/types/assets/deposit'
 
 const { global, controls } = useStore()
+
+/**
+ * 待支付订单
+ */
+post<UnpaidOrder>('/account/unpaidOrder', '', 'json').then(res => {
+  if(res?.list.length) {
+    uni.showModal({
+      title: '支付订单',
+      content: '您有订单未支付，是否前往完成支付？',
+      success: res => {
+        if(res.confirm) {
+          uni.navigateTo({ url: '/pages/customer-services/records/unpaid-order'})
+        }
+      }
+    })
+  }
+})
+
 // 电池信息
 const intervalId = ref()
 const nowTime = ref<string>('')
@@ -30,6 +49,7 @@ onShow(() => {
   uni.hideTabBar()
   // #endif
 })
+
 watch(() => global.accountInfo.token, (n, o) => {
   if(n && n !== o) {
     getBatteryInfo()
@@ -46,7 +66,8 @@ watch(() => global?.userAddress, (n, o) => {
     })
   }
 }, { immediate: true, deep: true })
-watch(() => batteryInfo.value?.batteryId, (n) => {
+
+watch(() => batteryInfo.value?.batteryId, (n, o) => {
   if(n) {
     intervalId.value = setInterval(() => {
       nowTime.value = displayTime(batteryInfo.value!.ctime)
@@ -59,17 +80,13 @@ watch(() => batteryInfo.value?.batteryId, (n) => {
 
 // 小程序隐藏或页面销毁时清除定时器(节省性能)
 onHide(() => {
-  clearInterval(intervalId.value)
+  console.log(`hide + ::>>`, )
+  // clearInterval(intervalId.value)
 })
 onUnload(() => {
   clearInterval(intervalId.value)
 })
 const cabinets = ref<CabinetsType[]>()
-// 附近柜子
-// const getNearbyCabinet = ()  => {
-//   global.setUserAddress()
-// }
-// getNearbyCabinet()
 // 跳柜子信息
 const goCabinetInfo = (e: CabinetsType) => {
   uni.navigateTo({ url: `/pages/cabinet/info/index?id=${e.id}` })

@@ -2,9 +2,20 @@
 import useStore from '@/store'
 import { post } from '@/utils/request'
 import type { LeaseRecord } from '@/types/cabinet'
+import type { UnpaidOrder } from '@/types/assets/deposit'
+
 
 const { global } = useStore()
-
+/**
+ * 待支付订单
+ */
+const showUnpaid = ref<boolean>(false)
+post<UnpaidOrder>('/account/unpaidOrder', '', 'json').then(res => {
+  if(res.list.length) showUnpaid.value = true
+})
+const goUnpaid = () => {
+  uni.navigateTo({ url: '/pages/customer-services/records/unpaid-order'})
+}
 // scroll-view 触底
 const scrollToLower = () => {
   if(records.value.length >= total.value) return
@@ -26,6 +37,7 @@ getDataList()
 </script>
 
 <template>
+  <u-alert v-if="showUnpaid" title="您还有订单未支付，点击查看" type="warning" @click="goUnpaid" fontSize="15" />
   <view class="record-page">
     <scroll-view v-if="records.length" scroll-y="true" class="scroll-y-list overflow-h px-30" :enable-back-to-top="true" @scrolltolower="scrollToLower">
       <view class="record relative" v-for="(item, index) in records" :key="index">
