@@ -1,5 +1,8 @@
 <script lang="ts" setup>
 import { post } from "@/utils/request";
+import useStore from "@/store";
+
+const { global } = useStore() 
 
 // 类型切换
 const currIndex = ref<number>(0)
@@ -44,6 +47,7 @@ const params = ref<any>({
   imgUrl: [],
   feeedbackType: '租赁',
   phone: '',
+  organizationId: global.accountInfo.organizationId,
   appId: uni.getAccountInfoSync().miniProgram.appId
 })
 // 微信临时图片转base64
@@ -67,18 +71,21 @@ const submit = () => {
     return
   }
   params.value.imgUrl = params.value.imgUrl.map((item: string) => toBase64(item)).join(',')
-  post('/changing/tuGeFeedback', { ...params.value }, 'json').then(res => {
-    if(Object.getOwnPropertyNames(res).length === 0) {
+  post('/changing/tuGeFeedback', { ...params.value }, 'json')
+    .then(res => {
       uni.showToast({
-        title: '提交成功，感谢您的反馈！',
+        title: `提交成功，感谢您的反馈！`,
         icon: 'none',
         duration: 2 * 1000
       })
-      setTimeout(() => {
-        uni.navigateBack()
-      }, 2 * 1000)
-    }
-  })
+    })
+    .catch(err => {
+      console.log(`进入catch + ::>>`, )
+    })
+    params.value = {}
+    setTimeout(() => {
+      uni.navigateBack()
+    }, 2 * 1000)
 }
 
 </script>
@@ -109,7 +116,7 @@ const submit = () => {
       <input v-model="params.phone" type="tel" class="phone-input w-full" maxlength="11" placeholder="请输入联系方式" placeholder-style="color:rgb(219,219,219);"/>
     </view>
     <view class="submit flex--c" @click="submit">
-      <view class="sub" >提交</view>
+      <view class="sub">提交</view>
     </view>
   </view>
 </template>

@@ -50,6 +50,7 @@ export function post<T>(url: string, data?: any, type?: string, noLoading?: bool
             icon: 'none',
             duration: 2000
           })
+          reject(false)
         }
       },
       fail: err => {
