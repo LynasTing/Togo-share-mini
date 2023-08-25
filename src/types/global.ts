@@ -46,6 +46,12 @@ export interface AccountInfo {
   comboStatus: string
 
   /**
+   * 收费模式 '1' 订单模式 '2' 套餐模式
+   * @type {string}
+   */
+  mode: string
+
+  /**
    * 用户拥有押金状态 '0' 没有 '1' 有
    * @type {string}
    */

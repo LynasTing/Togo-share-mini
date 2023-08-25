@@ -5,7 +5,7 @@ import { post } from '@/utils/request'
 import { splitString } from '@/utils/tools'
 import { notLoginIn } from '@/hooks/index'
 import type { UserInfo } from '@/types/global'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onLoad } from '@dcloudio/uni-app'
 
 const { global } = useStore()
 watch(() => global.accountInfo.token, (n, o) => {
@@ -13,6 +13,11 @@ watch(() => global.accountInfo.token, (n, o) => {
     post<UserInfo>('/changing/tuGeRecUserInfo', '', 'json').then(res => global.setUserInfo(res as UserInfo))
   }
 }, { immediate: true })
+onLoad(() => {
+  if(global.accountInfo.mode === '2') { 
+    tools.push({ text: '开通套餐', path: '/pages/tools/activate-package/index'})
+  }
+})
 onShow(() => {
   // #ifdef MP-ALIPAY
   uni.hideTabBar()
@@ -56,7 +61,6 @@ const tools = reactive([
   { text: '故障上报', path: '/pages/tools/breakdown/index' },
   { text: '邀请码', path: '/pages/tools/invitation-code/index' },
   { text: '应用设置', path: '/pages/tools/setting/index', whiteList: true },
-  { text: '开通套餐', path: '/pages/tools/activate-package/index' }
 ])
 // 常用功能
 const toolsNavigate = e => {
@@ -100,8 +104,8 @@ const toolsNavigate = e => {
         </div>
         <div class="tools flex-col">
           <div class="title">常用功能</div>
-          <div class="flex-1 sprite flex-wrap flex-row-sb-c">
-            <div class="flex-col-c tool-item" v-for="(item, index) in tools" :key="index" @click="toolsNavigate(item)">
+          <div class="flex-1 sprite flex-wrap flex ">
+            <div class="flex-col-c tool-item" v-for="(item, index) in tools" :key="index" @click="toolsNavigate(item)" >
               <image :src="`/static/imgs/mine/tools_${index}.png`" />
               <div>{{ item.text }}</div>
             </div>
@@ -184,7 +188,7 @@ const toolsNavigate = e => {
       color: black;
       font-size: 26rpx;
       font-weight: normal;
-      width: 22%;
+      width: 25%;
       margin-bottom: 30rpx;
       letter-spacing: 2rpx;
       image {

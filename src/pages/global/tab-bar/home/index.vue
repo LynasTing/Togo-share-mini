@@ -10,22 +10,7 @@ import type { UnpaidOrder } from '@/types/assets/deposit'
 
 const { global, controls } = useStore()
 
-/**
- * 待支付订单
- */
-post<UnpaidOrder>('/account/unpaidOrder', '', 'json').then(res => {
-  if(res?.list.length) {
-    uni.showModal({
-      title: '支付订单',
-      content: '您有订单未支付，是否前往完成支付？',
-      success: res => {
-        if(res.confirm) {
-          uni.navigateTo({ url: '/pages/customer-services/records/unpaid-order'})
-        }
-      }
-    })
-  }
-})
+
 
 // 电池信息
 const intervalId = ref()
@@ -53,6 +38,22 @@ onShow(() => {
 watch(() => global.accountInfo.token, (n, o) => {
   if(n && n !== o) {
     getBatteryInfo()
+    /**
+     * 待支付订单
+     */
+    post<UnpaidOrder>('/account/unpaidOrder', '', 'json').then(res => {
+      if(res?.list.length) {
+        uni.showModal({
+          title: '支付订单',
+          content: '您有订单未支付，是否前往完成支付？',
+          success: res => {
+            if(res.confirm) {
+              uni.navigateTo({ url: '/pages/customer-services/records/unpaid-order'})
+            }
+          }
+        })
+      }
+    })
   }else {
     batteryInfo.value = {} as UserBattery
     clearInterval(intervalId.value)

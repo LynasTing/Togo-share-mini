@@ -43,7 +43,7 @@ const goCombo = () => {
         <view class="iconfont icon-youjiantou" ></view>
       </view>
     </view>
-    <view class="brown-card flex-row-sb-c" @click="goCombo">
+    <view class="brown-card flex-row-sb-c" @click="goCombo" v-if="global.accountInfo.mode === '2'">
       <view>我的套餐</view>
       <view class="iconfont icon-youjiantou"></view>
     </view>
