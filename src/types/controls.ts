@@ -8,6 +8,10 @@ export interface batteryCtrlType {
 }
 // 用户电池状态
 export interface BatteryStatus {
+  /**
+   * 拥有电池状态
+   * @type {string} '0' 拥有电池但未领取 '1' 已领取电池 '0' 电池已退押金未退
+   */
   batteryStatus: string
 }
 export type CityListType = string[]
