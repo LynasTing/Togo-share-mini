@@ -45,7 +45,7 @@ const imgDel = (e: string) => {
 const params = ref<any>({
   feedback: '',
   imgUrl: [],
-  feeedbackType: '租赁',
+  feedbackType: '租赁',
   phone: '',
   organizationId: global.accountInfo.organizationId,
   appId: uni.getAccountInfoSync().miniProgram.appId
